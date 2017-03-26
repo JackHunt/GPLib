@@ -1,6 +1,7 @@
 #Set CMake version and project name.
 cmake_minimum_required(VERSION 2.8)
 project(GaussianProcess)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 #Set compiler flags for Windows and Unix, respectively.
 if(MSVC_IDE)
@@ -11,17 +12,20 @@ else(MSVC_IDE)
   set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -fPIC -O3 -march=native")
 endif(MSVC_IDE)
 
-
+#Find Eigen.
+find_package(Eigen REQUIRED)
 
 #Set the headers and sources.
 set(HEADERS
-  GPRegressor.h
-  LMOptimiser.h
+  lib/GPRegressor.h
+  lib/LMOptimiser.h
+  lib/Kernels.h
 )
 
 set(SOURCES
-  GPRegressor.cpp
-  LMOptimiser.cpp
+  lib/GPRegressor.cpp
+  lib/LMOptimiser.cpp
+  lib/Kernels.cpp
 )
 
 #Add library.

@@ -3,13 +3,9 @@
 
 #include "GPRegressor.h"
 #include <memory>
-#include <map>
-#include <string>
-
-typedef std::map<std::string, float> ParamaterSet;
 
 namespace GaussianProcess{
-	class LMOPtimiser{
+	class LMOptimiser{
 	private:
 		//
 
