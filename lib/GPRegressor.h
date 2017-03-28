@@ -8,10 +8,19 @@ namespace GaussianProcess{
 	class GPRegressor{
 	private:
 		std::shared_ptr<Kernel> kernel;
-		void buildCovarianceMatrix(const Eigen::MatrixXf &A, const Eigen::MatrixXf &B, Eigen::MatrixXf &C, const ParamaterSet &params);
+		std::shared_ptr<Eigen::Map<Eigen::MatrixXf> > X, X_s;
+		std::shared_ptr<Eigen::Map<Eigen::VectorXf> > Y, Y_s;
+		std::shared_ptr<Eigen::MatrixXf> K, K_s, K_ss;
+		
+		void computeCovarianceMatrices(const ParamaterSet &params);
+		void buildCovarianceMatrix(const std::shared_ptr<Eigen::Map<Eigen::MatrixXf> > &A,
+								   const std::shared_ptr<Eigen::Map<Eigen::MatrixXf> > &B,
+								   std::shared_ptr<Eigen::MatrixXf> &C, const ParamaterSet &params);
 		
 	public:
-		void runRegression(const float *data, int rows, int cols);
+		void runRegression(const float *trainData, const float *trainTruth, int trainRows, int trainCols,
+						   const float *testData, const float testTruth, int testRows, int testCols,
+						   const ParamaterSet &params);
 		
 		GPRegressor(KernelType kernType = SQUARED_EXPONENTIAL);
 		~GPRegressor();
