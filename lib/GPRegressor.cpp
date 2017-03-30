@@ -30,19 +30,26 @@ void GPRegressor::runRegression(const double *trainData, const double *trainTrut
 	const Eigen::Map<const Vector> Y_s(testTruth, testRows);
 
 	//Compute covariance matrices.
-	//Eigen::MatrixXf K(1,1);
-	//Eigen::MatrixXf K_s(1,1);
-	//Eigen::MatrixXf K_ss(1,1);
-    //buildCovarianceMatrix(X, X, K, params);
-	//buildCovarianceMatrix(X, X_s, K_s, params);
-	//buildCovarianceMatrix(X_s, X_s, K_ss, params);
+	Matrix K(trainRows, trainRows);
+	Matrix K_s(trainRows, testRows);
+	Matrix K_ss(testRows, testRows);
+    buildCovarianceMatrix(X, X, K, params);
+	buildCovarianceMatrix(X, X_s, K_s, params);
+	buildCovarianceMatrix(X_s, X_s, K_ss, params);
 
 	//Solve for alpha.
+	Matrix L(trainRows, trainRows);
+	jitterChol(X, L);
+	Vector tmp = L.jacobiSvd().solve(Y);
+	Vector alpha = L.transpose().jacobiSvd().solve(tmp);
 
 	//Solve for solutions.
+	Vector f_s = K_s.transpose() * alpha;
+	Vector v = L.jacobiSvd().solve(K_s);
+	Matrix v_s = K_ss - v.transpose() * v;
 }
 
-void GPRegressor::buildCovarianceMatrix(const Eigen::Map<Matrix> &A, const Eigen::Map<Matrix> &B,
+void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
 										Matrix &C, const ParamaterSet &params){
 	if(A.cols() != B.cols() || A.cols() != C.cols()){
 		throw std::runtime_error("Matrix column dimensions must match when generating covariances.");
@@ -55,7 +62,7 @@ void GPRegressor::buildCovarianceMatrix(const Eigen::Map<Matrix> &A, const Eigen
 	}
 }
 
-void GPRegressor::jitterChol(const Eigen::Map<Matrix> &A, Matrix &C){
+void GPRegressor::jitterChol(const Eigen::Map<const Matrix> &A, Matrix &C){
 	Matrix jitter = Matrix::Identity(A.rows(), A.cols());
 	jitter *= 1e-8;
 	

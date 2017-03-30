@@ -11,9 +11,9 @@ namespace GaussianProcess{
 	private:		
 		std::shared_ptr<Kernel> kernel;
 		
-		void buildCovarianceMatrix(const Eigen::Map<Matrix> &A, const Eigen::Map<Matrix> &B,
+		void buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
 								   Matrix &C, const ParamaterSet &params);
-		void jitterChol(const Eigen::Map<Matrix> &A, Matrix &C);
+		void jitterChol(const Eigen::Map<const Matrix> &A, Matrix &C);
 		
 	public:
 		void runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
