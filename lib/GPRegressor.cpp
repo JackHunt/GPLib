@@ -16,9 +16,9 @@ GPRegressor::~GPRegressor(){
 	//
 }
 
-void GPRegressor::runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
-								const double *testData, const double *testTruth, int testRows, int testCols,
-								const ParamaterSet &params){
+double GPRegressor::runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
+								  const double *testData, const double *testTruth, int testRows, int testCols,
+								  const ParamaterSet &params){
 	if(trainCols != testCols){
 		throw std::runtime_error("Train and test sets must have the same number of columns.");
 	}
@@ -40,13 +40,14 @@ void GPRegressor::runRegression(const double *trainData, const double *trainTrut
 	//Solve for alpha.
 	Matrix L(trainRows, trainRows);
 	jitterChol(X, L);
-	Vector tmp = L.jacobiSvd().solve(Y);
-	Vector alpha = L.transpose().jacobiSvd().solve(tmp);
+	Vector tmp = L.triangularView<Eigen::Lower>().solve(Y);
+	Vector alpha = L.transpose().triangularView<Eigen::Lower>().solve(tmp);
 
 	//Solve for solutions.
 	Vector f_s = K_s.transpose() * alpha;
-	Vector v = L.jacobiSvd().solve(K_s);
+	Vector v = L.triangularView<Eigen::Lower>().solve(K_s);
 	Matrix v_s = K_ss - v.transpose() * v;
+	
 }
 
 void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,

@@ -16,9 +16,9 @@ namespace GaussianProcess{
 		void jitterChol(const Eigen::Map<const Matrix> &A, Matrix &C);
 		
 	public:
-		void runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
-						   const double *testData, const double *testTruth, int testRows, int testCols,
-						   const ParamaterSet &params);
+		double runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
+							 const double *testData, const double *testTruth, int testRows, int testCols,
+							 const ParamaterSet &params);
 		
 		GPRegressor(KernelType kernType = SQUARED_EXPONENTIAL);
 		~GPRegressor();
