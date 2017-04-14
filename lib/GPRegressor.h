@@ -5,6 +5,7 @@
 #include "typedefs.h"
 
 #include <Eigen/Dense>
+#include <memory>
 
 namespace GaussianProcess{
 	class GPRegressor{
