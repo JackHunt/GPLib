@@ -12,7 +12,8 @@ double SquaredExponential::f(const Vector &a, const Vector &b, const ParamaterSe
 	}
 	
 	double sqEucDist = 0.0;
-	for(int i = 0; i < a.size(); i++){
+	const size_t size = a.size();
+	for(size_t i = 0; i < size; i++){
 		sqEucDist += (a(i) - b(i)) * (a(i) - b(i));
 	}
 
