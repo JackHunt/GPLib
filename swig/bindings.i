@@ -5,7 +5,7 @@
 #include "lib/GPRegressor.h"
 %}
 
-%include "swig/numpy.i"
+%include "numpy.i"
 
 %include "lib/typedefs.h"
 %include "lib/Kernels.h"

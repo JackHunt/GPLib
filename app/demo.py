@@ -2,13 +2,13 @@
 import sys, os
 sys.path.append(os.path.realpath('../build'))
 
-import pyGP
+from pyGP import *
 
 def loadData():
     pass
 
 def runRegression():
-    pass
+    regressor = GPRegressor()
 
 if __name__ == "__main__":
     loadData()
