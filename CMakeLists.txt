@@ -40,3 +40,20 @@ set(SOURCES
 
 #Add library.
 add_library(GaussianProcess ${HEADERS} ${SOURCES})
+
+#Try and find SWIG to build python bindings.
+option(BUILD_PYTHON_BINDINGS "Build Python3 Bindings" OFF)
+if(BUILD_PYTHON_BINDINGS)
+  find_package(SWIG)
+  if(SWIG_FOUND)
+    include(${SWIG_USE_FILE})
+    find_package(PythonLibs 3)
+	include_directories(${PYTHON_INCLUDE_PATH})
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+	set(CMAKE_SWIG_FLAGS "")
+	set_source_files_properties(bindings.i PROPERTIES CPLUSPLUS ON)
+	set_source_files_properties(bindings.i PROPERTIES SWIG_FLAGS "-includeall")
+	swig_add_module(pyGP python bindings.i ${SOURCES})
+	swig_link_libraries(pyGP ${PYTHON_LIBRARIES} ${GaussianProcess})
+  endif(SWIG_FOUND)
+endif(BUILD_PYTHON_BINDINGS)

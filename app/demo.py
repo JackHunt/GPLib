@@ -1,3 +1,9 @@
+#!/usr/bin/python3
+import sys,os
+sys.path.append(os.path.realpath('../build'))
+
+import pyGP
+
 def loadData():
     pass
 
