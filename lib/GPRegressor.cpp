@@ -56,8 +56,13 @@ void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const
 		throw std::runtime_error("Matrix column dimensions must match when generating covariances.");
 	}
 
-	for(int i = 0; i < A.rows(); i++){
-		for(int j = 0; j < B.rows(); j++){
+	const size_t rowsA = A.rows();
+	const size_t rowsB = B.rows();
+#ifdef WITH_OPENMP
+#pragma omp parallel for schedule(dynamic) collapse(2)
+#endif
+	for(size_t i = 0; i < rowsA; i++){
+		for(size_t j = 0; j < rowsB; j++){
 			C(i, j) = kernel->f(A.row(i), B.row(j), params);
 		}
 	}
