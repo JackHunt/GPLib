@@ -18,14 +18,14 @@ namespace GaussianProcess{
 	class Kernel{
 	public:
 		virtual double f(const Vector &a, const Vector &b, const ParamaterSet &params) const = 0;
-		virtual double df(const Vector &a, const Vector &b, const std::string &var, const ParamaterSet &params) const = 0;
+		virtual Vector df(const Vector &a, const Vector &b, const ParamaterSet &params) const = 0;
 		virtual ~Kernel(){};
 	};
 
 	class SquaredExponential : public Kernel{
 	public:
 		double f(const Vector &a, const Vector &b, const ParamaterSet &params) const;
-		double df(const Vector &a, const Vector &b, const std::string &var, const ParamaterSet &params) const;
+		Vector df(const Vector &a, const Vector &b, const ParamaterSet &params) const;
 	};
 }
 

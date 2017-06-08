@@ -25,7 +25,7 @@ def runRegression(optimise):
     
     #Create a regressor and run regression.
     regressor = GPRegressor()
-    regressor.setJitterFactor(8.0)
+    regressor.setJitterFactor(4.0)
     mse = regressor.runRegression(X.transpose(), Y.transpose(), X_s.transpose(), Y_s.transpose(), {'sigma' : 2.0, 'lambda' : 2.0})
 
     #Optimise.
@@ -44,7 +44,7 @@ def plot():
     pp.gca().fill_between(X_s.flat, means-2*sd, means+2*sd, color="#dddddd")
     pp.plot(X_s, means, 'r--', lw=2)
     pp.title('Mean predictions')
-    pp.axis([-10, 10, -1, 1])
+    pp.axis([-10, 10, -1.5, 1.5])
     pp.show()
     
 if __name__ == "__main__":

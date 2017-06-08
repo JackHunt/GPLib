@@ -3,6 +3,7 @@
 
 #include "Kernels.h"
 #include "typedefs.h"
+#include "Util.h"
 
 #include <Eigen/Dense>
 #include <memory>
@@ -11,6 +12,8 @@
 
 namespace GaussianProcess{
 	class GPRegressor{
+		friend class GDOptimiser;
+		
 	private:	
 		std::shared_ptr<Kernel> kernel;
 		Matrix K, K_s, K_ss;
@@ -21,10 +24,12 @@ namespace GaussianProcess{
 		Vector predDiff;
 		Vector predSD;
 		double jitter = 1.0;
+
+		Eigen::Map<const Matrix> X, X_s;
+		Eigen::Map<const Vector> Y, Y_s;
 		
 		void buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
 								   Matrix &C, const ParamaterSet &params);
-		void jitterChol(const Matrix &A, Matrix &C);
 		
 	public:
 		double runRegression(const std::vector<double> &trainData, const std::vector<double> &trainTruth, int trainRows, int trainCols,
@@ -42,6 +47,7 @@ namespace GaussianProcess{
 		std::vector<double> getCovariances() const;
 		std::vector<double> getStdDev();
 		void setJitterFactor(double jitterFactor);
+		std::shared_ptr<Kernel> getKernel() const;
 		
 		GPRegressor(KernelType kernType = SQUARED_EXPONENTIAL);
 		~GPRegressor();

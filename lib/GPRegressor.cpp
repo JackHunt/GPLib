@@ -38,10 +38,10 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	}
 	
 	//Wrap data in Eigen matrices and vectors.
-	const Eigen::Map<const Matrix> X(trainData, trainRows, trainCols);
-	const Eigen::Map<const Matrix> X_s(testData, testRows, testCols);
-	const Eigen::Map<const Vector> Y(trainTruth, trainRows);
-	const Eigen::Map<const Vector> Y_s(testTruth, testRows);
+	X = Eigen::Map<const Matrix>(trainData, trainRows, trainCols);
+	X_s = Eigen::Map<const Matrix>(testData, testRows, testCols);
+	Y = Eigen::Map<const Vector>(trainTruth, trainRows);
+	Y_s = Eigen::Map<const Vector>(testTruth, testRows);
 
 	//Compute covariance matrices.
     K.resize(trainRows, trainRows);
@@ -99,6 +99,10 @@ void GPRegressor::setJitterFactor(double jitterFactor) {
 	jitter = jitterFactor;
 }
 
+std::shared_ptr<Kernel> GPRegressor::getKernel() const {
+	return kernel;
+}
+
 void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
 										Matrix &C, const ParamaterSet &params){
 	const size_t rowsA = A.rows();
@@ -110,32 +114,5 @@ void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const
 		for(size_t j = 0; j < rowsB; j++){
 			C(i, j) = kernel->f(A.row(i), B.row(j), params);
 		}
-	}
-}
-
-void GPRegressor::jitterChol(const Matrix &A, Matrix &C){
-	const size_t rowsA = A.rows();
-	const size_t colsA = A.cols();
-	if(rowsA != colsA){
-		throw std::runtime_error("Cannot take Cholesky Decomposition of non square matrix.");
-	}
-	
-	Matrix jitter = Matrix::Identity(rowsA, colsA);
-	jitter *= 1e-8;
-	
-	bool passed = false;
-
-	while(!passed && jitter(0,0) < 1e4){
-		Eigen::LLT<Matrix> chol(A + jitter);
-		if(chol.info() == Eigen::NumericalIssue){
-			jitter *= 1.1;
-		}else{
-			passed = true;
-			C = chol.matrixL();
-		}
-	}
-
-	if(!passed){
-		throw std::runtime_error("Unable to make matrix positive semidefinite.");
 	}
 }
