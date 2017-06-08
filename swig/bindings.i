@@ -9,7 +9,9 @@
 %include "numpy.i"
 %include "std_string.i"
 %include "std_map.i"
+%include "std_vector.i"
 %template(map_string_double) std::map<std::string, double>;
+%template(DoubleVector) std::vector<double>;
 
 %init %{
   import_array();

@@ -16,13 +16,19 @@ GPRegressor::~GPRegressor(){
 	//
 }
 
-#ifdef WITH_PYTHON_BINDINGS
+double GPRegressor::runRegression(const std::vector<double> &trainData, const std::vector<double> &trainTruth, int trainRows, int trainCols,
+								  const std::vector<double> &testData, const std::vector<double> &testTruth, int testRows, int testCols,
+								  const ParamaterSet &params){
+	runRegression(&trainData[0], &trainTruth[0], trainRows, trainCols, &testData[0], &testTruth[0], testRows, testCols, params);
+}
+
+//#ifdef WITH_PYTHON_BINDINGS
 double GPRegressor::runRegression(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
 								  int trainTruthRows, const double *testData, int testCols, int testRows,
 								  const double *testTruth, int testTruthRows, const ParamaterSet &params){
 	runRegression(trainData, trainTruth, trainRows, trainCols, testData, testTruth, testRows, testCols, params);
 }
-#endif
+//#endif
 
 double GPRegressor::runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
 								  const double *testData, const double *testTruth, int testRows, int testCols,
@@ -45,6 +51,11 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	buildCovarianceMatrix(X, X_s, K_s, params);
 	buildCovarianceMatrix(X_s, X_s, K_ss, params);
 
+	//Add jitter to K.
+	if(jitter != 1.0) {
+		K += Matrix::Identity(K.rows(), K.cols())*jitter;
+	}
+	
 	//Solve for alpha.
     L.resize(trainRows, trainRows);
 	jitterChol(K, L);
@@ -63,26 +74,29 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	return predDiff.mean();
 }
 
-const double *GPRegressor::getMeans() const {
-	return f_s.data();
+std::vector<double> GPRegressor::getMeans() const {
+	return std::vector<double>(f_s.data(), f_s.data() + f_s.rows());
 }
 
-const double *GPRegressor::getCovariances() const {
-	return v_s.data();
+std::vector<double> GPRegressor::getCovariances() const {
+	return std::vector<double>(v_s.data(), v_s.data() + v_s.rows());
 }
 
-const double *GPRegressor::getStdDev() {
-	predSD.resizeLike(f_s);
-
-	const size_t len = predSD.rows();
+std::vector<double> GPRegressor::getStdDev() {
+	const size_t len = v_s.rows();
+	std::vector<double> stdDev(len);
 #ifdef WITH_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-	for(int i = 0; i < len; i++) {
-		predSD(i) = sqrt(v_s(i, i));
+	for(size_t i = 0; i < len; i++) {
+		stdDev[i] = sqrt(v_s(i, i));
 	}
 
-	return predSD.data();
+	return stdDev;
+}
+
+void GPRegressor::setJitterFactor(double jitterFactor) {
+	jitter = jitterFactor;
 }
 
 void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
