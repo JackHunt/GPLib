@@ -16,6 +16,14 @@ GPRegressor::~GPRegressor(){
 	//
 }
 
+#ifdef WITH_PYTHON_BINDINGS
+double GPRegressor::runRegression(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
+								  int trainTruthRows, const double *testData, int testCols, int testRows,
+								  const double *testTruth, int testTruthRows, const ParamaterSet &params){
+	runRegression(trainData, trainTruth, trainRows, trainCols, testData, testTruth, testRows, testCols, params);
+}
+#endif
+
 double GPRegressor::runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
 								  const double *testData, const double *testTruth, int testRows, int testCols,
 								  const ParamaterSet &params){
@@ -30,32 +38,55 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	const Eigen::Map<const Vector> Y_s(testTruth, testRows);
 
 	//Compute covariance matrices.
-	Matrix K(trainRows, trainRows);
-	Matrix K_s(trainRows, testRows);
-	Matrix K_ss(testRows, testRows);
+    K.resize(trainRows, trainRows);
+	K_s.resize(trainRows, testRows);
+	K_ss.resize(testRows, testRows);
     buildCovarianceMatrix(X, X, K, params);
 	buildCovarianceMatrix(X, X_s, K_s, params);
 	buildCovarianceMatrix(X_s, X_s, K_ss, params);
 
 	//Solve for alpha.
-	Matrix L(trainRows, trainRows);
-	jitterChol(X, L);
-	Vector tmp = L.triangularView<Eigen::Lower>().solve(Y);
-	Vector alpha = L.transpose().triangularView<Eigen::Lower>().solve(tmp);
+    L.resize(trainRows, trainRows);
+	jitterChol(K, L);
+	tmp = L.triangularView<Eigen::Lower>().solve(Y);
+	alpha = L.transpose().triangularView<Eigen::Lower>().solve(tmp);
 
-	//Solve for solutions.
-	Vector f_s = K_s.transpose() * alpha;
-	Vector v = L.triangularView<Eigen::Lower>().solve(K_s);
-	Matrix v_s = K_ss - v.transpose() * v;
-	
+	//Solve for test means and train variances.
+	f_s = K_s.transpose() * alpha;
+	v = L.triangularView<Eigen::Lower>().solve(K_s);
+	v_s = K_ss - v.transpose() * v;
+
+	//Get the MSE.
+	auto sq = [](auto a){return a*a;};
+	predDiff = Y_s - f_s;
+	predDiff = predDiff.unaryExpr(sq);
+	return predDiff.mean();
+}
+
+const double *GPRegressor::getMeans() const {
+	return f_s.data();
+}
+
+const double *GPRegressor::getCovariances() const {
+	return v_s.data();
+}
+
+const double *GPRegressor::getStdDev() {
+	predSD.resizeLike(f_s);
+
+	const size_t len = predSD.rows();
+#ifdef WITH_OPENMP
+#pragma omp parallel for schedule(dynamic)
+#endif
+	for(int i = 0; i < len; i++) {
+		predSD(i) = sqrt(v_s(i, i));
+	}
+
+	return predSD.data();
 }
 
 void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
 										Matrix &C, const ParamaterSet &params){
-	if(A.cols() != B.cols() || A.cols() != C.cols()){
-		throw std::runtime_error("Matrix column dimensions must match when generating covariances.");
-	}
-
 	const size_t rowsA = A.rows();
 	const size_t rowsB = B.rows();
 #ifdef WITH_OPENMP
@@ -68,8 +99,14 @@ void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const
 	}
 }
 
-void GPRegressor::jitterChol(const Eigen::Map<const Matrix> &A, Matrix &C){
-	Matrix jitter = Matrix::Identity(A.rows(), A.cols());
+void GPRegressor::jitterChol(const Matrix &A, Matrix &C){
+	const size_t rowsA = A.rows();
+	const size_t colsA = A.cols();
+	if(rowsA != colsA){
+		throw std::runtime_error("Cannot take Cholesky Decomposition of non square matrix.");
+	}
+	
+	Matrix jitter = Matrix::Identity(rowsA, colsA);
 	jitter *= 1e-8;
 	
 	bool passed = false;
