@@ -40,15 +40,16 @@ def runRegression(optimise, initialParams):
     sd = np.asarray(regressor.getStdDev())
 
 def plot():
-    pp.plot(X, Y, 'r+')
-    pp.plot(X_s, Y_s, 'b-')
+    pp.plot(X, Y, 'r+', label="Ground Truth Training")
+    pp.plot(X_s, Y_s, 'b-', label="Ground Truth Test")
     pp.gca().fill_between(X_s.flat, means-sd, means+sd, color="#dddddd")
-    pp.plot(X_s, means, 'r--', lw=2)
+    pp.plot(X_s, means, 'r--', lw=2, label="Prediction")
     pp.title('Mean predictions')
-    pp.axis([-10, 10, -1.5, 1.5])
+    pp.axis([-10, 10, -2.0, 2.0])
+    pp.legend(loc='upper right')
     pp.show()
     
 if __name__ == "__main__":
-    generateData(1000, 100)
+    generateData(500, 100)
     runRegression(False, {'sigma' : 2.0, 'lambda' : 2.0})
     plot()

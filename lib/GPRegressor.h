@@ -16,13 +16,8 @@ namespace GaussianProcess{
 		
 	private:	
 		std::shared_ptr<Kernel> kernel;
-		Matrix K, K_s, K_ss;
-		Matrix L;
-		Vector tmp, alpha;
 		Vector f_s;
-		Matrix v, v_s;
-		Vector predDiff;
-		Vector predSD;
+		Matrix v_s;
 		double jitter = 1.0;
 		Vector Y_copy;
 		Matrix X_copy;
@@ -43,7 +38,6 @@ namespace GaussianProcess{
 		std::vector<double> getCovariances() const;
 		std::vector<double> getStdDev();
 		void setJitterFactor(double jitterFactor);
-		std::shared_ptr<Kernel> getKernel() const;
 		
 		GPRegressor(KernelType kernType = SQUARED_EXPONENTIAL);
 		~GPRegressor();

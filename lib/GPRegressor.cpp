@@ -46,9 +46,9 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	X_copy = Matrix(X);
 
 	//Compute covariance matrices.
-    K.resize(trainRows, trainRows);
-	K_s.resize(trainRows, testRows);
-	K_ss.resize(testRows, testRows);
+    Matrix K(trainRows, trainRows);
+	Matrix K_s(trainRows, testRows);
+	Matrix K_ss(testRows, testRows);
     buildCovarianceMatrix< Eigen::Map<const Matrix> >(X, X, K, params, kernel);
 	buildCovarianceMatrix< Eigen::Map<const Matrix> >(X, X_s, K_s, params, kernel);
 	buildCovarianceMatrix< Eigen::Map<const Matrix> >(X_s, X_s, K_ss, params, kernel);
@@ -59,24 +59,26 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	}
 	
 	//Solve for alpha.
-    L.resize(trainRows, trainRows);
+	Matrix L(trainRows, trainRows);
 	jitterChol(K, L);
+
 	/*
-	tmp = L.triangularView<Eigen::Lower>().solve(Y);
-	alpha = L.transpose().triangularView<Eigen::Lower>().solve(tmp);
+	Vector tmp = L.triangularView<Eigen::Lower>().solve(Y);
+	Vector alpha = L.transpose().triangularView<Eigen::Lower>().solve(tmp);
 
 	//Solve for test means and train variances.
 	f_s = K_s.transpose() * alpha;
-	v = L.triangularView<Eigen::Lower>().solve(K_s);
+	Matrix v = L.triangularView<Eigen::Lower>().solve(K_s);
 	v_s = K_ss - v.transpose() * v;
 	*/
-	Matrix Lk = L.triangularView<Eigen::Lower>().solve(K_s);
-	f_s = Lk.transpose() * L.triangularView<Eigen::Lower>().solve(Y);
-	v_s = K_ss - Lk.transpose() * Lk;
+
+	Matrix tmp = L.triangularView<Eigen::Lower>().solve(K_s);
+	f_s = tmp.transpose() * L.triangularView<Eigen::Lower>().solve(Y);
+	v_s = K_ss - tmp.transpose() * tmp;
 
 	//Get the MSE.
 	auto sq = [](double a){return a*a;};
-	predDiff = Y_s - f_s;
+	Vector predDiff = Y_s - f_s;
 	predDiff = predDiff.unaryExpr(sq);
 	return predDiff.mean();
 }
@@ -104,8 +106,4 @@ std::vector<double> GPRegressor::getStdDev() {
 
 void GPRegressor::setJitterFactor(double jitterFactor) {
 	jitter = jitterFactor;
-}
-
-std::shared_ptr<Kernel> GPRegressor::getKernel() const {
-	return kernel;
 }
