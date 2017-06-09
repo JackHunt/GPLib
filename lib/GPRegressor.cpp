@@ -49,9 +49,9 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
     K.resize(trainRows, trainRows);
 	K_s.resize(trainRows, testRows);
 	K_ss.resize(testRows, testRows);
-    buildCovarianceMatrix(X, X, K, params);
-	buildCovarianceMatrix(X, X_s, K_s, params);
-	buildCovarianceMatrix(X_s, X_s, K_ss, params);
+    buildCovarianceMatrix< Eigen::Map<const Matrix> >(X, X, K, params, kernel);
+	buildCovarianceMatrix< Eigen::Map<const Matrix> >(X, X_s, K_s, params, kernel);
+	buildCovarianceMatrix< Eigen::Map<const Matrix> >(X_s, X_s, K_ss, params, kernel);
 
 	//Add jitter to K.
 	if(jitter != 1.0) {
@@ -61,6 +61,7 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	//Solve for alpha.
     L.resize(trainRows, trainRows);
 	jitterChol(K, L);
+	/*
 	tmp = L.triangularView<Eigen::Lower>().solve(Y);
 	alpha = L.transpose().triangularView<Eigen::Lower>().solve(tmp);
 
@@ -68,9 +69,13 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	f_s = K_s.transpose() * alpha;
 	v = L.triangularView<Eigen::Lower>().solve(K_s);
 	v_s = K_ss - v.transpose() * v;
+	*/
+	Matrix Lk = L.triangularView<Eigen::Lower>().solve(K_s);
+	f_s = Lk.transpose() * L.triangularView<Eigen::Lower>().solve(Y);
+	v_s = K_ss - Lk.transpose() * Lk;
 
 	//Get the MSE.
-	auto sq = [](auto a){return a*a;};
+	auto sq = [](double a){return a*a;};
 	predDiff = Y_s - f_s;
 	predDiff = predDiff.unaryExpr(sq);
 	return predDiff.mean();
@@ -103,18 +108,4 @@ void GPRegressor::setJitterFactor(double jitterFactor) {
 
 std::shared_ptr<Kernel> GPRegressor::getKernel() const {
 	return kernel;
-}
-
-void GPRegressor::buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
-										Matrix &C, const ParamaterSet &params){
-	const size_t rowsA = A.rows();
-	const size_t rowsB = B.rows();
-#ifdef WITH_OPENMP
-#pragma omp parallel for schedule(dynamic) collapse(2)
-#endif
-	for(size_t i = 0; i < rowsA; i++){
-		for(size_t j = 0; j < rowsB; j++){
-			C(i, j) = kernel->f(A.row(i), B.row(j), params);
-		}
-	}
 }

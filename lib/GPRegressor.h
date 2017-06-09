@@ -27,9 +27,6 @@ namespace GaussianProcess{
 		Vector Y_copy;
 		Matrix X_copy;
 		
-		void buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
-								   Matrix &C, const ParamaterSet &params);
-		
 	public:
 		double runRegression(const std::vector<double> &trainData, const std::vector<double> &trainTruth, int trainRows, int trainCols,
 							 const std::vector<double> &testData, const std::vector<double> &testTruth, int testRows, int testCols,

@@ -12,13 +12,14 @@ namespace GaussianProcess{
 	class GDOptimiser{
 	private:
 		std::shared_ptr<GPRegressor> regressor;
-		double logLikelihood(const Vector &alpha, const Matrix &K, const Vector &Y, int rows);
+		double logMarginalLikelihood(const Vector &alpha, const Matrix &K, const Vector &Y, int rows);
 
 	public:
 		GDOptimiser(std::shared_ptr<GPRegressor> regressor);
 		~GDOptimiser();
 
-		ParamaterSet optimise(const ParamaterSet &params, int iterations, double targetLogLikelihood);
+		ParamaterSet optimise(const ParamaterSet &params, int iterations,
+							  double targetStepSize = 1e-3, double learnRate = 0.03);
 	};
 }
 

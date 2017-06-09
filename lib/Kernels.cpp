@@ -20,7 +20,7 @@ double SquaredExponential::f(const Vector &a, const Vector &b, const ParamaterSe
     const double sigma = params.at("sigma");
 	const double lambda = params.at("lambda");
 
-	return lambda * lambda * expf(-1.0 * (sqEucDist / (2.0 * sigma * sigma)));
+	return sigma * sigma * expf(-1.0 * (sqEucDist / (2.0 * lambda * lambda)));
 }
 
 double SquaredExponential::df(const Vector &a, const Vector &b, const ParamaterSet &params, const std::string &variable) const{
@@ -43,9 +43,9 @@ double SquaredExponential::df(const Vector &a, const Vector &b, const ParamaterS
 	double deriv = 0.0;
 	
 	if(variable.compare("sigma") == 0) {
-	    deriv = lambda * lambda * sqEucDist * expf((-0.5 * sqEucDist / sigma * sigma));
+	    deriv = 2.0 * sigma * expf((-0.5 * sqEucDist) / lambda * lambda);
 	}else if(variable.compare("lambda") == 0) {
-		deriv = 2.0 * lambda * expf((-0.5 * sqEucDist) / sigma * sigma);
+		deriv = sigma * sigma * sqEucDist * expf((-0.5 * sqEucDist / lambda * lambda));
 	}else {
 		throw std::runtime_error("Invalid partial derivative requested.");
 	}

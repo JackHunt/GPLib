@@ -20,34 +20,35 @@ def generateData(numTrain, numTest):
     X_s = np.linspace(-10, 10, numTest).reshape(-1,1)
     Y_s = np.sin(X_s).flatten()
 
-def runRegression(optimise):
+def runRegression(optimise, initialParams):
     global means, sd
     
     #Create a regressor and run regression.
     regressor = GPRegressor()
-    regressor.setJitterFactor(4.0)
-    mse = regressor.runRegression(X.transpose(), Y.transpose(), X_s.transpose(), Y_s.transpose(), {'sigma' : 2.0, 'lambda' : 2.0})
+    regressor.setJitterFactor(3.0)
+    msePreOpt = regressor.runRegression(X.transpose(), Y.transpose(), X_s.transpose(), Y_s.transpose(), initialParams)
 
     #Optimise.
     if optimise:
-        pass
+        optimiser = GDOptimiser(regressor)
+        params = optimiser.optimise(initialParams, 100, 0.001, 0.0001)
+        mse = regressor.runRegression(X.transpose(), Y.transpose(), X_s.transpose(), Y_s.transpose(), params)
+        print("Predictive MSE without optimisation: %s" % msePreOpt)
+        print("Predictive MSE following optimisation: %s" % mse)
     
     means = np.asarray(regressor.getMeans())
     sd = np.asarray(regressor.getStdDev())
-    
-    #Give some feedback.
-    print("Predictive MSE: %s" % mse)
 
 def plot():
     pp.plot(X, Y, 'r+')
     pp.plot(X_s, Y_s, 'b-')
-    pp.gca().fill_between(X_s.flat, means-2*sd, means+2*sd, color="#dddddd")
+    pp.gca().fill_between(X_s.flat, means-sd, means+sd, color="#dddddd")
     pp.plot(X_s, means, 'r--', lw=2)
     pp.title('Mean predictions')
     pp.axis([-10, 10, -1.5, 1.5])
     pp.show()
     
 if __name__ == "__main__":
-    generateData(100, 100)
-    runRegression(True)
+    generateData(1000, 100)
+    runRegression(False, {'sigma' : 2.0, 'lambda' : 2.0})
     plot()

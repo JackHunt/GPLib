@@ -1,6 +1,10 @@
 #ifndef GAUSSIAN_PROCESS_UTIL_HEADER
 #define GAUSSIAN_PROCESS_UTIL_HEADER
 
+#include <memory>
+#include <string>
+#include "Kernels.h"
+
 namespace GaussianProcess{
 	inline void jitterChol(const Matrix &A, Matrix &C){
 		const size_t rowsA = A.rows();
@@ -26,6 +30,25 @@ namespace GaussianProcess{
 
 		if(!passed){
 			throw std::runtime_error("Unable to make matrix positive semidefinite.");
+		}
+	}
+
+	template<typename T>
+	inline void buildCovarianceMatrix(const T &A, const T &B, Matrix &C, const ParamaterSet &params,
+									  const std::shared_ptr<Kernel> &kernel, const std::string &var = std::string("")){
+		const size_t rowsA = A.rows();
+		const size_t rowsB = B.rows();
+#ifdef WITH_OPENMP
+#pragma omp parallel for schedule(dynamic) collapse(2)
+#endif
+		for(size_t i = 0; i < rowsA; i++){
+			for(size_t j = 0; j < rowsB; j++){
+				if(var.compare("") != 0){
+					C(i, j) = kernel->df(A.row(i), B.row(j), params, var);
+				}else {
+					C(i, j) = kernel->f(A.row(i), B.row(j), params);
+				}
+			}
 		}
 	}
 }

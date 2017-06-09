@@ -4,14 +4,18 @@
 #include "lib/typedefs.h"
 #include "lib/Kernels.h"
 #include "lib/GPRegressor.h"
+#include "lib/GDOptimiser.h"
 %}
 
 %include "numpy.i"
 %include "std_string.i"
 %include "std_map.i"
 %include "std_vector.i"
-%template(map_string_double) std::map<std::string, double>;
+%include "std_shared_ptr.i"
+
+%template(MapStringDouble) std::map<std::string, double>;
 %template(DoubleVector) std::vector<double>;
+%shared_ptr(GaussianProcess::GPRegressor)
 
 %init %{
   import_array();
@@ -25,3 +29,4 @@
 %include "lib/typedefs.h"
 %include "lib/Kernels.h"
 %include "lib/GPRegressor.h"
+%include "lib/GDOptimiser.h"
