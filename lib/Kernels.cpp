@@ -23,7 +23,7 @@ double SquaredExponential::f(const Vector &a, const Vector &b, const ParamaterSe
 	return lambda * lambda * expf(-1.0 * (sqEucDist / (2.0 * sigma * sigma)));
 }
 
-Vector SquaredExponential::df(const Vector &a, const Vector &b, const ParamaterSet &params) const{
+double SquaredExponential::df(const Vector &a, const Vector &b, const ParamaterSet &params, const std::string &variable) const{
 	if(params.find("sigma") == params.end() || params.find("lambda") == params.end()){
 		throw std::runtime_error("Invalid paramater set provided.");
 	}
@@ -32,18 +32,23 @@ Vector SquaredExponential::df(const Vector &a, const Vector &b, const ParamaterS
 		throw std::runtime_error("Vector sizes must match in kernel.");
 	}
 
-	const double sigma = params.at("sigma");
-	const double lambda = params.at("lambda");
 	double sqEucDist = 0.0;
 	const size_t size = a.size();
 	for(size_t i = 0; i < size; i++){
 		sqEucDist += (a(i) - b(i)) * (a(i) - b(i));
 	}
-	
-	double dFdS = lambda * lambda * sqEucDist * expf((-0.5 * sqEucDist / sigma * sigma));
-	double dFdL = 2.0 * lambda * expf((-0.5 * sqEucDist) / sigma * sigma);
 
-	Vector nabla;
-	nabla << dFdS, dFdL;
-	return nabla;
+	const double sigma = params.at("sigma");
+	const double lambda = params.at("lambda");
+	double deriv = 0.0;
+	
+	if(variable.compare("sigma") == 0) {
+	    deriv = lambda * lambda * sqEucDist * expf((-0.5 * sqEucDist / sigma * sigma));
+	}else if(variable.compare("lambda") == 0) {
+		deriv = 2.0 * lambda * expf((-0.5 * sqEucDist) / sigma * sigma);
+	}else {
+		throw std::runtime_error("Invalid partial derivative requested.");
+	}
+	
+	return deriv;
 }

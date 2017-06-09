@@ -24,9 +24,8 @@ namespace GaussianProcess{
 		Vector predDiff;
 		Vector predSD;
 		double jitter = 1.0;
-
-		Eigen::Map<const Matrix> X, X_s;
-		Eigen::Map<const Vector> Y, Y_s;
+		Vector Y_copy;
+		Matrix X_copy;
 		
 		void buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
 								   Matrix &C, const ParamaterSet &params);

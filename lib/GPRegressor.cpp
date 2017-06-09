@@ -38,10 +38,12 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	}
 	
 	//Wrap data in Eigen matrices and vectors.
-	X = Eigen::Map<const Matrix>(trainData, trainRows, trainCols);
-	X_s = Eigen::Map<const Matrix>(testData, testRows, testCols);
-	Y = Eigen::Map<const Vector>(trainTruth, trainRows);
-	Y_s = Eigen::Map<const Vector>(testTruth, testRows);
+	Eigen::Map<const Matrix> X(trainData, trainRows, trainCols);
+	Eigen::Map<const Matrix> X_s(testData, testRows, testCols);
+	Eigen::Map<const Vector> Y(trainTruth, trainRows);
+	Eigen::Map<const Vector> Y_s(testTruth, testRows);
+	Y_copy = Vector(Y);
+	X_copy = Matrix(X);
 
 	//Compute covariance matrices.
     K.resize(trainRows, trainRows);
