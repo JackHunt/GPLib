@@ -65,9 +65,9 @@ namespace GaussianProcess{
 		}
 	}
 
-	template<typename T>
-	inline void buildCovarianceMatrix(const T &A, const T &B, Matrix &C, const ParamaterSet &params,
-									  const std::shared_ptr<Kernel> &kernel, const std::string &var = std::string("")){
+	inline void buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
+									  Matrix &C, const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel,
+									  const std::string &var = std::string("")){
 		const size_t rowsA = A.rows();
 		const size_t rowsB = B.rows();
 #ifdef WITH_OPENMP

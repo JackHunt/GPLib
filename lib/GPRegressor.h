@@ -44,15 +44,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace GaussianProcess{
 	class GPRegressor{
-		friend class GDOptimiser;
-		
 	private:	
 		std::shared_ptr<Kernel> kernel;
 		Vector f_s;
 		Matrix v_s;
+		Matrix K, K_s, K_ss;
 		double jitter = 1.0;
-		Vector Y_copy;
-		Matrix X_copy;
 		
 	public:
 		double runRegression(const std::vector<double> &trainData, const std::vector<double> &trainTruth, int trainRows, int trainCols,

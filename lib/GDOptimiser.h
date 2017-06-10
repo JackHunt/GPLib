@@ -35,23 +35,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "GPRegressor.h"
 #include "Util.h"
-#include <memory>
 #include <cmath>
 #include <iostream>
+#include <memory>
+#include <vector>
 #include <Eigen/Dense>
 
 namespace GaussianProcess{
 	class GDOptimiser{
 	private:
-		std::shared_ptr<GPRegressor> regressor;
+		double jitter = 1.0;
+		Matrix K, K_deriv, K_chol;
 		double logMarginalLikelihood(const Vector &alpha, const Matrix &K, const Vector &Y, int rows);
 
 	public:
-		GDOptimiser(std::shared_ptr<GPRegressor> regressor);
+		GDOptimiser();
 		~GDOptimiser();
 
-		ParamaterSet optimise(const ParamaterSet &params, int iterations,
-							  double targetStepSize = 1e-3, double learnRate = 0.03);
+//#ifdef WITH_PYTHON_BINDINGS
+		ParamaterSet optimise(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
+							  int trainTruthRows, const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel,
+							  int iterations, double targetStepSize, double learnRate);
+//#endif
+
+		ParamaterSet optimise(const std::vector<double> &trainData, const std::vector<double> &trainTruth,
+							  int trainRows, int trainCols, const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel,
+							  int iterations, double targetStepSize, double learnRate);
+
+		
+		ParamaterSet optimise(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
+							  const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel, int iterations,
+							  double targetStepSize, double learnRate);
+		void setJitterFactor(double jitterFactor);
 	};
 }
 

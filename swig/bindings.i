@@ -15,7 +15,8 @@
 
 %template(MapStringDouble) std::map<std::string, double>;
 %template(DoubleVector) std::vector<double>;
-%shared_ptr(GaussianProcess::GPRegressor)
+%shared_ptr(GaussianProcess::Kernel)
+%shared_ptr(GaussianProcess::SquaredExponential)
 
 %init %{
   import_array();

@@ -53,18 +53,22 @@ def generateData(numTrain, numTest):
     X_s = np.linspace(-10, 10, numTest).reshape(-1,1)
     Y_s = np.sin(X_s).flatten()
 
-def runRegression(optimise, initialParams):
+def runRegression(optimise, initialParams, jitter):
     global means, sd
     
     #Create a regressor and run regression.
     regressor = GPRegressor()
-    regressor.setJitterFactor(3.0)
+    regressor.setJitterFactor(jitter)
     msePreOpt = regressor.runRegression(X.transpose(), Y.transpose(), X_s.transpose(), Y_s.transpose(), initialParams)
+    if not optimise:
+        print("Predictive MSE: %s" % msePreOpt)
 
     #Optimise.
     if optimise:
-        optimiser = GDOptimiser(regressor)
-        params = optimiser.optimise(initialParams, 100, 0.001, 0.0001)
+        optimiser = GDOptimiser()
+        optimiser.setJitterFactor(jitter)
+        kernel = SquaredExponential()
+        params = optimiser.optimise(X.transpose(), Y.transpose(), initialParams, kernel, 100, 0.001, 0.0001)
         mse = regressor.runRegression(X.transpose(), Y.transpose(), X_s.transpose(), Y_s.transpose(), params)
         print("Predictive MSE without optimisation: %s" % msePreOpt)
         print("Predictive MSE following optimisation: %s" % mse)
@@ -84,5 +88,5 @@ def plot():
     
 if __name__ == "__main__":
     generateData(500, 100)
-    runRegression(False, {'sigma' : 2.0, 'lambda' : 2.0})
+    runRegression(False, {'sigma' : 2.0, 'lambda' : 2.0}, 3.0)
     plot()

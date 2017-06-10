@@ -74,16 +74,18 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
 	Eigen::Map<const Matrix> X_s(testData, testRows, testCols);
 	Eigen::Map<const Vector> Y(trainTruth, trainRows);
 	Eigen::Map<const Vector> Y_s(testTruth, testRows);
-	Y_copy = Vector(Y);
-	X_copy = Matrix(X);
 
+		//Reallocate storage, if necessary.
+	if(K.rows() != trainRows || K.cols() != trainRows) {
+		K.resize(trainRows, trainRows);
+		K_s.resize(trainRows, testRows);
+	    K_ss.resize(testRows, testRows);
+	}
+	
 	//Compute covariance matrices.
-    Matrix K(trainRows, trainRows);
-	Matrix K_s(trainRows, testRows);
-	Matrix K_ss(testRows, testRows);
-    buildCovarianceMatrix< Eigen::Map<const Matrix> >(X, X, K, params, kernel);
-	buildCovarianceMatrix< Eigen::Map<const Matrix> >(X, X_s, K_s, params, kernel);
-	buildCovarianceMatrix< Eigen::Map<const Matrix> >(X_s, X_s, K_ss, params, kernel);
+    buildCovarianceMatrix(X, X, K, params, kernel);
+	buildCovarianceMatrix(X, X_s, K_s, params, kernel);
+	buildCovarianceMatrix(X_s, X_s, K_ss, params, kernel);
 
 	//Add jitter to K.
 	if(jitter != 1.0) {
