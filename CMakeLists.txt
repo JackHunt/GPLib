@@ -30,6 +30,7 @@ set(HEADERS
   lib/GPRegressor.h
   lib/GDOptimiser.h
   lib/Kernels.h
+  lib/Util.h
 )
 
 set(SOURCES

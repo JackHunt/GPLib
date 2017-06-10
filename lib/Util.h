@@ -38,6 +38,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Kernels.h"
 
 namespace GaussianProcess{
+
+    /**
+     * @brief jitterChol Performs a cholesky decomposition. Deals with non Pos-Semidef matrices by adding jitter successively to diagonal.
+     * @param A Matrix to compute cholesky decomposition of.
+     * @param C Matrix to write cholesky decomposition to.
+     */
 	inline void jitterChol(const Matrix &A, Matrix &C){
 		const size_t rowsA = A.rows();
 		const size_t colsA = A.cols();
@@ -50,9 +56,10 @@ namespace GaussianProcess{
 	
 		bool passed = false;
 
+        //Successively add jitter to make positive semi-definite.
 		while(!passed && jitter(0,0) < 1e4){
 			Eigen::LLT<Matrix> chol(A + jitter);
-			if(chol.info() == Eigen::NumericalIssue){
+            if(chol.info() == Eigen::NumericalIssue){//Not pos-semidefinite.
 				jitter *= 1.1;
 			}else{
 				passed = true;
@@ -60,13 +67,23 @@ namespace GaussianProcess{
 			}
 		}
 
+        //If Matrix is still not positive semi-definite.
 		if(!passed){
 			throw std::runtime_error("Unable to make matrix positive semidefinite.");
 		}
 	}
 
+    /**
+     * @brief buildCovarianceMatrix Builds a Covariance Matrix between two data matrices using a given kernel.
+     * @param A Data matrix A.
+     * @param B Data matrix B.
+     * @param C Output Covariance Matrix.
+     * @param params Parameters for kernel(must match kernel choice)
+     * @param kernel Kernel(must match Parameters)
+     * @param var Variable to differentiate w.r.t if derivative matrix is required.
+     */
 	inline void buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
-									  Matrix &C, const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel,
+                                      Matrix &C, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
 									  const std::string &var = std::string("")){
 		const size_t rowsA = A.rows();
 		const size_t rowsB = B.rows();

@@ -34,9 +34,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace GaussianProcess;
 
-double SquaredExponential::f(const Vector &a, const Vector &b, const ParamaterSet &params) const{
+double SquaredExponential::f(const Vector &a, const Vector &b, const ParameterSet &params) const{
 	if(params.find("sigma") == params.end() || params.find("lambda") == params.end()){
-		throw std::runtime_error("Invalid paramater set provided.");
+        throw std::runtime_error("Invalid Parameter set provided.");
 	}
 
 	if(a.size() != b.size()){
@@ -55,9 +55,9 @@ double SquaredExponential::f(const Vector &a, const Vector &b, const ParamaterSe
 	return sigma * sigma * expf(-1.0 * (sqEucDist / (2.0 * lambda * lambda)));
 }
 
-double SquaredExponential::df(const Vector &a, const Vector &b, const ParamaterSet &params, const std::string &variable) const{
+double SquaredExponential::df(const Vector &a, const Vector &b, const ParameterSet &params, const std::string &variable) const{
 	if(params.find("sigma") == params.end() || params.find("lambda") == params.end()){
-		throw std::runtime_error("Invalid paramater set provided.");
+        throw std::runtime_error("Invalid Parameter set provided.");
 	}
 
 	if(a.size() != b.size()){

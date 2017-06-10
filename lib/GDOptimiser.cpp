@@ -42,20 +42,22 @@ GDOptimiser::~GDOptimiser() {
 	//
 }
 
-ParamaterSet GDOptimiser::optimise(const std::vector<double> &trainData, const std::vector<double> &trainTruth,
-								   int trainRows, int trainCols, const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel,
+ParameterSet GDOptimiser::optimise(const std::vector<double> &trainData, const std::vector<double> &trainTruth,
+                                   int trainRows, int trainCols, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
 								   int iterations, double targetStepSize, double learnRate) {
 	optimise(&trainData[0], &trainTruth[0], trainRows, trainCols, params, kernel, iterations, targetStepSize, learnRate);
 }
 
-ParamaterSet GDOptimiser::optimise(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
-								   int trainTruthRows, const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel,
+//#ifdef WITH_PYTHON_BINDINGS
+ParameterSet GDOptimiser::optimise(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
+                                   int trainTruthRows, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
 								   int iterations, double targetStepSize, double learnRate) {
 	optimise(trainData, trainTruth, trainRows, trainCols, params, kernel, iterations, targetStepSize, learnRate);
 }
+//#endif
 
-ParamaterSet GDOptimiser::optimise(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
-								   const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel, int iterations,
+ParameterSet GDOptimiser::optimise(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
+                                   const ParameterSet &params, const std::shared_ptr<Kernel> &kernel, int iterations,
 								   double targetStepSize, double learnRate) {
 	double stepNorm = 1e5;
 	double newStep = 0.0;
@@ -65,8 +67,8 @@ ParamaterSet GDOptimiser::optimise(const double *trainData, const double *trainT
 	Eigen::Map<const Matrix> X(trainData, trainRows, trainCols);
 	Eigen::Map<const Vector> Y(trainTruth, trainRows);
 	
-	//Get kernel and initial paramaters(copy).
-	ParamaterSet optimParams(params);
+    //Get kernel and initial Parameters(copy).
+    ParameterSet optimParams(params);
 
 	//Reallocate storage, if necessary.
 	if(K.rows() != X.rows() || K.cols() != X.rows()) {
@@ -89,7 +91,7 @@ ParamaterSet GDOptimiser::optimise(const double *trainData, const double *trainT
 		Matrix K_inv = K.inverse();
 		Matrix factor = alpha * alpha.transpose() - K_inv;
 
-		//Build covariance matrix jacobian and update, for each hyperparamater.
+        //Build covariance matrix partial derivative and update, for each hyperParameter.
 		stepNorm = 0.0;
 		for(std::pair<const std::string, double> &par : optimParams) {
 			const std::string &var = par.first;

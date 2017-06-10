@@ -50,21 +50,21 @@ GPRegressor::~GPRegressor(){
 
 double GPRegressor::runRegression(const std::vector<double> &trainData, const std::vector<double> &trainTruth, int trainRows, int trainCols,
 								  const std::vector<double> &testData, const std::vector<double> &testTruth, int testRows, int testCols,
-								  const ParamaterSet &params){
+                                  const ParameterSet &params){
 	runRegression(&trainData[0], &trainTruth[0], trainRows, trainCols, &testData[0], &testTruth[0], testRows, testCols, params);
 }
 
 //#ifdef WITH_PYTHON_BINDINGS
 double GPRegressor::runRegression(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
 								  int trainTruthRows, const double *testData, int testCols, int testRows,
-								  const double *testTruth, int testTruthRows, const ParamaterSet &params){
+                                  const double *testTruth, int testTruthRows, const ParameterSet &params){
 	runRegression(trainData, trainTruth, trainRows, trainCols, testData, testTruth, testRows, testCols, params);
 }
 //#endif
 
 double GPRegressor::runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
 								  const double *testData, const double *testTruth, int testRows, int testCols,
-								  const ParamaterSet &params){
+                                  const ParameterSet &params){
 	if(trainCols != testCols){
 		throw std::runtime_error("Train and test sets must have the same number of columns.");
 	}

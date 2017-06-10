@@ -30,8 +30,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef LM_OPTIMISER_HEADER
-#define LM_OPTIMISER_HEADER
+#ifndef GD_OPTIMISER_HEADER
+#define GD_OPTIMISER_HEADER
 
 #include "GPRegressor.h"
 #include "Util.h"
@@ -44,29 +44,91 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace GaussianProcess{
 	class GDOptimiser{
 	private:
+        //Noise to be added to covariance diagonal.
 		double jitter = 1.0;
+
+        //Covariance matrix, it's derivative and cholesky factorisation.
 		Matrix K, K_deriv, K_chol;
 
+        /**
+         * @brief logMarginalLikelihood Log marginal likelihood given current Parameters.
+         * @param alpha Alpha - as per GPML
+         * @param K Covariance matrix.
+         * @param Y Ground truth vector.
+         * @param rows # rows in cov/ground truth.
+         * @return Marginal Log Likelihood - as per GPML.
+         */
 		double logMarginalLikelihood(const Vector &alpha, const Matrix &K, const Vector &Y, int rows);
 
 	public:
+        /**
+         * @brief GDOptimiser
+         */
 		GDOptimiser();
+
+        /**
+         * @brief ~GDOptimiser
+         */
 		~GDOptimiser();
 
 //#ifdef WITH_PYTHON_BINDINGS
-		ParamaterSet optimise(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
-							  int trainTruthRows, const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel,
+        /**
+         * @brief optimise Maximises log-marginal-likelihood as per GPML.
+         * @param trainData Training data in row major c-style array format.
+         * @param trainCols # training cols(data dimensionality).
+         * @param trainRows # training rows.
+         * @param trainTruth Training ground truth vector.
+         * @param trainTruthRows # ground truth points(must match trainRows)
+         * @param params Initial Parameter struct(must match kernel choice).
+         * @param kernel Covariance kernel(must match Parameter struct).
+         * @param iterations Max # gradient iterations.
+         * @param targetStepSize Mininum step size for termination.
+         * @param learnRate Gradient update multiplier.
+         * @return Optimised Parameters.
+         */
+        ParameterSet optimise(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
+                              int trainTruthRows, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
 							  int iterations, double targetStepSize, double learnRate);
 //#endif
 
-		ParamaterSet optimise(const std::vector<double> &trainData, const std::vector<double> &trainTruth,
-							  int trainRows, int trainCols, const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel,
+        /**
+         * @brief optimise Maximises log-marginal-likelihood as per GPML.
+         * @param trainData Training data in row major c-style array format.
+         * @param trainTruth Training ground truth vector.
+         * @param trainRows # training rows.
+         * @param trainCols # training cols(data dimensionality).
+         * @param params Initial Parameter struct(must match kernel choice).
+         * @param kernel Covariance kernel(must match Parameter struct).
+         * @param iterations Max # gradient iterations.
+         * @param targetStepSize Mininum step size for termination.
+         * @param learnRate Gradient update multiplier.
+         * @return Optimised Parameters.
+         */
+        ParameterSet optimise(const std::vector<double> &trainData, const std::vector<double> &trainTruth,
+                              int trainRows, int trainCols, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
 							  int iterations, double targetStepSize, double learnRate);
-
 		
-		ParamaterSet optimise(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
-							  const ParamaterSet &params, const std::shared_ptr<Kernel> &kernel, int iterations,
+        /**
+         * @brief optimise Maximises log-marginal-likelihood as per GPML.
+         * @param trainData Training data in row major c-style array format.
+         * @param trainTruth Training ground truth vector.
+         * @param trainRows # training rows.
+         * @param trainCols # training cols(data dimensionality).
+         * @param params Initial Parameter struct(must match kernel choice).
+         * @param kernel Covariance kernel(must match Parameter struct).
+         * @param iterations Max # gradient iterations.
+         * @param targetStepSize Mininum step size for termination.
+         * @param learnRate Gradient update multiplier.
+         * @return Optimised Parameters.
+         */
+        ParameterSet optimise(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
+                              const ParameterSet &params, const std::shared_ptr<Kernel> &kernel, int iterations,
 							  double targetStepSize, double learnRate);
+
+        /**
+         * @brief setJitterFactor Updates jitter factor(noise added to covariance diagonal).
+         * @param jitterFactor Jitter(noise) value.
+         */
 		void setJitterFactor(double jitterFactor);
 	};
 }

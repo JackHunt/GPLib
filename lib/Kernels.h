@@ -42,26 +42,58 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Eigen/Dense>
 
 namespace GaussianProcess{
-	typedef std::map<std::string, double> ParamaterSet;
+    //Variable name, value.
+    typedef std::map<std::string, double> ParameterSet;
 	
+    //Available kernel types enumerated here.
 	enum KernelType{
 		SQUARED_EXPONENTIAL
 	};
 	
+    /**
+     * @brief The Kernel base class
+     */
 	class Kernel{
-	protected:
-		std::vector<std::string> params;
-		
 	public:
-		virtual double f(const Vector &a, const Vector &b, const ParamaterSet &params) const = 0;
-		virtual double df(const Vector &a, const Vector &b, const ParamaterSet &params, const std::string &variable) const = 0;
-		virtual ~Kernel(){};
+        /**
+         * @brief f Evaluates the kernel value at the given input and hyperParameters.
+         * @param a Vector a
+         * @param b Vector b
+         * @param params Parameter struct.
+         * @return Kernel value.
+         */
+        virtual double f(const Vector &a, const Vector &b, const ParameterSet &params) const = 0;
+
+        /**
+         * @brief df Computes a partial derivative of the kernel at the given input and hyperParameters.
+         * @param a Vector a
+         * @param b Vector b
+         * @param params Parameter struct.
+         * @param variable Variable to differentiate w.r.t.
+         * @return Partial deriivative w.r.t. variable.
+         */
+        virtual double df(const Vector &a, const Vector &b, const ParameterSet &params, const std::string &variable) const = 0;
+
+        /**
+         * @brief ~Kernel
+         */
+        virtual ~Kernel(){};
 	};
 
+    /**
+     * @brief The SquaredExponential Kernel class
+     */
 	class SquaredExponential : public Kernel{
 	public:
-		double f(const Vector &a, const Vector &b, const ParamaterSet &params) const;
-		double df(const Vector &a, const Vector &b, const ParamaterSet &params, const std::string &variable) const;
+        /*
+         * See base class.
+         */
+        double f(const Vector &a, const Vector &b, const ParameterSet &params) const;
+
+        /*
+         * See base class.
+         */
+        double df(const Vector &a, const Vector &b, const ParameterSet &params, const std::string &variable) const;
 	};
 }
 
