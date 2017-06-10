@@ -46,6 +46,7 @@ namespace GaussianProcess{
 	private:
 		double jitter = 1.0;
 		Matrix K, K_deriv, K_chol;
+
 		double logMarginalLikelihood(const Vector &alpha, const Matrix &K, const Vector &Y, int rows);
 
 	public:
