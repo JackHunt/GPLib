@@ -45,16 +45,8 @@ GDOptimiser::~GDOptimiser() {
 ParameterSet GDOptimiser::optimise(const std::vector<double> &trainData, const std::vector<double> &trainTruth,
                                    int trainRows, int trainCols, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
 								   int iterations, double targetStepSize, double learnRate) {
-	optimise(&trainData[0], &trainTruth[0], trainRows, trainCols, params, kernel, iterations, targetStepSize, learnRate);
+	return optimise(&trainData[0], &trainTruth[0], trainRows, trainCols, params, kernel, iterations, targetStepSize, learnRate);
 }
-
-//#ifdef WITH_PYTHON_BINDINGS
-ParameterSet GDOptimiser::optimise(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
-                                   int trainTruthRows, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
-								   int iterations, double targetStepSize, double learnRate) {
-	optimise(trainData, trainTruth, trainRows, trainCols, params, kernel, iterations, targetStepSize, learnRate);
-}
-//#endif
 
 ParameterSet GDOptimiser::optimise(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
                                    const ParameterSet &params, const std::shared_ptr<Kernel> &kernel, int iterations,

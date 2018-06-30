@@ -88,10 +88,10 @@ namespace GaussianProcess{
 		const size_t rowsA = A.rows();
 		const size_t rowsB = B.rows();
 #ifdef WITH_OPENMP
-#pragma omp parallel for schedule(dynamic) collapse(2)
+#pragma omp parallel for
 #endif
-		for(size_t i = 0; i < rowsA; i++){
-			for(size_t j = 0; j < rowsB; j++){
+    for(int i = 0; i < rowsA; i++) {
+			for(int j = 0; j < rowsB; j++){
 				if(var.compare("") != 0){
 					C(i, j) = kernel->df(A.row(i), B.row(j), params, var);
 				}else {

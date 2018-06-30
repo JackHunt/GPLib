@@ -51,16 +51,8 @@ GPRegressor::~GPRegressor(){
 double GPRegressor::runRegression(const std::vector<double> &trainData, const std::vector<double> &trainTruth, int trainRows, int trainCols,
 								  const std::vector<double> &testData, const std::vector<double> &testTruth, int testRows, int testCols,
                                   const ParameterSet &params){
-	runRegression(&trainData[0], &trainTruth[0], trainRows, trainCols, &testData[0], &testTruth[0], testRows, testCols, params);
+	return runRegression(&trainData[0], &trainTruth[0], trainRows, trainCols, &testData[0], &testTruth[0], testRows, testCols, params);
 }
-
-//#ifdef WITH_PYTHON_BINDINGS
-double GPRegressor::runRegression(const double *trainData, int trainCols, int trainRows, const double *trainTruth,
-								  int trainTruthRows, const double *testData, int testCols, int testRows,
-                                  const double *testTruth, int testTruthRows, const ParameterSet &params){
-	runRegression(trainData, trainTruth, trainRows, trainCols, testData, testTruth, testRows, testCols, params);
-}
-//#endif
 
 double GPRegressor::runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
 								  const double *testData, const double *testTruth, int testRows, int testCols,
@@ -129,9 +121,9 @@ std::vector<double> GPRegressor::getStdDev() {
 	const size_t len = v_s.rows();
 	std::vector<double> stdDev(len);
 #ifdef WITH_OPENMP
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for
 #endif
-	for(size_t i = 0; i < len; i++) {
+	for(int i = 0; i < len; i++) {
 		stdDev[i] = sqrt(v_s(i, i));
 	}
 
