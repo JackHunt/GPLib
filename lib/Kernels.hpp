@@ -44,17 +44,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace GPLib {
     //Variable name, value.
     typedef std::map<std::string, double> ParameterSet;
-	
+
     //Available kernel types enumerated here.
-	enum KernelType{
-		SQUARED_EXPONENTIAL
-	};
-	
+    enum KernelType {
+        SQUARED_EXPONENTIAL
+    };
+
     /**
      * @brief The Kernel base class
      */
-	class Kernel{
-	public:
+    class Kernel {
+    public:
         /**
          * @brief f Evaluates the kernel value at the given input and hyperParameters.
          * @param a Vector a
@@ -77,14 +77,14 @@ namespace GPLib {
         /**
          * @brief ~Kernel
          */
-        virtual ~Kernel(){};
-	};
+        virtual ~Kernel() {};
+    };
 
     /**
      * @brief The SquaredExponential Kernel class
      */
-	class SquaredExponential : public Kernel{
-	public:
+    class SquaredExponential : public Kernel {
+    public:
         /*
          * See base class.
          */
@@ -94,7 +94,7 @@ namespace GPLib {
          * See base class.
          */
         double df(const Vector &a, const Vector &b, const ParameterSet &params, const std::string &variable) const;
-	};
+    };
 }
 
 #endif

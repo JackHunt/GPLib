@@ -35,79 +35,80 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace GPLib;
 
 GDOptimiser::GDOptimiser() {
-	//
+    //
 }
 
 GDOptimiser::~GDOptimiser() {
-	//
+    //
 }
 
 ParameterSet GDOptimiser::optimise(const std::vector<double> &trainData, const std::vector<double> &trainTruth,
-                                   int trainRows, int trainCols, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
-								   int iterations, double targetStepSize, double learnRate) {
-	return optimise(&trainData[0], &trainTruth[0], trainRows, trainCols, params, kernel, iterations, targetStepSize, learnRate);
+                                   int trainRows, int trainCols, const ParameterSet &params, 
+                                   const std::shared_ptr<Kernel> &kernel, int iterations, double targetStepSize, 
+                                   double learnRate) {
+    return optimise(&trainData[0], &trainTruth[0], trainRows, trainCols, params, kernel, iterations, targetStepSize, learnRate);
 }
 
 ParameterSet GDOptimiser::optimise(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
                                    const ParameterSet &params, const std::shared_ptr<Kernel> &kernel, int iterations,
-								   double targetStepSize, double learnRate) {
-	double stepNorm = 1e5;
-	double newStep = 0.0;
-	int iter = 0;
+    double targetStepSize, double learnRate) {
+    double stepNorm = 1e5;
+    double newStep = 0.0;
+    int iter = 0;
 
-	//Wrap data in Eigen matrices and vectors.
-	Eigen::Map<const Matrix> X(trainData, trainRows, trainCols);
-	Eigen::Map<const Vector> Y(trainTruth, trainRows);
-	
+    //Wrap data in Eigen matrices and vectors.
+    Eigen::Map<const Matrix> X(trainData, trainRows, trainCols);
+    Eigen::Map<const Vector> Y(trainTruth, trainRows);
+
     //Get kernel and initial Parameters(copy).
     ParameterSet optimParams(params);
 
-	//Reallocate storage, if necessary.
-	if(K.rows() != X.rows() || K.cols() != X.rows()) {
-		K.resize(X.rows(), X.rows());
-		K_deriv.resize(K.rows(), K.cols());
-	    K_chol.resize(K.rows(), K.cols());
-	}
-	
-	//Optimise for solution.
-	while(stepNorm > targetStepSize && iter < iterations) {
-		//Build covariance matrix.
-		buildCovarianceMatrix(X, X, K, optimParams, kernel);
-		K += Matrix::Identity(K.rows(), K.cols())*jitter;
+    //Reallocate storage, if necessary.
+    if (K.rows() != X.rows() || K.cols() != X.rows()) {
+        K.resize(X.rows(), X.rows());
+        K_deriv.resize(K.rows(), K.cols());
+        K_chol.resize(K.rows(), K.cols());
+    }
 
-		//Solve for alpha.
-		jitterChol(K, K_chol);
-		Vector alpha = K_chol.triangularView<Eigen::Lower>().solve(Y);
-		
-		//Build factor to reduce recomputing overhead.
-		Matrix K_inv = K.inverse();
-		Matrix factor = alpha * alpha.transpose() - K_inv;
+    //Optimise for solution.
+    while (stepNorm > targetStepSize && iter < iterations) {
+        //Build covariance matrix.
+        buildCovarianceMatrix(X, X, K, optimParams, kernel);
+        K += Matrix::Identity(K.rows(), K.cols())*jitter;
+
+        //Solve for alpha.
+        jitterChol(K, K_chol);
+        Vector alpha = K_chol.triangularView<Eigen::Lower>().solve(Y);
+
+        //Build factor to reduce recomputing overhead.
+        Matrix K_inv = K.inverse();
+        Matrix factor = alpha * alpha.transpose() - K_inv;
 
         //Build covariance matrix partial derivative and update, for each hyperParameter.
-		stepNorm = 0.0;
-		for(std::pair<const std::string, double> &par : optimParams) {
-			const std::string &var = par.first;
-			buildCovarianceMatrix(X, X, K_deriv, optimParams, kernel, var);
-			newStep = -1.0*learnRate*(factor*K_deriv).trace();
-			par.second += newStep;
-			stepNorm += newStep*newStep;
-		}
-		stepNorm = sqrt(stepNorm);
-		const double ll = logMarginalLikelihood(alpha, K, Y, K.rows());
+        stepNorm = 0.0;
+        for (std::pair<const std::string, double> &par : optimParams) {
+            const std::string &var = par.first;
+            buildCovarianceMatrix(X, X, K_deriv, optimParams, kernel, var);
+            newStep = -1.0*learnRate*(factor*K_deriv).trace();
+            par.second += newStep;
+            stepNorm += newStep * newStep;
+        }
+        stepNorm = sqrt(stepNorm);
+        const double ll = logMarginalLikelihood(alpha, K, Y, K.rows());
 
-		std::cout << "Iteration: " << iter << " Log-Likelihood: " << ll << std::endl;
-		iter++;
-	}
-	return optimParams;
+        std::cout << "Iteration: " << iter << " Log-Likelihood: " << ll << std::endl;
+        iter++;
+    }
+    return optimParams;
 }
 
 double GDOptimiser::logMarginalLikelihood(const Vector &alpha, const Matrix &K, const Vector &Y, int rows) {
-	const double t1 = -0.5 * Y.transpose() * alpha;
-	const double t2 = 0.5 * log(K.determinant());
-	const double t3 = (static_cast<float>(rows) / 2.0) * log(2.0 * M_PI);
-	return t1 - t2 - t3;
+    const double t1 = -0.5 * Y.transpose() * alpha;
+    const double t2 = 0.5 * log(K.determinant());
+    const double t3 = (static_cast<float>(rows) / 2.0) * log(2.0 * M_PI);
+    return t1 - t2 - t3;
 }
 
 void GDOptimiser::setJitterFactor(double jitterFactor) {
-	jitter = jitterFactor;
+    jitter = jitterFactor;
 }
