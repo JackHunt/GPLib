@@ -110,7 +110,7 @@ namespace GPLib {
          * @brief getStdDev Gets Standard Deviations for Means. GP must be trained first.
          * @return vector of Standard Deviations.
          */
-        std::vector<T> getStdDev();
+        std::vector<T> getStdDev() const;
 
         /**
          * @brief setJitterFactor Updates jitter factor(noise added to covariance diagonal).

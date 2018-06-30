@@ -126,7 +126,7 @@ std::vector<T> GPRegressor<T>::getCovariances() const {
 }
 
 template<typename T>
-std::vector<T> GPRegressor<T>::getStdDev() {
+std::vector<T> GPRegressor<T>::getStdDev() const {
     const size_t len = v_s.rows();
     std::vector<T> stdDev(len);
 #ifdef WITH_OPENMP

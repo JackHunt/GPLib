@@ -59,7 +59,7 @@ namespace GPLib {
          * @param rows # rows in cov/ground truth.
          * @return Marginal Log Likelihood - as per GPML.
          */
-        T logMarginalLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y, int rows);
+        T logMarginalLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y, int rows) const;
 
     public:
         /**

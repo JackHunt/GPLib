@@ -82,11 +82,11 @@ ParameterSet<T> GDOptimiser<T>::optimise(const T *trainData, const T *trainTruth
 
         //Solve for alpha.
         jitterChol(K, K_chol);
-        auto alpha = K_chol.triangularView<Eigen::Lower>().solve(Y);
+        const auto alpha = K_chol.triangularView<Eigen::Lower>().solve(Y);
 
         //Build factor to reduce recomputing overhead.
-        auto K_inv = K.inverse();
-        auto factor = alpha * alpha.transpose() - K_inv;
+        const auto K_inv = K.inverse();
+        const auto factor = alpha * alpha.transpose() - K_inv;
 
         //Build covariance matrix partial derivative and update, for each hyperParameter.
         stepNorm = 0.0;
@@ -107,7 +107,7 @@ ParameterSet<T> GDOptimiser<T>::optimise(const T *trainData, const T *trainTruth
 }
 
 template<typename T>
-T GDOptimiser<T>::logMarginalLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y, int rows) {
+T GDOptimiser<T>::logMarginalLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y, int rows) const {
     const T t1 = -0.5 * Y.transpose() * alpha;
     const T t2 = 0.5 * log(K.determinant());
     const T t3 = (static_cast<float>(rows) / 2.0) * log(2.0 * M_PI);
