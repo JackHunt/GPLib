@@ -90,16 +90,17 @@ namespace GPLib {
         const size_t rowsA = A.rows();
         const size_t rowsB = B.rows();
 #ifdef WITH_OPENMP
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
 #endif
         for (int i = 0; i < rowsA; i++) {
-            for (int j = 0; j < rowsB; j++) {
+            for (int j = i + 1; j < rowsB; j++) {
                 if (var.compare("") != 0) {
                     C(i, j) = kernel->df(A.row(i), B.row(j), params, var);
                 }
                 else {
                     C(i, j) = kernel->f(A.row(i), B.row(j), params);
                 }
+                C(j, i) = C(i, j)
             }
         }
     }

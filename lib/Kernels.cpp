@@ -58,7 +58,7 @@ T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b, const Paramet
 
 template<typename T>
 T SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params,
-                         const std::string &variable) const {
+                            const std::string &variable) const {
     if (params.find("sigma") == params.end() || params.find("lambda") == params.end()) {
         throw std::runtime_error("Invalid Parameter set provided.");
     }

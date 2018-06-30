@@ -130,7 +130,7 @@ std::vector<T> GPRegressor<T>::getStdDev() const {
     const size_t len = v_s.rows();
     std::vector<T> stdDev(len);
 #ifdef WITH_OPENMP
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
 #endif
     for (int i = 0; i < len; i++) {
         stdDev[i] = sqrt(v_s(i, i));
