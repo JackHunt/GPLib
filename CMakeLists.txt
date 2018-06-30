@@ -1,6 +1,6 @@
 #Set CMake version and project name.
 cmake_minimum_required(VERSION 2.8)
-project(GaussianProcess)
+project(GPLib)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
 
 #Set compiler flags for Windows and Unix, respectively.
@@ -41,7 +41,7 @@ set(SOURCES
 )
 
 #Add library.
-add_library(GaussianProcess ${HEADERS} ${SOURCES})
+add_library(GPLib ${HEADERS} ${SOURCES})
 
 #Try and find SWIG to build python bindings.
 option(BUILD_PYTHON_BINDINGS "Build Python3 Bindings" OFF)
@@ -57,7 +57,7 @@ if(BUILD_PYTHON_BINDINGS)
 	set_source_files_properties(swig/bindings.i PROPERTIES CPLUSPLUS ON)
 #	set_source_files_properties(swig/bindings.i PROPERTIES SWIG_FLAGS "-includeall")
 	swig_add_module(pyGP python swig/bindings.i ${SOURCES})
-	swig_link_libraries(pyGP ${PYTHON_LIBRARIES} ${GaussianProcess})
-	target_link_libraries(_pyGP ${GaussianProcess})
+	swig_link_libraries(pyGP ${PYTHON_LIBRARIES} ${GPLib})
+	target_link_libraries(_pyGP ${GPLib})
   endif(SWIG_FOUND)
 endif(BUILD_PYTHON_BINDINGS)
