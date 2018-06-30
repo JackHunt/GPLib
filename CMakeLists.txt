@@ -31,7 +31,7 @@ set(HEADERS
   lib/GDOptimiser.hpp
   lib/Kernels.hpp
   lib/Util.hpp
-  lib/typedefs.hpp
+  lib/Aliases.hpp
 )
 
 set(SOURCES

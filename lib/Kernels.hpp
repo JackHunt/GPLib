@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GP_KERNELS_HEADER
 #define GP_KERNELS_HEADER
 
-#include "typedefs.hpp"
+#include "Aliases.hpp"
 #include <vector>
 #include <cmath>
 #include <Eigen/Dense>
