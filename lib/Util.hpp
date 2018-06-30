@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 #include <string>
-#include "Kernels.h"
+#include "Kernels.hpp"
 
 namespace GaussianProcess{
 

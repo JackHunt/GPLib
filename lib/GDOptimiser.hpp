@@ -33,8 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GD_OPTIMISER_HEADER
 #define GD_OPTIMISER_HEADER
 
-#include "GPRegressor.h"
-#include "Util.h"
+#include "GPRegressor.hpp"
+#include "Util.hpp"
 #include <cmath>
 #include <iostream>
 #include <memory>

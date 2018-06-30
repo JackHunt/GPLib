@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GP_KERNELS_HEADER
 #define GP_KERNELS_HEADER
 
-#include "typedefs.h"
+#include "typedefs.hpp"
 
 #include <string>
 #include <map>

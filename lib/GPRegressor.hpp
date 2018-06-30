@@ -33,9 +33,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GP_REGRESSOR_HEADER
 #define GP_REGRESSOR_HEADER
 
-#include "Kernels.h"
-#include "typedefs.h"
-#include "Util.h"
+#include "Kernels.hpp"
+#include "typedefs.hpp"
+#include "Util.hpp"
 
 #include <Eigen/Dense>
 #include <memory>

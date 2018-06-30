@@ -27,10 +27,11 @@ find_package(Eigen REQUIRED)
 
 #Set the headers and sources.
 set(HEADERS
-  lib/GPRegressor.h
-  lib/GDOptimiser.h
-  lib/Kernels.h
-  lib/Util.h
+  lib/GPRegressor.hpp
+  lib/GDOptimiser.hpp
+  lib/Kernels.hpp
+  lib/Util.hpp
+  lib/typedefs.hpp
 )
 
 set(SOURCES
