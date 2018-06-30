@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Kernels.hpp"
 
-using namespace GaussianProcess;
+using namespace GPLib;
 
 double SquaredExponential::f(const Vector &a, const Vector &b, const ParameterSet &params) const{
 	if(params.find("sigma") == params.end() || params.find("lambda") == params.end()){

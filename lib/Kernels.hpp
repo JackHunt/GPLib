@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cmath>
 #include <Eigen/Dense>
 
-namespace GaussianProcess{
+namespace GPLib {
     //Variable name, value.
     typedef std::map<std::string, double> ParameterSet;
 	

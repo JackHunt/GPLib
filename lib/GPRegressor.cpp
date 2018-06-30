@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "GPRegressor.hpp"
 
-using namespace GaussianProcess;
+using namespace GPLib;
 
 GPRegressor::GPRegressor(KernelType kernType){
 	switch(kernType){

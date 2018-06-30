@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "GDOptimiser.hpp"
 
-using namespace GaussianProcess;
+using namespace GPLib;
 
 GDOptimiser::GDOptimiser() {
 	//

@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include "Kernels.hpp"
 
-namespace GaussianProcess{
+namespace GPLib {
 
     /**
      * @brief jitterChol Performs a cholesky decomposition. Deals with non Pos-Semidef matrices by adding jitter successively to diagonal.

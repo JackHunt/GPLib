@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <iostream>
 
-namespace GaussianProcess{
+namespace GPLib {
 	class GPRegressor{
     private:
         //Kernel defining this type of regressor.
