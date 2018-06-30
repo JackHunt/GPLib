@@ -42,13 +42,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Eigen/Dense>
 
 namespace GPLib {
+    template<typename T>
     class GDOptimiser {
     private:
         //Noise to be added to covariance diagonal.
-        double jitter = 1.0;
+        T jitter = 1.0;
 
         //Covariance matrix, it's derivative and cholesky factorisation.
-        Matrix K, K_deriv, K_chol;
+        Matrix<T> K, K_deriv, K_chol;
 
         /**
          * @brief logMarginalLikelihood Log marginal likelihood given current Parameters.
@@ -58,7 +59,7 @@ namespace GPLib {
          * @param rows # rows in cov/ground truth.
          * @return Marginal Log Likelihood - as per GPML.
          */
-        double logMarginalLikelihood(const Vector &alpha, const Matrix &K, const Vector &Y, int rows);
+        T logMarginalLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y, int rows);
 
     public:
         /**
@@ -84,10 +85,9 @@ namespace GPLib {
          * @param learnRate Gradient update multiplier.
          * @return Optimised Parameters.
          */
-        ParameterSet optimise(const std::vector<double> &trainData, const std::vector<double> &trainTruth,
-                              int trainRows, int trainCols, const ParameterSet &params, 
-                              const std::shared_ptr<Kernel> &kernel, int iterations, double targetStepSize, 
-                              double learnRate);
+        ParameterSet<T> optimise(const std::vector<T> &trainData, const std::vector<T> &trainTruth, int trainRows,
+                                 int trainCols, const ParameterSet<T> &params, const std::shared_ptr< Kernel<T> > &kernel, 
+                                 int iterations, T targetStepSize, T learnRate);
 
         /**
          * @brief optimise Maximises log-marginal-likelihood as per GPML.
@@ -102,15 +102,15 @@ namespace GPLib {
          * @param learnRate Gradient update multiplier.
          * @return Optimised Parameters.
          */
-        ParameterSet optimise(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
-                              const ParameterSet &params, const std::shared_ptr<Kernel> &kernel, int iterations,
-                              double targetStepSize, double learnRate);
+        ParameterSet<T> optimise(const T *trainData, const T *trainTruth, int trainRows, int trainCols,
+                                 const ParameterSet<T> &params, const std::shared_ptr< Kernel<T> > &kernel, int iterations,
+                                 T targetStepSize, T learnRate);
 
         /**
          * @brief setJitterFactor Updates jitter factor(noise added to covariance diagonal).
          * @param jitterFactor Jitter(noise) value.
          */
-        void setJitterFactor(double jitterFactor);
+        void setJitterFactor(T jitterFactor);
     };
 }
 

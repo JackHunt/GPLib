@@ -34,7 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace GPLib;
 
-double SquaredExponential::f(const Vector &a, const Vector &b, const ParameterSet &params) const {
+template<typename T>
+T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params) const {
     if (params.find("sigma") == params.end() || params.find("lambda") == params.end()) {
         throw std::runtime_error("Invalid Parameter set provided.");
     }
@@ -43,20 +44,21 @@ double SquaredExponential::f(const Vector &a, const Vector &b, const ParameterSe
         throw std::runtime_error("Vector sizes must match in kernel.");
     }
 
-    double sqEucDist = 0.0;
+    T sqEucDist = 0.0;
     const size_t size = a.size();
     for (size_t i = 0; i < size; i++) {
         sqEucDist += (a(i) - b(i)) * (a(i) - b(i));
     }
 
-    const double sigma = params.at("sigma");
-    const double lambda = params.at("lambda");
+    const T sigma = params.at("sigma");
+    const T lambda = params.at("lambda");
 
     return sigma * sigma * expf(-1.0 * (sqEucDist / (2.0 * lambda * lambda)));
 }
 
-double SquaredExponential::df(const Vector &a, const Vector &b, const ParameterSet &params, 
-                              const std::string &variable) const {
+template<typename T>
+T SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params,
+                         const std::string &variable) const {
     if (params.find("sigma") == params.end() || params.find("lambda") == params.end()) {
         throw std::runtime_error("Invalid Parameter set provided.");
     }
@@ -65,15 +67,15 @@ double SquaredExponential::df(const Vector &a, const Vector &b, const ParameterS
         throw std::runtime_error("Vector sizes must match in kernel.");
     }
 
-    double sqEucDist = 0.0;
+    T sqEucDist = 0.0;
     const size_t size = a.size();
     for (size_t i = 0; i < size; i++) {
         sqEucDist += (a(i) - b(i)) * (a(i) - b(i));
     }
 
-    const double sigma = params.at("sigma");
-    const double lambda = params.at("lambda");
-    double deriv = 0.0;
+    const T sigma = params.at("sigma");
+    const T lambda = params.at("lambda");
+    T deriv = 0.0;
 
     if (variable.compare("sigma") == 0) {
         deriv = 2.0 * sigma * expf((-0.5 * sqEucDist) / lambda * lambda);

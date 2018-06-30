@@ -34,17 +34,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GP_KERNELS_HEADER
 
 #include "typedefs.hpp"
-
-#include <string>
-#include <map>
 #include <vector>
 #include <cmath>
 #include <Eigen/Dense>
 
 namespace GPLib {
-    //Variable name, value.
-    typedef std::map<std::string, double> ParameterSet;
-
     //Available kernel types enumerated here.
     enum KernelType {
         SQUARED_EXPONENTIAL
@@ -53,6 +47,7 @@ namespace GPLib {
     /**
      * @brief The Kernel base class
      */
+    template<typename T>
     class Kernel {
     public:
         /**
@@ -62,7 +57,7 @@ namespace GPLib {
          * @param params Parameter struct.
          * @return Kernel value.
          */
-        virtual double f(const Vector &a, const Vector &b, const ParameterSet &params) const = 0;
+        virtual T f(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params) const = 0;
 
         /**
          * @brief df Computes a partial derivative of the kernel at the given input and hyperParameters.
@@ -72,7 +67,7 @@ namespace GPLib {
          * @param variable Variable to differentiate w.r.t.
          * @return Partial deriivative w.r.t. variable.
          */
-        virtual double df(const Vector &a, const Vector &b, const ParameterSet &params, const std::string &variable) const = 0;
+        virtual T df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params, const std::string &variable) const = 0;
 
         /**
          * @brief ~Kernel
@@ -83,17 +78,18 @@ namespace GPLib {
     /**
      * @brief The SquaredExponential Kernel class
      */
-    class SquaredExponential : public Kernel {
+    template<typename T>
+    class SquaredExponential : public Kernel<T> {
     public:
         /*
          * See base class.
          */
-        double f(const Vector &a, const Vector &b, const ParameterSet &params) const;
+        T f(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params) const;
 
         /*
          * See base class.
          */
-        double df(const Vector &a, const Vector &b, const ParameterSet &params, const std::string &variable) const;
+        T df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params, const std::string &variable) const;
     };
 }
 

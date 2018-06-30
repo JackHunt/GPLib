@@ -43,20 +43,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 namespace GPLib {
+    template<typename T>
     class GPRegressor {
     private:
         //Kernel defining this type of regressor.
-        std::shared_ptr<Kernel> kernel;
+        std::shared_ptr< Kernel<T> > kernel;
 
         //Output predicted mean and covariance.
-        Vector f_s;
-        Matrix v_s;
+        Vector<T> f_s;
+        Matrix<T> v_s;
 
         //Covariance matrices.
-        Matrix K, K_s, K_ss;
+        Matrix<T> K, K_s, K_ss;
 
         //Noise to be added to kernel diagonal.
-        double jitter = 1.0;
+        T jitter = 1.0;
 
     public:
         /**
@@ -72,10 +73,9 @@ namespace GPLib {
          * @param params Parameters for kernel(must match kernel type of this GP).
          * @return Mean Squared Error between predicted means and ground truth for test set.
          */
-        double runRegression(const std::vector<double> &trainData, const std::vector<double> &trainTruth, 
-                             int trainRows, int trainCols, const std::vector<double> &testData, 
-                             const std::vector<double> &testTruth, int testRows, int testCols,
-                             const ParameterSet &params);
+        T runRegression(const std::vector<T> &trainData, const std::vector<T> &trainTruth, int trainRows, 
+                        int trainCols, const std::vector<T> &testData, const std::vector<T> &testTruth, 
+                        int testRows, int testCols, const ParameterSet<T> &params);
 
         /**
          * @brief runRegression Trains a Gaussian Process regression model.
@@ -90,33 +90,33 @@ namespace GPLib {
          * @param params Parameters for kernel(must match kernel type of this GP).
          * @return Mean Squared Error between predicted means and ground truth for test set.
          */
-        double runRegression(const double *trainData, const double *trainTruth, int trainRows, int trainCols,
-                             const double *testData, const double *testTruth, int testRows, int testCols,
-                             const ParameterSet &params);
+        T runRegression(const T *trainData, const T *trainTruth, int trainRows, int trainCols,
+                        const T *testData, const T *testTruth, int testRows, int testCols,
+                        const ParameterSet<T> &params);
 
         /**
          * @brief getMeans Gets the Means associated with the test set.
          * @return vector of Means.
          */
-        std::vector<double> getMeans() const;
+        std::vector<T> getMeans() const;
 
         /**
          * @brief getCovariances Gets the Covariance Matrix associated with the test set. GP must be trained first.
          * @return std::vector c-style row major Covariance Matrix.
          */
-        std::vector<double> getCovariances() const;
+        std::vector<T> getCovariances() const;
 
         /**
          * @brief getStdDev Gets Standard Deviations for Means. GP must be trained first.
          * @return vector of Standard Deviations.
          */
-        std::vector<double> getStdDev();
+        std::vector<T> getStdDev();
 
         /**
          * @brief setJitterFactor Updates jitter factor(noise added to covariance diagonal).
          * @param jitterFactor Jitter(noise) value.
          */
-        void setJitterFactor(double jitterFactor);
+        void setJitterFactor(T jitterFactor);
 
         /**
          * @brief GPRegressor A Gaussian Process regressor.

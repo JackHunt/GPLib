@@ -33,12 +33,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GAUSSIAN_PROCESS_TYPEDEFS_HEADER
 #define GAUSSIAN_PROCESS_TYPEDEFS_HEADER
 
+#include <string>
+#include <map>
 #include <Eigen/Dense>
 
 namespace GPLib {
-    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Matrix;
-    typedef Eigen::VectorXd Vector;
+    template<typename T>
+    using Matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
+    template<typename T>
+    using Vector = Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::RowMajor>;
+
+    //Variable name, value.
+    template<typename T>
+    using ParameterSet = std::map<std::string, T>;
 }
 
 #endif

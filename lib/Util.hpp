@@ -38,27 +38,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Kernels.hpp"
 
 namespace GPLib {
-
     /**
      * @brief jitterChol Performs a cholesky decomposition. Deals with non Pos-Semidef matrices by adding jitter successively to diagonal.
      * @param A Matrix to compute cholesky decomposition of.
      * @param C Matrix to write cholesky decomposition to.
      */
-    inline void jitterChol(const Matrix &A, Matrix &C) {
+    template<typename T>
+    inline void jitterChol(const Matrix<T> &A, Matrix<T> &C) {
         const size_t rowsA = A.rows();
         const size_t colsA = A.cols();
         if (rowsA != colsA) {
             throw std::runtime_error("Cannot take Cholesky Decomposition of non square matrix.");
         }
 
-        Matrix jitter = Matrix::Identity(rowsA, colsA);
+        Matrix<T> jitter = Matrix<T>::Identity(rowsA, colsA);
         jitter *= 1e-8;
 
         bool passed = false;
 
         //Successively add jitter to make positive semi-definite.
         while (!passed && jitter(0, 0) < 1e4) {
-            Eigen::LLT<Matrix> chol(A + jitter);
+            Eigen::LLT< Matrix<T> > chol(A + jitter);
             if (chol.info() == Eigen::NumericalIssue) {//Not pos-semidefinite.
                 jitter *= 1.1;
             }
@@ -83,8 +83,9 @@ namespace GPLib {
      * @param kernel Kernel(must match Parameters)
      * @param var Variable to differentiate w.r.t if derivative matrix is required.
      */
-    inline void buildCovarianceMatrix(const Eigen::Map<const Matrix> &A, const Eigen::Map<const Matrix> &B,
-                                      Matrix &C, const ParameterSet &params, const std::shared_ptr<Kernel> &kernel,
+    template<typename T>
+    inline void buildCovarianceMatrix(const Eigen::Map< const Matrix<T> > &A, const Eigen::Map< const Matrix<T> > &B,
+                                      Matrix<T> &C, const ParameterSet<T> &params, const std::shared_ptr< Kernel<T> > &kernel,
         const std::string &var = std::string("")) {
         const size_t rowsA = A.rows();
         const size_t rowsB = B.rows();

@@ -34,39 +34,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace GPLib;
 
-GPRegressor::GPRegressor(KernelType kernType) {
+template<typename T>
+GPRegressor<T>::GPRegressor(KernelType kernType) {
     switch (kernType) {
     case SQUARED_EXPONENTIAL:
-        kernel.reset(new SquaredExponential());
+        kernel.reset(new SquaredExponential<T>());
         break;
     default:
         throw std::runtime_error("Invalid kernel choice.");
     }
 }
 
-GPRegressor::~GPRegressor() {
+template<typename T>
+GPRegressor<T>::~GPRegressor() {
     //
 }
 
-double GPRegressor::runRegression(const std::vector<double> &trainData, const std::vector<double> &trainTruth, 
-                                  int trainRows, int trainCols, const std::vector<double> &testData, 
-                                  const std::vector<double> &testTruth, int testRows, int testCols, 
-                                  const ParameterSet &params) {
-    return runRegression(&trainData[0], &trainTruth[0], trainRows, trainCols, &testData[0], &testTruth[0], testRows, testCols, params);
+template<typename T>
+T GPRegressor<T>::runRegression(const std::vector<T> &trainData, const std::vector<T> &trainTruth,
+                                int trainRows, int trainCols, const std::vector<T> &testData, 
+                                const std::vector<T> &testTruth, int testRows, int testCols, 
+                                const ParameterSet<T> &params) {
+    return runRegression(&trainData[0], &trainTruth[0], trainRows, trainCols, &testData[0], 
+                         &testTruth[0], testRows, testCols, params);
 }
 
-double GPRegressor::runRegression(const double *trainData, const double *trainTruth, int trainRows, 
-                                  int trainCols, const double *testData, const double *testTruth, 
-                                  int testRows, int testCols, const ParameterSet &params) {
+template<typename T>
+T GPRegressor<T>::runRegression(const T *trainData, const T *trainTruth, int trainRows,
+                                int trainCols, const T *testData, const T *testTruth, 
+                                int testRows, int testCols, const ParameterSet<T> &params) {
     if (trainCols != testCols) {
         throw std::runtime_error("Train and test sets must have the same number of columns.");
     }
 
     //Wrap data in Eigen matrices and vectors.
-    Eigen::Map<const Matrix> X(trainData, trainRows, trainCols);
-    Eigen::Map<const Matrix> X_s(testData, testRows, testCols);
-    Eigen::Map<const Vector> Y(trainTruth, trainRows);
-    Eigen::Map<const Vector> Y_s(testTruth, testRows);
+    Eigen::Map< const Matrix<T> > X(trainData, trainRows, trainCols);
+    Eigen::Map< const Matrix<T> > X_s(testData, testRows, testCols);
+    Eigen::Map< const Vector<T> > Y(trainTruth, trainRows);
+    Eigen::Map< const Vector<T> > Y_s(testTruth, testRows);
 
     //Reallocate storage, if necessary.
     if (K.rows() != trainRows || K.cols() != trainRows) {
@@ -86,7 +91,7 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
     }
 
     //Solve for alpha.
-    Matrix L(trainRows, trainRows);
+    Matrix<T> L(trainRows, trainRows);
     jitterChol(K, L);
 
     /*
@@ -99,28 +104,31 @@ double GPRegressor::runRegression(const double *trainData, const double *trainTr
     v_s = K_ss - v.transpose() * v;
     */
 
-    Matrix tmp = L.triangularView<Eigen::Lower>().solve(K_s);
+    const auto tmp = L.triangularView<Eigen::Lower>().solve(K_s);
     f_s = tmp.transpose() * L.triangularView<Eigen::Lower>().solve(Y);
     v_s = K_ss - tmp.transpose() * tmp;
 
     //Get the MSE.
-    auto sq = [](double a) {return a * a; };
-    Vector predDiff = Y_s - f_s;
+    auto sq = [](T a) {return a * a; };
+    auto predDiff = Y_s - f_s;
     predDiff = predDiff.unaryExpr(sq);
     return predDiff.mean();
 }
 
-std::vector<double> GPRegressor::getMeans() const {
-    return std::vector<double>(f_s.data(), f_s.data() + f_s.rows());
+template<typename T>
+std::vector<T> GPRegressor<T>::getMeans() const {
+    return std::vector<T>(f_s.data(), f_s.data() + f_s.rows());
 }
 
-std::vector<double> GPRegressor::getCovariances() const {
-    return std::vector<double>(v_s.data(), v_s.data() + v_s.rows());
+template<typename T>
+std::vector<T> GPRegressor<T>::getCovariances() const {
+    return std::vector<T>(v_s.data(), v_s.data() + v_s.rows());
 }
 
-std::vector<double> GPRegressor::getStdDev() {
+template<typename T>
+std::vector<T> GPRegressor<T>::getStdDev() {
     const size_t len = v_s.rows();
-    std::vector<double> stdDev(len);
+    std::vector<T> stdDev(len);
 #ifdef WITH_OPENMP
 #pragma omp parallel for
 #endif
@@ -131,6 +139,7 @@ std::vector<double> GPRegressor::getStdDev() {
     return stdDev;
 }
 
-void GPRegressor::setJitterFactor(double jitterFactor) {
+template<typename T>
+void GPRegressor<T>::setJitterFactor(T jitterFactor) {
     jitter = jitterFactor;
 }
