@@ -42,7 +42,13 @@ namespace GPLib {
     using Matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
     template<typename T>
-    using Vector = Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::RowMajor>;
+    using MapMatrix = Eigen::Map< const Matrix<T> >;
+
+    template<typename T>
+    using Vector = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+
+    template<typename T>
+    using MapVector = Eigen::Map< Vector<T> >;
 
     //Variable name, value.
     template<typename T>

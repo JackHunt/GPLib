@@ -40,55 +40,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace GPLib {
     //Available kernel types enumerated here.
-    enum KernelType {
+    enum class KernelType : short {
         SQUARED_EXPONENTIAL
     };
 
-    /**
-     * @brief The Kernel base class
-     */
     template<typename T>
     class Kernel {
     public:
-        /**
-         * @brief f Evaluates the kernel value at the given input and hyperParameters.
-         * @param a Vector a
-         * @param b Vector b
-         * @param params Parameter struct.
-         * @return Kernel value.
-         */
         virtual T f(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params) const = 0;
 
-        /**
-         * @brief df Computes a partial derivative of the kernel at the given input and hyperParameters.
-         * @param a Vector a
-         * @param b Vector b
-         * @param params Parameter struct.
-         * @param variable Variable to differentiate w.r.t.
-         * @return Partial deriivative w.r.t. variable.
-         */
         virtual T df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params, const std::string &variable) const = 0;
 
-        /**
-         * @brief ~Kernel
-         */
         virtual ~Kernel() {};
     };
 
-    /**
-     * @brief The SquaredExponential Kernel class
-     */
     template<typename T>
     class SquaredExponential : public Kernel<T> {
     public:
-        /*
-         * See base class.
-         */
         T f(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params) const;
 
-        /*
-         * See base class.
-         */
         T df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params, const std::string &variable) const;
     };
 }

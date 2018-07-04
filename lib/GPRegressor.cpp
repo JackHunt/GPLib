@@ -35,18 +35,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace GPLib;
 
 template<typename T>
-GPRegressor<T>::GPRegressor(KernelType kernType) {
-    switch (kernType) {
-    case SQUARED_EXPONENTIAL:
-        kernel.reset(new SquaredExponential<T>());
-        break;
-    default:
-        throw std::runtime_error("Invalid kernel choice.");
-    }
+GPRegressor<T>::GPRegressor(KernelType kernType) : GaussianProcess<T>(kernType) {
+    //
 }
 
 template<typename T>
 GPRegressor<T>::~GPRegressor() {
+    //
+}
+
+template<typename T>
+void GPRegressor<T>::train() {
+    //
+}
+
+template<typename T>
+void GPRegressor<T>::predict() {
     //
 }
 
@@ -81,13 +85,13 @@ T GPRegressor<T>::runRegression(const T *trainData, const T *trainTruth, int tra
     }
 
     //Compute covariance matrices.
-    buildCovarianceMatrix(X, X, K, params, kernel);
-    buildCovarianceMatrix(X, X_s, K_s, params, kernel);
-    buildCovarianceMatrix(X_s, X_s, K_ss, params, kernel);
+    this->buildCovarianceMatrix(X, X, K, params, kernel);
+    this->buildCovarianceMatrix(X, X_s, K_s, params, kernel);
+    this->buildCovarianceMatrix(X_s, X_s, K_ss, params, kernel);
 
     //Add jitter to K.
     if (jitter != 1.0) {
-        K += Matrix::Identity(K.rows(), K.cols())*jitter;
+        K += Matrix<T>::Identity(K.rows(), K.cols())*jitter;
     }
 
     //Solve for alpha.
@@ -111,8 +115,8 @@ T GPRegressor<T>::runRegression(const T *trainData, const T *trainTruth, int tra
     //Get the MSE.
     auto sq = [](T a) {return a * a; };
     auto predDiff = Y_s - f_s;
-    predDiff = predDiff.unaryExpr(sq);
-    return predDiff.mean();
+    auto predDiffSq = predDiff.unaryExpr(sq);
+    return predDiffSq.mean();
 }
 
 template<typename T>
@@ -143,3 +147,7 @@ template<typename T>
 void GPRegressor<T>::setJitterFactor(T jitterFactor) {
     jitter = jitterFactor;
 }
+
+template class GPRegressor<float>;
+template class GPRegressor<double>;
+template class GPRegressor<long double>;

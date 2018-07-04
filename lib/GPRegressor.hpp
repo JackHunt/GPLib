@@ -46,72 +46,28 @@ namespace GPLib {
         //Covariance matrices.
         Matrix<T> K, K_s, K_ss;
 
-        //Noise to be added to kernel diagonal.
-        T jitter = 1.0;
+    protected:
+        void train();
+
+        void predict();
 
     public:
-        /**
-         * @brief runRegression Trains a Gaussian Process regression model.
-         * @param trainData Training data in row major c-style array format.
-         * @param trainTruth Training ground truth vector.
-         * @param trainRows # training rows.
-         * @param trainCols # training cols(data dimensionality).
-         * @param testData Testing(prediction) data in row major c-style array format.
-         * @param testTruth Testing ground truth vector.
-         * @param testRows # testing rows.
-         * @param testCols # testing cols(data dimensionality)
-         * @param params Parameters for kernel(must match kernel type of this GP).
-         * @return Mean Squared Error between predicted means and ground truth for test set.
-         */
         T runRegression(const std::vector<T> &trainData, const std::vector<T> &trainTruth, int trainRows, 
                         int trainCols, const std::vector<T> &testData, const std::vector<T> &testTruth, 
                         int testRows, int testCols, const ParameterSet<T> &params);
 
-        /**
-         * @brief runRegression Trains a Gaussian Process regression model.
-         * @param trainData Training data in row major c-style array format.
-         * @param trainTruth Training ground truth vector.
-         * @param trainRows # training rows.
-         * @param trainCols # training cols(data dimensionality).
-         * @param testData Testing(prediction) data in row major c-style array format.
-         * @param testTruth Testing ground truth vector.
-         * @param testRows # testing rows.
-         * @param testCols # testing cols(data dimensionality)
-         * @param params Parameters for kernel(must match kernel type of this GP).
-         * @return Mean Squared Error between predicted means and ground truth for test set.
-         */
         T runRegression(const T *trainData, const T *trainTruth, int trainRows, int trainCols,
                         const T *testData, const T *testTruth, int testRows, int testCols,
                         const ParameterSet<T> &params);
 
-        /**
-         * @brief getMeans Gets the Means associated with the test set.
-         * @return vector of Means.
-         */
         std::vector<T> getMeans() const;
 
-        /**
-         * @brief getCovariances Gets the Covariance Matrix associated with the test set. GP must be trained first.
-         * @return std::vector c-style row major Covariance Matrix.
-         */
         std::vector<T> getCovariances() const;
 
-        /**
-         * @brief getStdDev Gets Standard Deviations for Means. GP must be trained first.
-         * @return vector of Standard Deviations.
-         */
         std::vector<T> getStdDev() const;
 
-        /**
-         * @brief setJitterFactor Updates jitter factor(noise added to covariance diagonal).
-         * @param jitterFactor Jitter(noise) value.
-         */
         void setJitterFactor(T jitterFactor);
 
-        /**
-         * @brief GPRegressor A Gaussian Process regressor.
-         * @param kernType Type of covariance kernel. Defaults to SquaredExponential.
-         */
         GPRegressor(KernelType kernType = SQUARED_EXPONENTIAL);
         ~GPRegressor();
     };

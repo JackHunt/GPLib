@@ -29,14 +29,13 @@ find_package(Eigen REQUIRED)
 set(HEADERS
   lib/GaussianProcess.hpp
   lib/GPRegressor.hpp
-  lib/GDOptimiser.hpp
   lib/Kernels.hpp
   lib/Aliases.hpp
 )
 
 set(SOURCES
+  lib/GaussianProcess.cpp
   lib/GPRegressor.cpp
-  lib/GDOptimiser.cpp
   lib/Kernels.cpp
 )
 
