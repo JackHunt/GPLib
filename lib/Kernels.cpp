@@ -82,7 +82,7 @@ T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b) const {
     const T sigma = params.at("sigma");
     const T lambda = params.at("lambda");
 
-    return sigma * sigma * expf(-1.0 * (sqEucDist / (2.0 * lambda * lambda)));
+    return sigma * sigma * std::exp(-1.0 * (sqEucDist / (2.0 * lambda * lambda)));
 }
 
 template<typename T>
