@@ -27,10 +27,10 @@ find_package(Eigen REQUIRED)
 
 #Set the headers and sources.
 set(HEADERS
+  lib/GaussianProcess.hpp
   lib/GPRegressor.hpp
   lib/GDOptimiser.hpp
   lib/Kernels.hpp
-  lib/Util.hpp
   lib/Aliases.hpp
 )
 

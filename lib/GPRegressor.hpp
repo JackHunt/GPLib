@@ -33,22 +33,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GPLIB_REGRESSOR_HEADER
 #define GPLIB_REGRESSOR_HEADER
 
-#include "Kernels.hpp"
-#include "Aliases.hpp"
-#include "Util.hpp"
-
-#include <Eigen/Dense>
-#include <memory>
-#include <vector>
-#include <iostream>
+#include "GaussianProcess.hpp"
 
 namespace GPLib {
     template<typename T>
-    class GPRegressor {
-    private:
-        //Kernel defining this type of regressor.
-        std::shared_ptr< Kernel<T> > kernel;
-
+    class GPRegressor : GaussianProcess<T> {
+    protected:
         //Output predicted mean and covariance.
         Vector<T> f_s;
         Matrix<T> v_s;
