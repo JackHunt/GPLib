@@ -50,7 +50,7 @@ void GPRegressor<T>::train() {
 }
 
 template<typename T>
-void GPRegressor<T>::predict() {
+void GPRegressor<T>::predict() const {
     //
 }
 

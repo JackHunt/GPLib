@@ -12,12 +12,12 @@ namespace GPLib {
     template<typename T>
     class GaussianProcess {
     protected:
-        void jitterChol(const Matrix<T> &A, Matrix<T> &C);
+        static void jitterChol(const Matrix<T> &A, Matrix<T> &C);
         
-        void buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B,
-                                   Matrix<T> &C, const ParameterSet<T> &params,
-                                   const std::shared_ptr< Kernel<T> > &kernel, 
-                                   const std::string &var = std::string(""));
+        static void buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B,
+                                          Matrix<T> &C, const ParameterSet<T> &params,
+                                          const std::shared_ptr< Kernel<T> > &kernel, 
+                                          const std::string &var = std::string(""));
 
         virtual T logLikelihood() = 0;
 
@@ -27,9 +27,6 @@ namespace GPLib {
         // Covariance Kernel defining this type of regressor.
         std::shared_ptr< Kernel<T> > kernel;
 
-        // Best parameter set.
-        ParameterSet<T> bestParams;
-
         //Noise to be added to kernel diagonal.
         T jitter = 1.0;
 
@@ -38,11 +35,11 @@ namespace GPLib {
 
         virtual ~GaussianProcess();
 
+        Kernel<T> getKernel() const;
+
         virtual void train() = 0;
 
-        virtual void predict() = 0;
-
-
+        virtual void predict() const = 0;
     };
 }
 

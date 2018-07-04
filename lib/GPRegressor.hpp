@@ -49,7 +49,7 @@ namespace GPLib {
     protected:
         void train();
 
-        void predict();
+        void predict() const;
 
     public:
         T runRegression(const std::vector<T> &trainData, const std::vector<T> &trainTruth, int trainRows, 

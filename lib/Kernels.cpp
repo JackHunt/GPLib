@@ -35,20 +35,49 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace GPLib;
 
 template<typename T>
-T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params) const {
-    if (params.find("sigma") == params.end() || params.find("lambda") == params.end()) {
-        throw std::runtime_error("Invalid Parameter set provided.");
+Kernel<T>::Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params) :
+    validParams(validParams), 
+    params(params) {
+    verifyParams();
+}
+
+template<typename T>
+Kernel<T>::~Kernel() {
+    //
+}
+
+template<typename T>
+void Kernel<T>::verifyParams() {
+    // Check for missing parameters.
+    for (const auto &p : validParams) {
+        assert(params.find(p) != params.end());
     }
 
-    if (a.size() != b.size()) {
-        throw std::runtime_error("Vector sizes must match in kernel.");
+    // Check for invalid parameters.
+    for (const auto p : params) {
+        if (std::find(validParams.begin(), validParams.end(), p.first) == validParams.end()) {
+            std::cout << "WARNING: Surplus parameter " + p.first + " being removed from parameter set!";
+            params.erase(p.first);
+        }
     }
+}
 
-    T sqEucDist = 0.0;
-    const size_t size = a.size();
-    for (size_t i = 0; i < size; i++) {
-        sqEucDist += (a(i) - b(i)) * (a(i) - b(i));
-    }
+template<typename T>
+SquaredExponential<T>::SquaredExponential() : 
+    Kernel<T>({ "sigma", "lambda" }, { {"sigma", 1.0}, {"lambda", 1.0} }) {
+    //
+}
+
+template<typename T>
+SquaredExponential<T>::~SquaredExponential() {
+    //
+}
+
+template<typename T>
+T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b) const {
+    assert(a.size() == b.size());
+
+    const T sqEucDist = (a - b).squaredNorm();
 
     const T sigma = params.at("sigma");
     const T lambda = params.at("lambda");
@@ -57,35 +86,21 @@ T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b, const Paramet
 }
 
 template<typename T>
-T SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params,
-                            const std::string &variable) const {
-    if (params.find("sigma") == params.end() || params.find("lambda") == params.end()) {
-        throw std::runtime_error("Invalid Parameter set provided.");
-    }
+ParameterSet<T> SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b) const {
+    assert(a.size() == b.size());
 
-    if (a.size() != b.size()) {
-        throw std::runtime_error("Vector sizes must match in kernel.");
-    }
-
-    T sqEucDist = 0.0;
-    const size_t size = a.size();
-    for (size_t i = 0; i < size; i++) {
-        sqEucDist += (a(i) - b(i)) * (a(i) - b(i));
-    }
+    const T sqEucDist = (a - b).squaredNorm();
 
     const T sigma = params.at("sigma");
     const T lambda = params.at("lambda");
-    T deriv = 0.0;
 
-    if (variable.compare("sigma") == 0) {
-        deriv = 2.0 * sigma * expf((-0.5 * sqEucDist) / lambda * lambda);
-    }
-    else if (variable.compare("lambda") == 0) {
-        deriv = sigma * sigma * sqEucDist * expf((-0.5 * sqEucDist / lambda * lambda));
-    }
-    else {
-        throw std::runtime_error("Invalid partial derivative requested.");
-    }
+    ParameterSet<T> grad(params);
+    grad["sigma"] = 2.0 * sigma * std::exp((-0.5 * sqEucDist) / lambda * lambda);
+    grad["lambda"] = sigma * sigma * sqEucDist * std::exp((-0.5 * sqEucDist / lambda * lambda));
 
-    return deriv;
+    return grad;
 }
+
+template class SquaredExponential<float>;
+template class SquaredExponential<double>;
+template class SquaredExponential<long double>;

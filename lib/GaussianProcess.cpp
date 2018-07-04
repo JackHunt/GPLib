@@ -19,12 +19,15 @@ GaussianProcess<T>::~GaussianProcess() {
 }
 
 template<typename T>
-void GaussianProcess<T>::jitterChol(const Matrix<T> &A, Matrix<T> &C) {
+Kernel<T> GaussianProcess<T>::getKernel() const {
+    return kernel.get();
+}
+
+template<typename T>
+static void GaussianProcess<T>::jitterChol(const Matrix<T> &A, Matrix<T> &C) {
     const size_t rowsA = A.rows();
     const size_t colsA = A.cols();
-    if (rowsA != colsA) {
-        throw std::runtime_error("Cannot take Cholesky Decomposition of non square matrix.");
-    }
+    assert(rowsA == colsA)
 
     Matrix<T> jitter = Matrix<T>::Identity(rowsA, colsA);
     jitter *= 1e-8;
@@ -50,10 +53,10 @@ void GaussianProcess<T>::jitterChol(const Matrix<T> &A, Matrix<T> &C) {
 }
 
 template<typename T>
-void GaussianProcess<T>::buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B,
-                                               Matrix<T> &C, const ParameterSet<T> &params, 
-                                               const std::shared_ptr< Kernel<T> > &kernel, 
-                                               const std::string &var) {
+static void GaussianProcess<T>::buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B,
+                                                      Matrix<T> &C, const ParameterSet<T> &params, 
+                                                      const std::shared_ptr< Kernel<T> > &kernel, 
+                                                      const std::string &var) {
     const size_t rowsA = A.rows();
     const size_t rowsB = B.rows();
 

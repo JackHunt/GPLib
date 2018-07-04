@@ -34,8 +34,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GPLIB_KERNELS_HEADER
 
 #include "Aliases.hpp"
+
 #include <vector>
+#include <algorithm>
+#include <iostream>
 #include <cmath>
+
 #include <Eigen/Dense>
 
 namespace GPLib {
@@ -46,20 +50,33 @@ namespace GPLib {
 
     template<typename T>
     class Kernel {
+    private:
+        void verifyParams();
+
+    protected:
+        ParameterSet<T> params;
+        std::vector< std::string > validParams;
+
     public:
-        virtual T f(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params) const = 0;
+        Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params);
 
-        virtual T df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params, const std::string &variable) const = 0;
+        virtual ~Kernel();
 
-        virtual ~Kernel() {};
+        virtual T f(const Vector<T> &a, const Vector<T> &b) const = 0;
+
+        virtual ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const = 0;
     };
 
     template<typename T>
     class SquaredExponential : public Kernel<T> {
     public:
-        T f(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params) const;
+        SquaredExponential();
+        
+        virtual ~SquaredExponential();
 
-        T df(const Vector<T> &a, const Vector<T> &b, const ParameterSet<T> &params, const std::string &variable) const;
+        T f(const Vector<T> &a, const Vector<T> &b) const;
+
+        ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const;
     };
 }
 
