@@ -75,12 +75,16 @@ ParameterSet<T> SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b
 
 template<typename T>
 Vector<T> SquaredExponential<T>::dfda(const Vector<T> &a, const Vector<T> &b) {
-    return Vector<T>();
+    const T fVal = f(a, b);
+    const T lambda = params.at("lambda");
+    const auto df = (-1.0 / (lambda * lambda)) * fVal * (a - b);
+    
+    return df;
 }
 
 template<typename T>
 Vector<T> SquaredExponential<T>::dfdb(const Vector<T> &a, const Vector<T> &b) {
-    return Vector<T>();
+    return -1.0 * dfda(a, b);
 }
 
 template class SquaredExponential<float>;
