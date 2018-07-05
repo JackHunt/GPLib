@@ -62,9 +62,6 @@ namespace GPLib {
         // Covariance Kernel defining this type of regressor.
         std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel;
 
-        //Noise to be added to kernel diagonal.
-        T jitter = 1.0;
-
     public:
         GaussianProcess(GPLib::Kernels::KernelType kernType);
 
@@ -74,7 +71,7 @@ namespace GPLib {
 
         virtual void train(const MapMatrix<T> &X, const MapVector<T> &Y) = 0;
 
-        virtual void predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const = 0;
+        virtual GPOutput<T> predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const = 0;
     };
 }
 

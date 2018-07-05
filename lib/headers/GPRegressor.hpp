@@ -54,23 +54,7 @@ namespace GPLib {
     public:
         void train(const MapMatrix<T> &X, const MapVector<T> &Y);
 
-        void predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const;
-
-        T runRegression(const std::vector<T> &trainData, const std::vector<T> &trainTruth, int trainRows, 
-                        int trainCols, const std::vector<T> &testData, const std::vector<T> &testTruth, 
-                        int testRows, int testCols, const ParameterSet<T> &params);
-
-        T runRegression(const T *trainData, const T *trainTruth, int trainRows, int trainCols,
-                        const T *testData, const T *testTruth, int testRows, int testCols,
-                        const ParameterSet<T> &params);
-
-        std::vector<T> getMeans() const;
-
-        std::vector<T> getCovariances() const;
-
-        std::vector<T> getStdDev() const;
-
-        void setJitterFactor(T jitterFactor);
+        GPOutput<T> predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const;
 
         GPRegressor(GPLib::Kernels::KernelType kernType = SQUARED_EXPONENTIAL);
         ~GPRegressor();

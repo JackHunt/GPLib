@@ -35,24 +35,43 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string>
 #include <map>
+#include <variant>
+#include <tuple>
+
 #include <Eigen/Dense>
 
 namespace GPLib::Types {
+    // Generic Row-Major Matrix.
     template<typename T>
     using Matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
+    // Generic Row-Major Matrix wrapper for C style buffers.
     template<typename T>
-    using MapMatrix = Eigen::Map< const Matrix<T> >;
+    using MapMatrix = Eigen::Map<const Matrix<T> >;
 
+    // Generic Column-Vector.
     template<typename T>
     using Vector = Eigen::Matrix<T, Eigen::Dynamic, 1>;
 
+    // Generic Column-Vector wrapper for C style buffers.
     template<typename T>
-    using MapVector = Eigen::Map< Vector<T> >;
+    using MapVector = Eigen::Map<Vector<T> >;
 
-    //Variable name, value.
+    // Variable name, value - for kernel parameters.
     template<typename T>
     using ParameterSet = std::map<std::string, T>;
+
+    // Matrix and Covariance pair.
+    template<typename T>
+    using MeanCov = std::tuple<Matrix<T>, Matrix<T> >;
+
+    // Matrix, Covariance and Error pair.
+    template<typename T>
+    using MeanCovErr = std::tuple<Matrix<T>, Matrix<T>, T>;
+
+    // GP return type. Either MeanCov or MeanCovErr.
+    template<typename T>
+    using GPOutput = std::variant< MeanCov<T>, MeanCovErr<T> >;
 }
 
 using namespace GPLib::Types;
