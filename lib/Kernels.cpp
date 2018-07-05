@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Kernels.hpp"
 
-using namespace GPLib;
+using namespace GPLib::Kernels;
 
 template<typename T>
 Kernel<T>::Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params) :

@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <algorithm>
+#include <execution>
 
 #include "Aliases.hpp"
 #include "Kernels.hpp"
@@ -14,10 +16,8 @@ namespace GPLib {
     protected:
         static void jitterChol(const Matrix<T> &A, Matrix<T> &C);
         
-        static void buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B,
-                                          Matrix<T> &C, const ParameterSet<T> &params,
-                                          const std::shared_ptr< Kernel<T> > &kernel, 
-                                          const std::string &var = std::string(""));
+        static void buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B, Matrix<T> &C, 
+                                          const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel);
 
         virtual T logLikelihood() = 0;
 
@@ -25,17 +25,17 @@ namespace GPLib {
 
     protected:
         // Covariance Kernel defining this type of regressor.
-        std::shared_ptr< Kernel<T> > kernel;
+        std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel;
 
         //Noise to be added to kernel diagonal.
         T jitter = 1.0;
 
     public:
-        GaussianProcess(KernelType kernType);
+        GaussianProcess(GPLib::Kernels::KernelType kernType);
 
         virtual ~GaussianProcess();
 
-        Kernel<T> getKernel() const;
+        GPLib::Kernels::Kernel<T> getKernel() const;
 
         virtual void train() = 0;
 

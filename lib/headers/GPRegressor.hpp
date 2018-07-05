@@ -30,29 +30,47 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef GPLIB_ALIASES_HEADER
-#define GPLIB_ALIASES_HEADER
+#ifndef GPLIB_REGRESSOR_HEADER
+#define GPLIB_REGRESSOR_HEADER
 
-#include <string>
-#include <map>
-#include <Eigen/Dense>
+#include "GaussianProcess.hpp"
 
 namespace GPLib {
     template<typename T>
-    using Matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+    class GPRegressor : GaussianProcess<T> {
+    protected:
+        //Output predicted mean and covariance.
+        Vector<T> f_s;
+        Matrix<T> v_s;
 
-    template<typename T>
-    using MapMatrix = Eigen::Map< const Matrix<T> >;
+        //Covariance matrices.
+        Matrix<T> K, K_s, K_ss;
 
-    template<typename T>
-    using Vector = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+    protected:
+        void train();
 
-    template<typename T>
-    using MapVector = Eigen::Map< Vector<T> >;
+        void predict() const;
 
-    //Variable name, value.
-    template<typename T>
-    using ParameterSet = std::map<std::string, T>;
+    public:
+        T runRegression(const std::vector<T> &trainData, const std::vector<T> &trainTruth, int trainRows, 
+                        int trainCols, const std::vector<T> &testData, const std::vector<T> &testTruth, 
+                        int testRows, int testCols, const ParameterSet<T> &params);
+
+        T runRegression(const T *trainData, const T *trainTruth, int trainRows, int trainCols,
+                        const T *testData, const T *testTruth, int testRows, int testCols,
+                        const ParameterSet<T> &params);
+
+        std::vector<T> getMeans() const;
+
+        std::vector<T> getCovariances() const;
+
+        std::vector<T> getStdDev() const;
+
+        void setJitterFactor(T jitterFactor);
+
+        GPRegressor(GPLib::Kernels::KernelType kernType = SQUARED_EXPONENTIAL);
+        ~GPRegressor();
+    };
 }
 
 #endif

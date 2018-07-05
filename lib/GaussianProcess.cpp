@@ -1,6 +1,7 @@
-#include "GaussianProcess.hpp"
+#include <GaussianProcess.hpp>
 
 using namespace GPLib;
+using namespace GPLib::Kernels;
 
 template<typename T>
 GaussianProcess<T>::GaussianProcess(KernelType kernType) {
@@ -53,25 +54,22 @@ static void GaussianProcess<T>::jitterChol(const Matrix<T> &A, Matrix<T> &C) {
 }
 
 template<typename T>
-static void GaussianProcess<T>::buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B,
-                                                      Matrix<T> &C, const ParameterSet<T> &params, 
-                                                      const std::shared_ptr< Kernel<T> > &kernel, 
-                                                      const std::string &var) {
+static void GaussianProcess<T>::buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B, Matrix<T> &C, 
+                                                      const std::shared_ptr< Kernel<T> > kernel) {
     const size_t rowsA = A.rows();
     const size_t rowsB = B.rows();
 
-#ifdef WITH_OPENMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-    for (int i = 0; i < rowsA; i++) {
-        for (int j = i + 1; j < rowsB; j++) {
-            if (var.compare("") != 0) {
-                C(i, j) = kernel->df(A.row(i), B.row(j), params, var);
+    auto inner = [&A, &B, &C, &kernel](size_t i) {
+        for (size_t j = i + 1; j < rowsB; j++) {
+            if (true != 0) {// TODO: sort grad case
+                C(i, j) = kernel->df(A.row(i), B.row(j));
             }
             else {
-                C(i, j) = kernel->f(A.row(i), B.row(j), params);
+                C(i, j) = kernel->f(A.row(i), B.row(j));
             }
             C(j, i) = C(i, j)
         }
-    }
+    };
+
+    std::for_each(std::execution::par, 0, rowsA, inner);
 }

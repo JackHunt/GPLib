@@ -30,54 +30,31 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef GPLIB_KERNELS_HEADER
-#define GPLIB_KERNELS_HEADER
+#ifndef GPLIB_ALIASES_HEADER
+#define GPLIB_ALIASES_HEADER
 
-#include "Aliases.hpp"
-
-#include <vector>
-#include <algorithm>
-#include <iostream>
-#include <cmath>
-
+#include <string>
+#include <map>
 #include <Eigen/Dense>
 
-namespace GPLib {
-    //Available kernel types enumerated here.
-    enum class KernelType : short {
-        SQUARED_EXPONENTIAL
-    };
+namespace GPLib::Types {
+    template<typename T>
+    using Matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
     template<typename T>
-    class Kernel {
-    private:
-        void verifyParams();
-
-    protected:
-        ParameterSet<T> params;
-        std::vector< std::string > validParams;
-
-    public:
-        Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params);
-
-        virtual ~Kernel();
-
-        virtual T f(const Vector<T> &a, const Vector<T> &b) const = 0;
-
-        virtual ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const = 0;
-    };
+    using MapMatrix = Eigen::Map< const Matrix<T> >;
 
     template<typename T>
-    class SquaredExponential : public Kernel<T> {
-    public:
-        SquaredExponential();
-        
-        virtual ~SquaredExponential();
+    using Vector = Eigen::Matrix<T, Eigen::Dynamic, 1>;
 
-        T f(const Vector<T> &a, const Vector<T> &b) const;
+    template<typename T>
+    using MapVector = Eigen::Map< Vector<T> >;
 
-        ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const;
-    };
+    //Variable name, value.
+    template<typename T>
+    using ParameterSet = std::map<std::string, T>;
 }
+
+using namespace GPLib::Types;
 
 #endif

@@ -30,46 +30,53 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef GPLIB_REGRESSOR_HEADER
-#define GPLIB_REGRESSOR_HEADER
+#ifndef GPLIB_KERNELS_HEADER
+#define GPLIB_KERNELS_HEADER
 
-#include "GaussianProcess.hpp"
+#include "Aliases.hpp"
 
-namespace GPLib {
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <cmath>
+
+#include <Eigen/Dense>
+
+namespace GPLib::Kernels {
+    //Available kernel types enumerated here.
+    enum class KernelType : short {
+        SQUARED_EXPONENTIAL
+    };
+
     template<typename T>
-    class GPRegressor : GaussianProcess<T> {
-    protected:
-        //Output predicted mean and covariance.
-        Vector<T> f_s;
-        Matrix<T> v_s;
-
-        //Covariance matrices.
-        Matrix<T> K, K_s, K_ss;
+    class Kernel {
+    private:
+        void verifyParams();
 
     protected:
-        void train();
-
-        void predict() const;
+        ParameterSet<T> params;
+        std::vector< std::string > validParams;
 
     public:
-        T runRegression(const std::vector<T> &trainData, const std::vector<T> &trainTruth, int trainRows, 
-                        int trainCols, const std::vector<T> &testData, const std::vector<T> &testTruth, 
-                        int testRows, int testCols, const ParameterSet<T> &params);
+        Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params);
 
-        T runRegression(const T *trainData, const T *trainTruth, int trainRows, int trainCols,
-                        const T *testData, const T *testTruth, int testRows, int testCols,
-                        const ParameterSet<T> &params);
+        virtual ~Kernel();
 
-        std::vector<T> getMeans() const;
+        virtual T f(const Vector<T> &a, const Vector<T> &b) const = 0;
 
-        std::vector<T> getCovariances() const;
+        virtual ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const = 0;
+    };
 
-        std::vector<T> getStdDev() const;
+    template<typename T>
+    class SquaredExponential : public Kernel<T> {
+    public:
+        SquaredExponential();
+        
+        virtual ~SquaredExponential();
 
-        void setJitterFactor(T jitterFactor);
+        T f(const Vector<T> &a, const Vector<T> &b) const;
 
-        GPRegressor(KernelType kernType = SQUARED_EXPONENTIAL);
-        ~GPRegressor();
+        ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const;
     };
 }
 

@@ -30,9 +30,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "GPRegressor.hpp"
+#include <GPRegressor.hpp>
 
 using namespace GPLib;
+using namespace GPLib::Kernels;
 
 template<typename T>
 GPRegressor<T>::GPRegressor(KernelType kernType) : GaussianProcess<T>(kernType) {
@@ -85,9 +86,9 @@ T GPRegressor<T>::runRegression(const T *trainData, const T *trainTruth, int tra
     }
 
     //Compute covariance matrices.
-    this->buildCovarianceMatrix(X, X, K, params, kernel);
-    this->buildCovarianceMatrix(X, X_s, K_s, params, kernel);
-    this->buildCovarianceMatrix(X_s, X_s, K_ss, params, kernel);
+    this->buildCovarianceMatrix(X, X, K, kernel);
+    this->buildCovarianceMatrix(X, X_s, K_s, kernel);
+    this->buildCovarianceMatrix(X_s, X_s, K_ss, kernel);
 
     //Add jitter to K.
     if (jitter != 1.0) {
@@ -113,7 +114,7 @@ T GPRegressor<T>::runRegression(const T *trainData, const T *trainTruth, int tra
     v_s = K_ss - tmp.transpose() * tmp;
 
     //Get the MSE.
-    auto sq = [](T a) {return a * a; };
+    auto sq = [](T a) { return a * a; };
     auto predDiff = Y_s - f_s;
     auto predDiffSq = predDiff.unaryExpr(sq);
     return predDiffSq.mean();
@@ -131,14 +132,15 @@ std::vector<T> GPRegressor<T>::getCovariances() const {
 
 template<typename T>
 std::vector<T> GPRegressor<T>::getStdDev() const {
-    const size_t len = v_s.rows();
+    size_t len = v_s.rows();
     std::vector<T> stdDev(len);
-#ifdef WITH_OPENMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-    for (int i = 0; i < len; i++) {
-        stdDev[i] = sqrt(v_s(i, i));
-    }
+
+    auto sr = [&stdDev, this](auto iter) {
+        //const size_t i = *iter;
+        //stdDev[i] = std::sqrt(v_s(i, i)); 
+    };
+
+    //std::for_each(std::execution::par, CountingIterator<size_t>(), CountingIterator<size_t>(len), sr);
 
     return stdDev;
 }
