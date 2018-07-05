@@ -108,3 +108,17 @@ static void GaussianProcess<T>::buildCovarianceMatrix(const Matrix<T> &A, const 
     CountingIterator<size_t> end(rowsA);
     std::for_each(std::execution::par, begin, end, inner);
 }
+
+template<typename T>
+T GaussianProcess<T>::logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const {
+    const T t1 = -0.5 * Y.transpose() * alpha;
+    const T t2 = 0.5 * std::log(K.determinant());
+    const T t3 = (static_cast<T>(K.rows()) / 2.0) * std::log(2.0 * M_PI);
+
+    return t1 - t2 - t3;
+}
+
+template<typename T>
+Vector<T> GaussianProcess<T>::logLikelihoodGrad() const {
+    return Vector<T>();
+}

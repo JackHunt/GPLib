@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <algorithm>
 #include <execution>
 #include <optional>
+#include <cmath>
 
 #include <CPPUtils/Iterators/CountingIterator.hpp>
 
@@ -54,9 +55,9 @@ namespace GPLib {
         static void buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C, 
                                           const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel);
 
-        virtual T logLikelihood() = 0;
+        virtual T logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const;
 
-        virtual Vector<T> logLikelihoodGrad() = 0;
+        virtual Vector<T> logLikelihoodGrad() const;
 
     protected:
         // Covariance Kernel defining this type of regressor.

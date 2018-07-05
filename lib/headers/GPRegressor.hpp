@@ -46,11 +46,6 @@ namespace GPLib {
         // Covariance Matrix K(X, X^t) and it's Cholesky Decomposition.
         Matrix<T> K, L;
 
-    protected:
-        T logLikelihood();
-
-        Vector<T> logLikelihoodGrad();
-
     public:
         void train(const MapMatrix<T> &X, const MapVector<T> &Y);
 
