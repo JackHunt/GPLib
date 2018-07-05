@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2017, Jack Miles Hunt
+Copyright (c) 2018, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,15 +30,26 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef GPLIB_UTIL_HEADER
-#define GPLIB_UTIL_HEADER
+#ifndef GPLIB_SQUARED_EXP_KERNEL_HEADER
+#define GPLIB_SQUARED_EXP_KERNEL_HEADER
 
-#include <memory>
-#include <string>
-#include "Kernels.hpp"
+#include <Kernels/Kernel.hpp>
 
-namespace GPLib {
-    
+namespace GPLib::Kernels {
+    template<typename T>
+    class SquaredExponential : public Kernel<T> {
+    public:
+        SquaredExponential();
+        
+        virtual ~SquaredExponential();
+
+        T f(const Vector<T> &a, const Vector<T> &b) const;
+
+        ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const;
+
+        Vector<T> dfda(const Vector<T> &a, const Vector<T> &b);
+
+        Vector<T> dfdb(const Vector<T> &a, const Vector<T> &b);
+    };
 }
-
 #endif

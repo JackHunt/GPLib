@@ -30,37 +30,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <Kernels.hpp>
+#include <Kernels/SquaredExponential.hpp>
 
 using namespace GPLib::Kernels;
-
-template<typename T>
-Kernel<T>::Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params) :
-    validParams(validParams), 
-    params(params) {
-    verifyParams();
-}
-
-template<typename T>
-Kernel<T>::~Kernel() {
-    //
-}
-
-template<typename T>
-void Kernel<T>::verifyParams() {
-    // Check for missing parameters.
-    for (const auto &p : validParams) {
-        assert(params.find(p) != params.end());
-    }
-
-    // Check for invalid parameters.
-    for (const auto p : params) {
-        if (std::find(validParams.begin(), validParams.end(), p.first) == validParams.end()) {
-            std::cout << "WARNING: Surplus parameter " + p.first + " being removed from parameter set!";
-            params.erase(p.first);
-        }
-    }
-}
 
 template<typename T>
 SquaredExponential<T>::SquaredExponential() : 
@@ -99,6 +71,16 @@ ParameterSet<T> SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b
     grad["lambda"] = sigma * sigma * sqEucDist * std::exp((-0.5 * sqEucDist / lambda * lambda));
 
     return grad;
+}
+
+template<typename T>
+Vector<T> SquaredExponential<T>::dfda(const Vector<T> &a, const Vector<T> &b) {
+    return Vector<T>();
+}
+
+template<typename T>
+Vector<T> SquaredExponential<T>::dfdb(const Vector<T> &a, const Vector<T> &b) {
+    return Vector<T>();
 }
 
 template class SquaredExponential<float>;

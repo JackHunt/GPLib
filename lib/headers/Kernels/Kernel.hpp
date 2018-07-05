@@ -30,10 +30,46 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef GPLIB_KERNELS_HEADER
-#define GPLIB_KERNELS_HEADER
+#ifndef GPLIB_KERNEL_HEADER
+#define GPLIB_KERNEL_HEADER
 
-#include <Kernels/Kernel.hpp>
-#include <Kernels/SquaredExponential.hpp>
+#include <Aliases.hpp>
+
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <cmath>
+
+#include <Eigen/Dense>
+
+namespace GPLib::Kernels {
+    //Available kernel types enumerated here.
+    enum class KernelType : short {
+        SQUARED_EXPONENTIAL
+    };
+
+    template<typename T>
+    class Kernel {
+    private:
+        void verifyParams();
+
+    protected:
+        ParameterSet<T> params;
+        std::vector< std::string > validParams;
+
+    public:
+        Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params);
+
+        virtual ~Kernel();
+
+        virtual T f(const Vector<T> &a, const Vector<T> &b) const = 0;
+
+        virtual ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const = 0;
+
+        virtual Vector<T> dfda(const Vector<T> &a, const Vector<T> &b) const = 0;
+        
+        virtual Vector<T> dfdb(const Vector<T> &a, const Vector<T> &b) const = 0;
+    };
+}
 
 #endif

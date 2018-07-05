@@ -22,12 +22,15 @@ set(HEADERS
   lib/headers/GPRegressor.hpp
   lib/headers/Kernels.hpp
   lib/headers/Aliases.hpp
+  lib/headers/Kernels/Kernel.hpp
+  lib/headers/Kernels/SquaredExponential.hpp
 )
 
 set(SOURCES
   lib/GaussianProcess.cpp
   lib/GPRegressor.cpp
-  lib/Kernels.cpp
+  lib/Kernels/Kernel.cpp
+  lib/Kernels/SquaredExponential.cpp
 )
 
 # Add library.
