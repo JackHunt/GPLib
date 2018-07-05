@@ -39,19 +39,23 @@ namespace GPLib {
     template<typename T>
     class GPRegressor : GaussianProcess<T> {
     protected:
-        //Output predicted mean and covariance.
-        Vector<T> f_s;
-        Matrix<T> v_s;
+        // Copy of training data X and ground truth Y.
+        Matrix<T> X;
+        Vector<T> Y;
 
-        //Covariance matrices.
-        Matrix<T> K, K_s, K_ss;
+        // Covariance Matrix K(X, X^t) and it's Cholesky Decomposition.
+        Matrix<T> K, L;
 
     protected:
-        void train();
+        T logLikelihood();
 
-        void predict() const;
+        Vector<T> logLikelihoodGrad();
 
     public:
+        void train(const MapMatrix<T> &X, const MapVector<T> &Y);
+
+        void predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const;
+
         T runRegression(const std::vector<T> &trainData, const std::vector<T> &trainTruth, int trainRows, 
                         int trainCols, const std::vector<T> &testData, const std::vector<T> &testTruth, 
                         int testRows, int testCols, const ParameterSet<T> &params);

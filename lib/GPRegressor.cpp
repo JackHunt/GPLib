@@ -47,13 +47,59 @@ GPRegressor<T>::~GPRegressor() {
 }
 
 template<typename T>
-void GPRegressor<T>::train() {
-    //
+void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap) {
+    // Sanity check.
+    assert(XMap.rows() == YMap.rows());
+
+    // Reshape Covariance Matrix and Cholesky Decomposition if required.
+    if (K.rows() != XMap.rows() || K.cols() != XMap.rows()) {
+        K.resize(XMap.rows(), XMap.rows());
+        L.resize(XMap.rows(), XMap.rows());
+    }
+
+    // Make a copy of XMap and YMap.
+    if (XMap.rows() != X.rows() || XMap.cols() != X.cols()) {
+        X.resize(XMap.rows(), XMap.cols());
+    }
+    X = XMap;
+
+    if (YMap.rows() != Y.rows()) {
+        Y.resize(YMap.rows(), 1);
+    }
+    Y = YMap;
+
+    // Optimise Log Marginal Likelihood with Levenberg-Marquardt.
+    T lambda = 1.0;
+    do {
+        // Compute Covariance Matrix K(X, X^t).
+        this->buildCovarianceMatrix(X, X, K, kernel);
+
+        // Compute Cholesky Decomposition of K.
+        this->jitterChol(K, L);
+
+        // TO-DO
+    } while (true);
 }
 
 template<typename T>
-void GPRegressor<T>::predict() const {
-    //
+void GPRegressor<T>::predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const {
+    // Sanity check ground truth if present.
+    if (Ys.has_value()) {
+        assert(Xs.rows() == Ys.value().rows());
+    }
+
+    // Compute Cross-Covariance Matrix K(X, Xs).
+    Matrix<T> Ks(X.rows(), Xs.rows());
+    this->buildCovarianceMatrix(X, Xs, Ks, kernel);
+
+    // Solve for Posterior Means.
+    const auto tmp = L.triangularView<Eigen::Lower>().solve(Ks);
+    const auto posteriorMean = tmp.transpose() * L.triangularView<Eigen::Lower>().solve(Y);
+    
+    // Compute Posterior Covariance.
+    Matrix<T> Kss(Xs.rows(), Xs.rows());
+    this->buildCovarianceMatrix(Xs, Xs, Kss, kernel);
+    const auto posteriorCov = Kss - tmp.transpose() * tmp;
 }
 
 template<typename T>
@@ -69,14 +115,13 @@ template<typename T>
 T GPRegressor<T>::runRegression(const T *trainData, const T *trainTruth, int trainRows,
                                 int trainCols, const T *testData, const T *testTruth, 
                                 int testRows, int testCols, const ParameterSet<T> &params) {
+    /*
     if (trainCols != testCols) {
         throw std::runtime_error("Train and test sets must have the same number of columns.");
     }
 
     //Wrap data in Eigen matrices and vectors.
-    Eigen::Map< const Matrix<T> > X(trainData, trainRows, trainCols);
     Eigen::Map< const Matrix<T> > X_s(testData, testRows, testCols);
-    Eigen::Map< const Vector<T> > Y(trainTruth, trainRows);
     Eigen::Map< const Vector<T> > Y_s(testTruth, testRows);
 
     //Reallocate storage, if necessary.
@@ -100,15 +145,14 @@ T GPRegressor<T>::runRegression(const T *trainData, const T *trainTruth, int tra
     Matrix<T> L(trainRows, trainRows);
     jitterChol(K, L);
 
-    /*
-    Vector tmp = L.triangularView<Eigen::Lower>().solve(Y);
-    Vector alpha = L.transpose().triangularView<Eigen::Lower>().solve(tmp);
+
+    //Vector tmp = L.triangularView<Eigen::Lower>().solve(Y);
+    //Vector alpha = L.transpose().triangularView<Eigen::Lower>().solve(tmp);
 
     //Solve for test means and train variances.
-    f_s = K_s.transpose() * alpha;
-    Matrix v = L.triangularView<Eigen::Lower>().solve(K_s);
-    v_s = K_ss - v.transpose() * v;
-    */
+    //f_s = K_s.transpose() * alpha;
+    //Matrix v = L.triangularView<Eigen::Lower>().solve(K_s);
+    //v_s = K_ss - v.transpose() * v;
 
     const auto tmp = L.triangularView<Eigen::Lower>().solve(K_s);
     f_s = tmp.transpose() * L.triangularView<Eigen::Lower>().solve(Y);
@@ -119,20 +163,25 @@ T GPRegressor<T>::runRegression(const T *trainData, const T *trainTruth, int tra
     auto predDiff = Y_s - f_s;
     auto predDiffSq = predDiff.unaryExpr(sq);
     return predDiffSq.mean();
+    */
+    return 0;
 }
 
 template<typename T>
 std::vector<T> GPRegressor<T>::getMeans() const {
-    return std::vector<T>(f_s.data(), f_s.data() + f_s.rows());
+    //return std::vector<T>(f_s.data(), f_s.data() + f_s.rows());
+    return {};
 }
 
 template<typename T>
 std::vector<T> GPRegressor<T>::getCovariances() const {
-    return std::vector<T>(v_s.data(), v_s.data() + v_s.rows());
+    //return std::vector<T>(v_s.data(), v_s.data() + v_s.rows());
+    return {};
 }
 
 template<typename T>
 std::vector<T> GPRegressor<T>::getStdDev() const {
+    /*
     size_t len = v_s.rows();
     std::vector<T> stdDev(len);
 
@@ -146,6 +195,8 @@ std::vector<T> GPRegressor<T>::getStdDev() const {
     std::for_each(std::execution::par, begin, end, sr);
 
     return stdDev;
+    */
+    return {};
 }
 
 template<typename T>

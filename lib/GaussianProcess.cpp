@@ -87,7 +87,7 @@ static void GaussianProcess<T>::jitterChol(const Matrix<T> &A, Matrix<T> &C) {
 }
 
 template<typename T>
-static void GaussianProcess<T>::buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B, Matrix<T> &C, 
+static void GaussianProcess<T>::buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C, 
                                                       const std::shared_ptr< Kernel<T> > kernel) {
     const size_t rowsA = A.rows();
     const size_t rowsB = B.rows();

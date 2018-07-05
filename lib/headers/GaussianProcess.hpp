@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <algorithm>
 #include <execution>
+#include <optional>
 
 #include <CPPUtils/Iterators/CountingIterator.hpp>
 
@@ -50,7 +51,7 @@ namespace GPLib {
     protected:
         static void jitterChol(const Matrix<T> &A, Matrix<T> &C);
         
-        static void buildCovarianceMatrix(const MapMatrix<T> &A, const MapMatrix<T> &B, Matrix<T> &C, 
+        static void buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C, 
                                           const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel);
 
         virtual T logLikelihood() = 0;
@@ -71,9 +72,9 @@ namespace GPLib {
 
         GPLib::Kernels::Kernel<T> getKernel() const;
 
-        virtual void train() = 0;
+        virtual void train(const MapMatrix<T> &X, const MapVector<T> &Y) = 0;
 
-        virtual void predict() const = 0;
+        virtual void predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const = 0;
     };
 }
 
