@@ -72,10 +72,10 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap) {
     T lambda = 1.0;
     do {
         // Compute Covariance Matrix K(X, X^t).
-        this->buildCovarianceMatrix(X, X, K, kernel);
+        buildCovarianceMatrix(X, X, K, kernel);
 
         // Compute Cholesky Decomposition of K.
-        this->jitterChol(K, L);
+        jitterChol(K, L);
 
         // TO-DO
     } while (true);
@@ -90,7 +90,7 @@ GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T> &Xs, std::optional< const
 
     // Compute Cross-Covariance Matrix K(X, Xs).
     Matrix<T> Ks(X.rows(), Xs.rows());
-    this->buildCovarianceMatrix(X, Xs, Ks, kernel);
+    buildCovarianceMatrix(X, Xs, Ks, kernel);
 
     // Solve for Posterior Means.
     const auto tmp = L.triangularView<Eigen::Lower>().solve(Ks);
@@ -98,7 +98,7 @@ GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T> &Xs, std::optional< const
     
     // Compute Posterior Covariance.
     Matrix<T> Kss(Xs.rows(), Xs.rows());
-    this->buildCovarianceMatrix(Xs, Xs, Kss, kernel);
+    buildCovarianceMatrix(Xs, Xs, Kss, kernel);
     const auto posteriorCov = Kss - tmp.transpose() * tmp;
 
     // Return Mean and Covariance if no ground truth.
