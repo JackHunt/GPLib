@@ -55,9 +55,9 @@ namespace GPLib {
         static void buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C, 
                                           const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel);
 
-        virtual T logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const;
+        virtual T logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const = 0;
 
-        virtual Vector<T> logLikelihoodGrad() const;
+        virtual Vector<T> logLikelihoodGrad() const = 0;
 
     protected:
         // Covariance Kernel defining this type of regressor.

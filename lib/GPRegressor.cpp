@@ -77,7 +77,14 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap) {
         // Compute Cholesky Decomposition of K.
         jitterChol(K, L);
 
-        // TO-DO
+        // Compute Alpha.
+        const auto alpha = L.triangularView<Eigen::Lower>().solve(Y);
+
+        // Compute gradient of GP w.r.t. K.
+        const auto dfdk = alpha * alpha.transpose() - K.inverse();
+
+        // Compute gradient of K.
+        // TODO
     } while (true);
 }
 
@@ -110,6 +117,20 @@ GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T> &Xs, std::optional< const
     const auto predDiff = Ys.value() - posteriorMean;
     const T mse = predDiff.unaryExpr([](T a) { return a * a; }).mean();
     return GPOutput<T>(MeanCovErr<T>(posteriorMean, posteriorCov, mse));
+}
+
+template<typename T>
+T GPRegressor<T>::logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const {
+    const T t1 = -0.5 * Y.transpose() * alpha;
+    const T t2 = 0.5 * std::log(K.determinant());
+    const T t3 = (static_cast<T>(K.rows()) / 2.0) * std::log(2.0 * M_PI);
+
+    return t1 - t2 - t3;
+}
+
+template<typename T>
+Vector<T> GPRegressor<T>::logLikelihoodGrad() const {
+    return Vector<T>();
 }
 
 template class GPRegressor<float>;
