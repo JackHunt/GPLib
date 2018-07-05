@@ -1,0 +1,3 @@
+[submodule "lib/headers/CPPUtils"]
+	path = lib/headers/CPPUtils
+	url = git@github.com:JackHunt/CPPUtils.git
