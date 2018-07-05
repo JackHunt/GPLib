@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GPLIB_REGRESSOR_HEADER
 #define GPLIB_REGRESSOR_HEADER
 
-#include "GaussianProcess.hpp"
+#include <GaussianProcess.hpp>
 
 namespace GPLib {
     template<typename T>

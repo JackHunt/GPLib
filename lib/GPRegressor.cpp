@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace GPLib;
 using namespace GPLib::Kernels;
+using namespace CPPUtils::Iterators;
 
 template<typename T>
 GPRegressor<T>::GPRegressor(KernelType kernType) : GaussianProcess<T>(kernType) {
@@ -136,11 +137,13 @@ std::vector<T> GPRegressor<T>::getStdDev() const {
     std::vector<T> stdDev(len);
 
     auto sr = [&stdDev, this](auto iter) {
-        //const size_t i = *iter;
-        //stdDev[i] = std::sqrt(v_s(i, i)); 
+        const size_t i = iter;
+        stdDev[i] = std::sqrt(v_s(i, i)); 
     };
 
-    //std::for_each(std::execution::par, CountingIterator<size_t>(), CountingIterator<size_t>(len), sr);
+    CountingIterator<size_t> begin(0);
+    CountingIterator<size_t> end(len);
+    std::for_each(std::execution::par, begin, end, sr);
 
     return stdDev;
 }

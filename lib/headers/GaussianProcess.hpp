@@ -7,8 +7,10 @@
 #include <algorithm>
 #include <execution>
 
-#include "Aliases.hpp"
-#include "Kernels.hpp"
+#include <CPPUtils/Iterators/CountingIterator.hpp>
+
+#include <Aliases.hpp>
+#include <Kernels.hpp>
 
 namespace GPLib {
     template<typename T>

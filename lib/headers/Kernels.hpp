@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GPLIB_KERNELS_HEADER
 #define GPLIB_KERNELS_HEADER
 
-#include "Aliases.hpp"
+#include <Aliases.hpp>
 
 #include <vector>
 #include <algorithm>

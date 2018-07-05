@@ -2,6 +2,7 @@
 
 using namespace GPLib;
 using namespace GPLib::Kernels;
+using namespace CPPUtils::Iterators;
 
 template<typename T>
 GaussianProcess<T>::GaussianProcess(KernelType kernType) {
@@ -71,5 +72,7 @@ static void GaussianProcess<T>::buildCovarianceMatrix(const MapMatrix<T> &A, con
         }
     };
 
-    std::for_each(std::execution::par, 0, rowsA, inner);
+    CountingIterator<size_t> begin(0);
+    CountingIterator<size_t> end(rowsA);
+    std::for_each(std::execution::par, begin, end, inner);
 }
