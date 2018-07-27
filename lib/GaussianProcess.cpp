@@ -80,7 +80,7 @@ static void GaussianProcess<T>::jitterChol(const Matrix<T> &A, Matrix<T> &C) {
         }
     }
 
-    // If Matrix is still not positive semi-definite.
+    // If Matrix is still not positive semidefinite.
     if (!passed) {
         throw std::runtime_error("Unable to make matrix positive semidefinite.");
     }

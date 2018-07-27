@@ -65,6 +65,11 @@ namespace GPLib::Kernels {
 
         virtual ~Kernel();
 
+	public:
+		ParameterSet<T> getParameters() const;
+
+		void setParameters(const ParameterSet<T> &params);
+
         virtual T f(const Vector<T> &a, const Vector<T> &b) const = 0;
 
         virtual T df(const Vector<T> &a, const Vector<T> &b, const std::string &gradVar) const = 0;

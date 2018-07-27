@@ -56,8 +56,10 @@ namespace GPLib {
                                           const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel, 
 			                              const std::optional<const std::string> &gradVar = std::nullopt);
 
+		// MAYBE MAKE STATIC?
         virtual T logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const = 0;
 
+		// MAYBE MAKE STATIC?
         virtual Vector<T> logLikelihoodGrad() const = 0;
 
     protected:
@@ -71,7 +73,7 @@ namespace GPLib {
 
         GPLib::Kernels::Kernel<T> getKernel() const;
 
-        virtual void train(const MapMatrix<T> &X, const MapVector<T> &Y) = 0;
+        virtual void train(const MapMatrix<T> &X, const MapVector<T> &Y, size_t maxEpochs = 1000) = 0;
 
         virtual GPOutput<T> predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys = std::nullopt) const = 0;
     };

@@ -47,7 +47,7 @@ GPRegressor<T>::~GPRegressor() {
 }
 
 template<typename T>
-void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap) {
+void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, size_t maxEpochs) {
     // Sanity check.
     assert(XMap.rows() == YMap.rows());
 
@@ -68,8 +68,24 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap) {
     }
     Y = YMap;
 
+	// Current parameters.
+	auto params = kernel->getParameters();
+	
+	// Temporary storage.
+	Matrix<T> gradK, gradL;
+	Vector<T> f, nabla;
+	gradK.resize(K.rows(), K.cols());
+	gradL.resize(L.rows(), L.cols());
+	I.resize(params.size(), params.size());
+	f.resize(params.size(), 1);
+	nabla.resize(params.size(), 1);
+
+	// Identity for step computation.
+	const auto I = Eigen::MatrixXd::Identity(params.size(), params.size());
+
     // Optimise Log Marginal Likelihood with Levenberg-Marquardt.
     T lambda = 1.0;
+	size_t epoch = 0;
     do {
         // Compute Covariance Matrix K(X, X^t).
         buildCovarianceMatrix(X, X, K, kernel);
@@ -83,9 +99,25 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap) {
         // Compute gradient of GP w.r.t. K.
         const auto dfdk = alpha * alpha.transpose() - K.inverse();
 
-        // Compute gradient of K.
-        // TODO
-    } while (true);
+        // Compute gradients of K.
+		size_t idx = 0; // TODO: Replace with enumeration iterator.
+		for (const auto &p : params) {
+			buildCovarianceMatrix(X, X, gradK, kernel, p.first);
+			nabla(idx) = (dfdk * gradK).trace();
+			f(idx) = p.second;
+			idx++;
+		}
+
+		// Compute Hessian.
+		const auto H = nabla.transpose() * nabla();
+
+		// Compute step.
+		const auto cholH = Eigen::LLT< Matrix<T> >(H + lambda * I).matrixL();
+		const auto step = cholH.triangularView<Eigen::Lower>().solve(nabla);
+
+		// Update.
+		//
+    } while (epoch <= maxEpochs);
 }
 
 template<typename T>

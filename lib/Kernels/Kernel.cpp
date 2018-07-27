@@ -66,3 +66,14 @@ template<typename T>
 void Kernel<T>::verifyParam(const std::string &var) const {
 	assert(params.find(var) != params.end());
 }
+
+template<typename T>
+ParameterSet<T> Kernel<T>::getParameters() const {
+	return params;
+}
+
+template<typename T>
+void Kernel<T>::setParameters(const ParameterSet<T> &params) {
+	this->params = params;
+	verifyParams();
+}

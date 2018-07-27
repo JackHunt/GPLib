@@ -52,7 +52,7 @@ namespace GPLib {
         Vector<T> logLikelihoodGrad() const;
 
     public:
-        void train(const MapMatrix<T> &X, const MapVector<T> &Y);
+        void train(const MapMatrix<T> &X, const MapVector<T> &Y, size_t maxEpochs);
 
         GPOutput<T> predict(const MapMatrix<T> &Xs, const std::optional< const MapVector<T> > &Ys) const;
 
