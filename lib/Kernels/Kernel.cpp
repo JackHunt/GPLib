@@ -47,10 +47,10 @@ Kernel<T>::~Kernel() {
 }
 
 template<typename T>
-void Kernel<T>::verifyParams() {
+void Kernel<T>::verifyParams() const {
     // Check for missing parameters.
     for (const auto &p : validParams) {
-        assert(params.find(p) != params.end());
+		verifyParam(p);
     }
 
     // Check for invalid parameters.
@@ -60,4 +60,9 @@ void Kernel<T>::verifyParams() {
             params.erase(p.first);
         }
     }
+}
+
+template<typename T>
+void Kernel<T>::verifyParam(const std::string &var) const {
+	assert(params.find(var) != params.end());
 }

@@ -51,11 +51,14 @@ namespace GPLib::Kernels {
     template<typename T>
     class Kernel {
     private:
-        void verifyParams();
+        void verifyParams() const;
 
     protected:
         ParameterSet<T> params;
         std::vector< std::string > validParams;
+
+	protected:
+		void verifyParam(const std::string &var) const;
 
     public:
         Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params);
@@ -64,7 +67,7 @@ namespace GPLib::Kernels {
 
         virtual T f(const Vector<T> &a, const Vector<T> &b) const = 0;
 
-        virtual ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const = 0;
+        virtual T df(const Vector<T> &a, const Vector<T> &b, const std::string &gradVar) const = 0;
 
         virtual Vector<T> dfda(const Vector<T> &a, const Vector<T> &b) const = 0;
         

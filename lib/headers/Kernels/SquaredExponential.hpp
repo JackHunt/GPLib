@@ -45,7 +45,7 @@ namespace GPLib::Kernels {
 
         T f(const Vector<T> &a, const Vector<T> &b) const;
 
-        ParameterSet<T> df(const Vector<T> &a, const Vector<T> &b) const;
+        T df(const Vector<T> &a, const Vector<T> &b, const std::string &gradVar) const;
 
         Vector<T> dfda(const Vector<T> &a, const Vector<T> &b);
 

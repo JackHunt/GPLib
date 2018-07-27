@@ -53,7 +53,8 @@ namespace GPLib {
         static void jitterChol(const Matrix<T> &A, Matrix<T> &C);
         
         static void buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C, 
-                                          const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel);
+                                          const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel, 
+			                              const std::optional<const std::string> &gradVar = std::nullopt);
 
         virtual T logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const = 0;
 
@@ -72,7 +73,7 @@ namespace GPLib {
 
         virtual void train(const MapMatrix<T> &X, const MapVector<T> &Y) = 0;
 
-        virtual GPOutput<T> predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const = 0;
+        virtual GPOutput<T> predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys = std::nullopt) const = 0;
     };
 }
 

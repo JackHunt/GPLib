@@ -58,23 +58,35 @@ T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b) const {
 }
 
 template<typename T>
-ParameterSet<T> SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b) const {
+T SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b, 
+	                        const std::string &gradVar) const {
     assert(a.size() == b.size());
+	verifyParam(gradVar);
 
     const T sqEucDist = (a - b).squaredNorm();
 
     const T sigma = params.at("sigma");
     const T lambda = params.at("lambda");
 
-    ParameterSet<T> grad(params);
-    grad["sigma"] = 2.0 * sigma * std::exp((-0.5 * sqEucDist) / lambda * lambda);
-    grad["lambda"] = sigma * sigma * sqEucDist * std::exp((-0.5 * sqEucDist / lambda * lambda));
+	T gradVal = 0.0;
 
-    return grad;
+	if (gradVar == "sigma") {
+		gradVal = 2.0 * sigma * std::exp((-0.5 * sqEucDist) / lambda * lambda);
+	}
+	else if (gradVar == "lambda") {
+		gradVal = sigma * sigma * sqEucDist * std::exp((-0.5 * sqEucDist / lambda * lambda));
+	}
+	else {
+		// Should not get here due to verifyParam.
+	}
+
+    return gradVal;
 }
 
 template<typename T>
 Vector<T> SquaredExponential<T>::dfda(const Vector<T> &a, const Vector<T> &b) {
+	assert(a.size() == b.size());
+
     const T fVal = f(a, b);
     const T lambda = params.at("lambda");
     const auto df = (-1.0 / (lambda * lambda)) * fVal * (a - b);
@@ -84,6 +96,8 @@ Vector<T> SquaredExponential<T>::dfda(const Vector<T> &a, const Vector<T> &b) {
 
 template<typename T>
 Vector<T> SquaredExponential<T>::dfdb(const Vector<T> &a, const Vector<T> &b) {
+	assert(a.size() == b.size());
+
     return -1.0 * dfda(a, b);
 }
 

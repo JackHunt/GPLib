@@ -89,7 +89,7 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap) {
 }
 
 template<typename T>
-GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys) const {
+GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T> &Xs, const std::optional< const MapVector<T> > &Ys) const {
     // Sanity check ground truth if present.
     if (Ys.has_value()) {
         assert(Xs.rows() == Ys.value().rows());

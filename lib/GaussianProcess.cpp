@@ -88,14 +88,15 @@ static void GaussianProcess<T>::jitterChol(const Matrix<T> &A, Matrix<T> &C) {
 
 template<typename T>
 static void GaussianProcess<T>::buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C, 
-                                                      const std::shared_ptr< Kernel<T> > kernel) {
+                                                      const std::shared_ptr< Kernel<T> > kernel, 
+	                                                  const std::optional< const std::string > &gradVar) {
     const size_t rowsA = A.rows();
     const size_t rowsB = B.rows();
 
     auto inner = [&A, &B, &C, &kernel](size_t i) {
         for (size_t j = i + 1; j < rowsB; j++) {
-            if (true != 0) {// TODO: sort grad case
-                C(i, j) = kernel->df(A.row(i), B.row(j));
+			if (gradVar.has_value()) {
+                C(i, j) = kernel->df(A.row(i), B.row(j), gradVar.value());
             }
             else {
                 C(i, j) = kernel->f(A.row(i), B.row(j));
