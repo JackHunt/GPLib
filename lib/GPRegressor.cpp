@@ -73,15 +73,14 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
 	
 	// Temporary storage.
 	Matrix<T> gradK, gradL;
-	Vector<T> params, nabla;
+	Vector<T> paramVec, nabla;
 	gradK.resize(K.rows(), K.cols());
 	gradL.resize(L.rows(), L.cols());
-	I.resize(params.size(), params.size());
-	params.resize(params.size(), 1);
+	paramVec.resize(params.size(), 1);
 	nabla.resize(params.size(), 1);
 
 	// Identity for step computation.
-	const auto I = Eigen::MatrixXd::Identity(params.size(), params.size());
+	const auto I = Matrix<T>::Identity(params.size(), params.size());
 
     // Optimise Log Marginal Likelihood with Levenberg-Marquardt.
     T lambda = 1.0;
@@ -97,7 +96,7 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
         const auto alpha = L.triangularView<Eigen::Lower>().solve(Y);
 
 		// Compute current loss.
-		const T logLik = loglikelihood(alpha, K, Y);
+		const T logLik = logLikelihood(alpha, K, Y);
 
         // Compute gradient of GP w.r.t. K.
         const auto dfdk = alpha * alpha.transpose() - K.inverse();
@@ -107,20 +106,23 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
 		for (const auto &p : params) {
 			buildCovarianceMatrix(X, X.transpose(), gradK, kernel, p.first);
 			nabla(idx) = (dfdk * gradK).trace();
-			params(idx) = p.second;
+			paramVec(idx) = p.second;
 			idx++;
 		}
 
 		// Compute Hessian.
-		const auto H = nabla.transpose() * nabla();
+		const auto H = nabla.transpose() * nabla;
 
 		// Compute step and new params.
 		const auto cholH = Eigen::LLT< Matrix<T> >(H + lambda * I).matrixL();
-		const auto step = cholH.triangularView<Eigen::Lower>().solve(nabla);
-		const auto updatedParams = params - step;
+		const auto step = cholH.solve(nabla);
+		const auto updatedParams = paramVec - step;
 
 		// Recompute loss with new params.
-		const T updatedLogLik = 0.0;
+		buildCovarianceMatrix(X, X.transpose(), K, kernel);
+		jitterChol(K, L);
+		const auto newAlpha = L.triangularView<Eigen::Lower>().solve(Y);
+		const T updatedLogLik = logLikelihood(newAlpha, K, Y);
 		
 		// Update lambda and reject or accept change.
 		if (updatedLogLik >= logLik) {
@@ -129,8 +131,13 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
 		else {
 			lambda /= 10.0;
 			//Update params.
+			size_t idx = 0;
+			for (auto &p : params) {
+				p.second = updatedParams(idx);
+				idx++;
+			}
+			kernel->setParameters(params);
 		}
-
 		epoch++;
     }
 }
