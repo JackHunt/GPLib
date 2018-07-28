@@ -73,11 +73,11 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
 	
 	// Temporary storage.
 	Matrix<T> gradK, gradL;
-	Vector<T> f, nabla;
+	Vector<T> params, nabla;
 	gradK.resize(K.rows(), K.cols());
 	gradL.resize(L.rows(), L.cols());
 	I.resize(params.size(), params.size());
-	f.resize(params.size(), 1);
+	params.resize(params.size(), 1);
 	nabla.resize(params.size(), 1);
 
 	// Identity for step computation.
@@ -86,9 +86,9 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
     // Optimise Log Marginal Likelihood with Levenberg-Marquardt.
     T lambda = 1.0;
 	size_t epoch = 0;
-    do {
+	while (epoch <= maxEpochs) {
         // Compute Covariance Matrix K(X, X^t).
-        buildCovarianceMatrix(X, X, K, kernel);
+        buildCovarianceMatrix(X, X.transpose(), K, kernel);
 
         // Compute Cholesky Decomposition of K.
         jitterChol(K, L);
@@ -96,28 +96,43 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
         // Compute Alpha.
         const auto alpha = L.triangularView<Eigen::Lower>().solve(Y);
 
+		// Compute current loss.
+		const T logLik = loglikelihood(alpha, K, Y);
+
         // Compute gradient of GP w.r.t. K.
         const auto dfdk = alpha * alpha.transpose() - K.inverse();
 
         // Compute gradients of K.
 		size_t idx = 0; // TODO: Replace with enumeration iterator.
 		for (const auto &p : params) {
-			buildCovarianceMatrix(X, X, gradK, kernel, p.first);
+			buildCovarianceMatrix(X, X.transpose(), gradK, kernel, p.first);
 			nabla(idx) = (dfdk * gradK).trace();
-			f(idx) = p.second;
+			params(idx) = p.second;
 			idx++;
 		}
 
 		// Compute Hessian.
 		const auto H = nabla.transpose() * nabla();
 
-		// Compute step.
+		// Compute step and new params.
 		const auto cholH = Eigen::LLT< Matrix<T> >(H + lambda * I).matrixL();
 		const auto step = cholH.triangularView<Eigen::Lower>().solve(nabla);
+		const auto updatedParams = params - step;
 
-		// Update.
-		//
-    } while (epoch <= maxEpochs);
+		// Recompute loss with new params.
+		const T updatedLogLik = 0.0;
+		
+		// Update lambda and reject or accept change.
+		if (updatedLogLik >= logLik) {
+			lambda *= 10.0;
+		}
+		else {
+			lambda /= 10.0;
+			//Update params.
+		}
+
+		epoch++;
+    }
 }
 
 template<typename T>
@@ -137,7 +152,7 @@ GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T> &Xs, const std::optional<
     
     // Compute Posterior Covariance.
     Matrix<T> Kss(Xs.rows(), Xs.rows());
-    buildCovarianceMatrix(Xs, Xs, Kss, kernel);
+    buildCovarianceMatrix(Xs, Xs.transpose(), Kss, kernel);
     const auto posteriorCov = Kss - tmp.transpose() * tmp;
 
     // Return Mean and Covariance if no ground truth.

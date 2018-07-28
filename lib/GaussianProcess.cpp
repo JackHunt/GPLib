@@ -63,7 +63,7 @@ static void GaussianProcess<T>::jitterChol(const Matrix<T> &A, Matrix<T> &C) {
     const size_t colsA = A.cols();
     assert(rowsA == colsA)
 
-    Matrix<T> jitter = Matrix<T>::Identity(rowsA, colsA);
+    auto jitter = Matrix<T>::Identity(rowsA, colsA);
     jitter *= 1e-8;
 
     bool passed = false;
