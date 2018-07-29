@@ -38,9 +38,3 @@ add_library(GPLib ${HEADERS} ${SOURCES})
 
 # Add includes.
 target_include_directories(GPLib PUBLIC lib/headers/)
-
-# Try to build python bindings.
-option(BUILD_PYTHON_BINDINGS "Build Python3 Bindings" OFF)
-if(BUILD_PYTHON_BINDINGS)
-  #
-endif(BUILD_PYTHON_BINDINGS)
