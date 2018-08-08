@@ -17,7 +17,7 @@ endif(MSVC_IDE)
 find_package(Eigen REQUIRED)
 
 # Set the headers and sources.
-set(HEADERS
+set(GPLIB_HEADERS
   lib/headers/GaussianProcess.hpp
   lib/headers/GPRegressor.hpp
   lib/headers/Kernels.hpp
@@ -26,15 +26,21 @@ set(HEADERS
   lib/headers/Kernels/SquaredExponential.hpp
 )
 
-set(SOURCES
-  lib/GaussianProcess.cpp
+set(GPLIB_SOURCES
   lib/GPRegressor.cpp
-  lib/Kernels/Kernel.cpp
   lib/Kernels/SquaredExponential.cpp
 )
 
 # Add library.
-add_library(GPLib ${HEADERS} ${SOURCES})
+add_library(GPLib STATIC ${GPLIB_HEADERS} ${GPLIB_SOURCES})
 
 # Add includes.
 target_include_directories(GPLib PUBLIC lib/headers/)
+
+# Add demo executable.
+add_executable(Demo demo/demo.hpp demo/demo.cpp)
+# C:/Users/Jack\ Hunt/GitRepos/GPLib/build/Debug/GPLib.lib
+target_link_libraries(Demo GPLib)
+
+# Add includes.
+target_include_directories(Demo PUBLIC lib/headers/)

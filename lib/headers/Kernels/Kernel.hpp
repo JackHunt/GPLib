@@ -50,15 +50,29 @@ namespace GPLib::Kernels {
 
     template<typename T>
     class Kernel {
-    private:
-        void verifyParams() const;
-
     protected:
         ParameterSet<T> params;
         std::vector< std::string > validParams;
 
-	protected:
-		void verifyParam(const std::string &var) const;
+    protected:
+        void verifyParam(const std::string &var) const {
+            assert(params.find(var) != params.end());
+        }
+
+        void verifyParams() {
+            // Check for missing parameters.
+            for (const auto &p : validParams) {
+                verifyParam(p);
+            }
+
+            // Check for invalid parameters.
+            for (const auto p : params) {
+                if (std::find(validParams.begin(), validParams.end(), p.first) == validParams.end()) {
+                    std::cout << "WARNING: Surplus parameter " + p.first + " being removed from parameter set!";
+                    params.erase(p.first);
+                }
+            }
+        }
 
     public:
         Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params);
@@ -66,9 +80,14 @@ namespace GPLib::Kernels {
         virtual ~Kernel();
 
 	public:
-		ParameterSet<T> getParameters() const;
+        ParameterSet<T> getParameters() const {
+            return params;
+        }
 
-		void setParameters(const ParameterSet<T> &params);
+        void setParameters(const ParameterSet<T> &params) {
+            this->params = params;
+            verifyParams();
+        }
 
         virtual T f(const Vector<T> &a, const Vector<T> &b) const = 0;
 

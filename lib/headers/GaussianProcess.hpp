@@ -50,11 +50,69 @@ namespace GPLib {
     template<typename T>
     class GaussianProcess {
     protected:
-        static void jitterChol(const Matrix<T> &A, Matrix<T> &C);
+        void jitterChol(const Matrix<T> &A, Matrix<T> &C) const {
+            const size_t rowsA = A.rows();
+            const size_t colsA = A.cols();
+            assert(rowsA == colsA);
+
+            Matrix<T> jitter = Matrix<T>::Identity(rowsA, colsA);
+            jitter *= 1e-8;
+
+            bool passed = false;
+
+            // Successively add jitter to make positive semi-definite.
+            while (!passed && jitter(0, 0) < 1e4) {
+                Eigen::LLT< Matrix<T> > chol(A + jitter);
+                if (chol.info() == Eigen::NumericalIssue) {// Not pos-semidefinite.
+                    jitter *= 1.1;
+                }
+                else {
+                    passed = true;
+                    C = chol.matrixL();
+                }
+            }
+
+            // If Matrix is still not positive semidefinite.
+            if (!passed) {
+                throw std::runtime_error("Unable to make matrix positive semidefinite.");
+            }
+        }
         
-        static void buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C, 
-                                          const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel, 
-			                              const std::optional<const std::string> &gradVar = std::nullopt);
+        void buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C,
+                                   const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel,
+                                   const std::optional<const std::string> &gradVar = std::nullopt) const {
+            const size_t rowsA = A.rows();
+            const size_t rowsB = B.rows();
+
+            auto inner = [&A, &B, &C, &kernel, rowsB, &gradVar](size_t i) {
+                for (size_t j = i + 1; j < rowsB; j++) {
+                    if (gradVar.has_value()) {
+                        C(i, j) = kernel->df(A.row(i), B.row(j), gradVar.value());
+                    }
+                    else {
+                        C(i, j) = kernel->f(A.row(i), B.row(j));
+                    }
+                    C(j, i) = C(i, j);
+                }
+            };
+
+            CountingIterator<size_t> begin(0);
+            CountingIterator<size_t> end(rowsA);
+            std::for_each(std::execution::par, begin, end, inner);
+        }
+
+        /*
+        template<typename T>
+        GaussianProcess<T>::GaussianProcess(KernelType kernType) {
+        switch (kernType) {
+        case KernelType::SQUARED_EXPONENTIAL:
+        kernel.reset(new SquaredExponential<T>());
+        break;
+        default:
+        throw std::runtime_error("Invalid kernel choice.");
+        }
+        }
+        */
 
 		// MAYBE MAKE STATIC?
         virtual T logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const = 0;
@@ -67,15 +125,15 @@ namespace GPLib {
         std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel;
 
     public:
-        GaussianProcess(GPLib::Kernels::KernelType kernType);
+        //GaussianProcess(GPLib::Kernels::KernelType kernType);
 
-        virtual ~GaussianProcess();
+        virtual ~GaussianProcess() {};
 
         GPLib::Kernels::Kernel<T> getKernel() const;
 
         virtual void train(const MapMatrix<T> &X, const MapVector<T> &Y, size_t maxEpochs = 1000) = 0;
 
-        virtual GPOutput<T> predict(const MapMatrix<T> &Xs, std::optional< const MapVector<T> > &Ys = std::nullopt) const = 0;
+        virtual GPOutput<T> predict(const MapMatrix<T> &Xs, const std::optional< const MapVector<T> > &Ys = std::nullopt) const = 0;
     };
 }
 
