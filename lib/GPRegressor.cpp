@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018, Jack Miles Hunt
+Copyright (c) 2018/19, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ GPRegressor<T>::~GPRegressor() {
 }
 
 template<typename T>
-void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, size_t maxEpochs) {
+void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, unsigned int maxEpochs) {
     // Sanity check.
     assert(XMap.rows() == YMap.rows());
 
@@ -132,7 +132,7 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
 			lambda /= 10.0;
 			//Update params.
 			size_t idx = 0;
-			for (auto &p : params) {
+			for (auto& p : params) {
 				p.second = updatedParams(idx);
 				idx++;
 			}
@@ -143,7 +143,7 @@ void GPRegressor<T>::train(const MapMatrix<T> &XMap, const MapVector<T> &YMap, s
 }
 
 template<typename T>
-GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T> &Xs, const std::optional< const MapVector<T> > &Ys) const {
+GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys) const {
     /*
     // Sanity check ground truth if present.
     if (Ys.has_value()) {
@@ -177,7 +177,7 @@ GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T> &Xs, const std::optional<
 }
 
 template<typename T>
-T GPRegressor<T>::logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const {
+T GPRegressor<T>::logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const {
     /*
     const T t1 = -0.5 * Y.transpose() * alpha;
     const T t2 = 0.5 * std::log(K.determinant());

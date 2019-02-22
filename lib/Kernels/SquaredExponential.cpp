@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018, Jack Miles Hunt
+Copyright (c) 2018/19, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ SquaredExponential<T>::~SquaredExponential() {
 }
 
 template<typename T>
-T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b) const {
+T SquaredExponential<T>::f(const Vector<T>& a, const Vector<T>& b) const {
     assert(a.size() == b.size());
 
     const T sqEucDist = (a - b).squaredNorm();
@@ -58,8 +58,8 @@ T SquaredExponential<T>::f(const Vector<T> &a, const Vector<T> &b) const {
 }
 
 template<typename T>
-T SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b, 
-	                        const std::string &gradVar) const {
+T SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>& b, 
+	                        const std::string& gradVar) const {
     assert(a.size() == b.size());
 	verifyParam(gradVar);
 
@@ -84,7 +84,7 @@ T SquaredExponential<T>::df(const Vector<T> &a, const Vector<T> &b,
 }
 
 template<typename T>
-Vector<T> SquaredExponential<T>::dfda(const Vector<T> &a, const Vector<T> &b) {
+Vector<T> SquaredExponential<T>::dfda(const Vector<T>& a, const Vector<T>& b) {
 	assert(a.size() == b.size());
 
     const T fVal = f(a, b);
@@ -95,7 +95,7 @@ Vector<T> SquaredExponential<T>::dfda(const Vector<T> &a, const Vector<T> &b) {
 }
 
 template<typename T>
-Vector<T> SquaredExponential<T>::dfdb(const Vector<T> &a, const Vector<T> &b) {
+Vector<T> SquaredExponential<T>::dfdb(const Vector<T>& a, const Vector<T>& b) {
 	assert(a.size() == b.size());
 
     return -1.0 * dfda(a, b);

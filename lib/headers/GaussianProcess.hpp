@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018, Jack Miles Hunt
+Copyright (c) 2018/19, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ namespace GPLib {
     template<typename T>
     class GaussianProcess {
     protected:
-        void jitterChol(const Matrix<T> &A, Matrix<T> &C) const {
+        void jitterChol(const Matrix<T>& A, Matrix<T>& C) const {
             const size_t rowsA = A.rows();
             const size_t colsA = A.cols();
             assert(rowsA == colsA);
@@ -78,9 +78,9 @@ namespace GPLib {
             }
         }
         
-        void buildCovarianceMatrix(const Matrix<T> &A, const Matrix<T> &B, Matrix<T> &C,
+        void buildCovarianceMatrix(const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
                                    const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel,
-                                   const std::optional<const std::string> &gradVar = std::nullopt) const {
+                                   const std::optional<const std::string>& gradVar = std::nullopt) const {
             const size_t rowsA = A.rows();
             const size_t rowsB = B.rows();
 
@@ -114,10 +114,8 @@ namespace GPLib {
         }
         */
 
-		// MAYBE MAKE STATIC?
-        virtual T logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const = 0;
+        virtual T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const = 0;
 
-		// MAYBE MAKE STATIC?
         virtual Vector<T> logLikelihoodGrad() const = 0;
 
     protected:
@@ -131,9 +129,9 @@ namespace GPLib {
 
         GPLib::Kernels::Kernel<T> getKernel() const;
 
-        virtual void train(const MapMatrix<T> &X, const MapVector<T> &Y, size_t maxEpochs = 1000) = 0;
+        virtual void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs = 1000) = 0;
 
-        virtual GPOutput<T> predict(const MapMatrix<T> &Xs, const std::optional< const MapVector<T> > &Ys = std::nullopt) const = 0;
+        virtual GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys = std::nullopt) const = 0;
     };
 }
 

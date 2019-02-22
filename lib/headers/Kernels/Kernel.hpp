@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018, Jack Miles Hunt
+Copyright (c) 2018/19, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -55,13 +55,13 @@ namespace GPLib::Kernels {
         std::vector< std::string > validParams;
 
     protected:
-        void verifyParam(const std::string &var) const {
+        void verifyParam(const std::string& var) const {
             assert(params.find(var) != params.end());
         }
 
         void verifyParams() {
             // Check for missing parameters.
-            for (const auto &p : validParams) {
+            for (const auto& p : validParams) {
                 verifyParam(p);
             }
 
@@ -75,7 +75,7 @@ namespace GPLib::Kernels {
         }
 
     public:
-        Kernel(const std::vector< std::string > &validParams, const ParameterSet<T> &params);
+        Kernel(const std::vector< std::string >& validParams, const ParameterSet<T>& params);
 
         virtual ~Kernel();
 
@@ -84,18 +84,18 @@ namespace GPLib::Kernels {
             return params;
         }
 
-        void setParameters(const ParameterSet<T> &params) {
+        void setParameters(const ParameterSet<T>& params) {
             this->params = params;
             verifyParams();
         }
 
-        virtual T f(const Vector<T> &a, const Vector<T> &b) const = 0;
+		virtual T f(const Vector<T>& a, const Vector<T>& b) const = 0;
 
-        virtual T df(const Vector<T> &a, const Vector<T> &b, const std::string &gradVar) const = 0;
+        virtual T df(const Vector<T>& a, const Vector<T>& b, const std::string& gradVar) const = 0;
 
-        virtual Vector<T> dfda(const Vector<T> &a, const Vector<T> &b) const = 0;
+        virtual Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const = 0;
         
-        virtual Vector<T> dfdb(const Vector<T> &a, const Vector<T> &b) const = 0;
+        virtual Vector<T> dfdb(const Vector<T>& a, const Vector<T>& b) const = 0;
     };
 }
 

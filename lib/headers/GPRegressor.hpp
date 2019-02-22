@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018, Jack Miles Hunt
+Copyright (c) 2018/19, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -47,14 +47,14 @@ namespace GPLib {
         Matrix<T> K, L;
 
     protected:
-        T logLikelihood(const Vector<T> &alpha, const Matrix<T> &K, const Vector<T> &Y) const;
+        T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const;
 
         Vector<T> logLikelihoodGrad() const;
 
     public:
-        void train(const MapMatrix<T> &X, const MapVector<T> &Y, size_t maxEpochs);
+        void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs);
 
-        GPOutput<T> predict(const MapMatrix<T> &Xs, const std::optional< const MapVector<T> > &Ys) const;
+		GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys) const;
 
         GPRegressor(GPLib::Kernels::KernelType kernType = GPLib::Kernels::KernelType::SQUARED_EXPONENTIAL);
         virtual ~GPRegressor();
