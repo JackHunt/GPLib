@@ -18,10 +18,11 @@ find_package(Eigen REQUIRED)
 
 # Set the headers and sources.
 set(GPLIB_HEADERS
+  lib/headers/Aliases.hpp
   lib/headers/GaussianProcess.hpp
   lib/headers/GPRegressor.hpp
   lib/headers/Kernels.hpp
-  lib/headers/Aliases.hpp
+  lib/headers/Optimisation/Optimiser.hpp
   lib/headers/Kernels/Kernel.hpp
   lib/headers/Kernels/SquaredExponential.hpp
 )
