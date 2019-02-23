@@ -32,7 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <Kernels/SquaredExponential.hpp>
 
-using namespace GPLib::Kernels;
+using namespace GPLib;
 
 template<typename T>
 SquaredExponential<T>::SquaredExponential() : 
@@ -84,7 +84,7 @@ T SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>& b,
 }
 
 template<typename T>
-Vector<T> SquaredExponential<T>::dfda(const Vector<T>& a, const Vector<T>& b) {
+Vector<T> SquaredExponential<T>::dfda(const Vector<T>& a, const Vector<T>& b) const {
 	assert(a.size() == b.size());
 
     const T fVal = f(a, b);
@@ -95,7 +95,7 @@ Vector<T> SquaredExponential<T>::dfda(const Vector<T>& a, const Vector<T>& b) {
 }
 
 template<typename T>
-Vector<T> SquaredExponential<T>::dfdb(const Vector<T>& a, const Vector<T>& b) {
+Vector<T> SquaredExponential<T>::dfdb(const Vector<T>& a, const Vector<T>& b) const {
 	assert(a.size() == b.size());
 
     return -1.0 * dfda(a, b);

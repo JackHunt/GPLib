@@ -79,7 +79,7 @@ namespace GPLib {
         }
         
         void buildCovarianceMatrix(const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
-                                   const std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel,
+                                   const std::shared_ptr<Kernel<T>> kernel,
                                    const std::optional<const std::string>& gradVar = std::nullopt) const {
             const size_t rowsA = A.rows();
             const size_t rowsB = B.rows();
@@ -101,33 +101,32 @@ namespace GPLib {
             std::for_each(std::execution::par, begin, end, inner);
         }
 
-        /*
-        template<typename T>
-        GaussianProcess<T>::GaussianProcess(KernelType kernType) {
-        switch (kernType) {
-        case KernelType::SQUARED_EXPONENTIAL:
-        kernel.reset(new SquaredExponential<T>());
-        break;
-        default:
-        throw std::runtime_error("Invalid kernel choice.");
-        }
-        }
-        */
-
         virtual T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const = 0;
 
         virtual Vector<T> logLikelihoodGrad() const = 0;
 
     protected:
         // Covariance Kernel defining this type of regressor.
-        std::shared_ptr< GPLib::Kernels::Kernel<T> > kernel;
+        std::shared_ptr<Kernel<T>> kernel;
 
     public:
-        //GaussianProcess(GPLib::Kernels::KernelType kernType);
+		GaussianProcess(KernelType kernType = KernelType::SQUARED_EXPONENTIAL) {
+			switch (kernType) {
+			case KernelType::SQUARED_EXPONENTIAL:
+				kernel = std::make_shared<SquaredExponential<T>>();
+				break;
+			default:
+				throw std::runtime_error("Invalid kernel choice.");
+			}
+		}
 
-        virtual ~GaussianProcess() {};
+        virtual ~GaussianProcess() {
+			//
+		};
 
-        GPLib::Kernels::Kernel<T> getKernel() const;
+		const std::shared_ptr<const Kernel<T>> getKernel() const {
+			return kernel;
+		}
 
         virtual void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs = 1000) = 0;
 

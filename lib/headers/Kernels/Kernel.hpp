@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <Eigen/Dense>
 
-namespace GPLib::Kernels {
+namespace GPLib {
     //Available kernel types enumerated here.
     enum class KernelType : short {
         SQUARED_EXPONENTIAL
@@ -52,7 +52,7 @@ namespace GPLib::Kernels {
     class Kernel {
     protected:
         ParameterSet<T> params;
-        std::vector< std::string > validParams;
+        std::vector<std::string> validParams;
 
     protected:
         void verifyParam(const std::string& var) const {
@@ -74,10 +74,15 @@ namespace GPLib::Kernels {
             }
         }
 
-    public:
-        Kernel(const std::vector< std::string >& validParams, const ParameterSet<T>& params);
+    protected:
+		Kernel(const std::vector< std::string >& validParams, const ParameterSet<T>& params) {
+			//
+		}
 
-        virtual ~Kernel();
+	public:
+		virtual ~Kernel() {
+			//
+		}
 
 	public:
         ParameterSet<T> getParameters() const {

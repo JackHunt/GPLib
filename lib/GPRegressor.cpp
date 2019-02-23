@@ -33,7 +33,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GPRegressor.hpp>
 
 using namespace GPLib;
-using namespace GPLib::Kernels;
 using namespace CPPUtils::Iterators;
 
 template<typename T>

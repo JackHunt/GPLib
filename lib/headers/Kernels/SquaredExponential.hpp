@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <Kernels/Kernel.hpp>
 
-namespace GPLib::Kernels {
+namespace GPLib {
     template<typename T>
     class SquaredExponential : public Kernel<T> {
     public:
@@ -47,9 +47,9 @@ namespace GPLib::Kernels {
 
         T df(const Vector<T>& a, const Vector<T>& b, const std::string& gradVar) const;
 
-        Vector<T> dfda(const Vector<T>& a, const Vector<T>& b);
+        Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const;
 
-        Vector<T> dfdb(const Vector<T>& a, const Vector<T>& b);
+        Vector<T> dfdb(const Vector<T>& a, const Vector<T>& b) const;
     };
 }
 #endif

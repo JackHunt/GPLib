@@ -54,9 +54,9 @@ namespace GPLib {
     public:
         void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs);
 
-		GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys) const;
+		GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional<const MapVector<T>>& Ys) const;
 
-        GPRegressor(GPLib::Kernels::KernelType kernType = GPLib::Kernels::KernelType::SQUARED_EXPONENTIAL);
+        GPRegressor(KernelType kernType = KernelType::SQUARED_EXPONENTIAL);
         virtual ~GPRegressor();
     };
 }
