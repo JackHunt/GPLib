@@ -75,16 +75,16 @@ namespace GPLib {
         }
 
     protected:
-		Kernel(const std::vector< std::string >& validParams, const ParameterSet<T>& params) {
-			//
-		}
+        Kernel(const std::vector< std::string >& validParams, const ParameterSet<T>& params) {
+            //
+        }
 
-	public:
-		virtual ~Kernel() {
-			//
-		}
+    public:
+        virtual ~Kernel() {
+            //
+        }
 
-	public:
+    public:
         ParameterSet<T> getParameters() const {
             return params;
         }
@@ -94,7 +94,7 @@ namespace GPLib {
             verifyParams();
         }
 
-		virtual T f(const Vector<T>& a, const Vector<T>& b) const = 0;
+        virtual T f(const Vector<T>& a, const Vector<T>& b) const = 0;
 
         virtual T df(const Vector<T>& a, const Vector<T>& b, const std::string& gradVar) const = 0;
 

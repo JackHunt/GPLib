@@ -67,24 +67,24 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
     }
     Y = YMap;
 
-	// Current parameters.
-	auto params = kernel->getParameters();
-	
-	// Temporary storage.
-	Matrix<T> gradK, gradL;
-	Vector<T> paramVec, nabla;
-	gradK.resize(K.rows(), K.cols());
-	gradL.resize(L.rows(), L.cols());
-	paramVec.resize(params.size(), 1);
-	nabla.resize(params.size(), 1);
+    // Current parameters.
+    auto params = kernel->getParameters();
+    
+    // Temporary storage.
+    Matrix<T> gradK, gradL;
+    Vector<T> paramVec, nabla;
+    gradK.resize(K.rows(), K.cols());
+    gradL.resize(L.rows(), L.cols());
+    paramVec.resize(params.size(), 1);
+    nabla.resize(params.size(), 1);
 
-	// Identity for step computation.
-	const auto I = Matrix<T>::Identity(params.size(), params.size());
+    // Identity for step computation.
+    const auto I = Matrix<T>::Identity(params.size(), params.size());
 
     // Optimise Log Marginal Likelihood with Levenberg-Marquardt.
     T lambda = 1.0;
-	size_t epoch = 0;
-	while (epoch <= maxEpochs) {
+    size_t epoch = 0;
+    while (epoch <= maxEpochs) {
         // Compute Covariance Matrix K(X, X^t).
         buildCovarianceMatrix(X, X.transpose(), K, kernel);
 
@@ -94,50 +94,50 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
         // Compute Alpha.
         const auto alpha = L.triangularView<Eigen::Lower>().solve(Y);
 
-		// Compute current loss.
-		const T logLik = logLikelihood(alpha, K, Y);
+        // Compute current loss.
+        const T logLik = logLikelihood(alpha, K, Y);
 
         // Compute gradient of GP w.r.t. K.
         const auto dfdk = alpha * alpha.transpose() - K.inverse();
 
         // Compute gradients of K.
-		size_t idx = 0; // TODO: Replace with enumeration iterator.
-		for (const auto &p : params) {
-			buildCovarianceMatrix(X, X.transpose(), gradK, kernel, p.first);
-			nabla(idx) = (dfdk * gradK).trace();
-			paramVec(idx) = p.second;
-			idx++;
-		}
+        size_t idx = 0; // TODO: Replace with enumeration iterator.
+        for (const auto &p : params) {
+            buildCovarianceMatrix(X, X.transpose(), gradK, kernel, p.first);
+            nabla(idx) = (dfdk * gradK).trace();
+            paramVec(idx) = p.second;
+            idx++;
+        }
 
-		// Compute Hessian.
-		const auto H = nabla.transpose() * nabla;
+        // Compute Hessian.
+        const auto H = nabla.transpose() * nabla;
 
-		// Compute step and new params.
-		const auto cholH = Eigen::LLT< Matrix<T> >(H + lambda * I).matrixL();
-		const auto step = cholH.solve(nabla);
-		const auto updatedParams = paramVec - step;
+        // Compute step and new params.
+        const auto cholH = Eigen::LLT< Matrix<T> >(H + lambda * I).matrixL();
+        const auto step = cholH.solve(nabla);
+        const auto updatedParams = paramVec - step;
 
-		// Recompute loss with new params.
-		buildCovarianceMatrix(X, X.transpose(), K, kernel);
-		jitterChol(K, L);
-		const auto newAlpha = L.triangularView<Eigen::Lower>().solve(Y);
-		const T updatedLogLik = logLikelihood(newAlpha, K, Y);
-		
-		// Update lambda and reject or accept change.
-		if (updatedLogLik >= logLik) {
-			lambda *= 10.0;
-		}
-		else {
-			lambda /= 10.0;
-			//Update params.
-			size_t idx = 0;
-			for (auto& p : params) {
-				p.second = updatedParams(idx);
-				idx++;
-			}
-			kernel->setParameters(params);
-		}
-		epoch++;
+        // Recompute loss with new params.
+        buildCovarianceMatrix(X, X.transpose(), K, kernel);
+        jitterChol(K, L);
+        const auto newAlpha = L.triangularView<Eigen::Lower>().solve(Y);
+        const T updatedLogLik = logLikelihood(newAlpha, K, Y);
+        
+        // Update lambda and reject or accept change.
+        if (updatedLogLik >= logLik) {
+            lambda *= 10.0;
+        }
+        else {
+            lambda /= 10.0;
+            //Update params.
+            size_t idx = 0;
+            for (auto& p : params) {
+                p.second = updatedParams(idx);
+                idx++;
+            }
+            kernel->setParameters(params);
+        }
+        epoch++;
     }
 }
 

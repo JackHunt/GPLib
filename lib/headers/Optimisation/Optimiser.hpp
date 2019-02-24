@@ -41,70 +41,70 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CPPUtils/Statistics/SampleStatistics.hpp>
 
 namespace GPLib::Optimisation {
-	template<typename>
-	class OptimiserParameters {
-	protected:
-		const std::shared_ptr<GaussianProcess<T>> gp;
-		const unsigned int maxEpochs;
-		const T minConvergenceNorm;
-		const unsigned int convergenceWindow;
+    template<typename>
+    class OptimiserParameters {
+    protected:
+        const std::shared_ptr<GaussianProcess<T>> gp;
+        const unsigned int maxEpochs;
+        const T minConvergenceNorm;
+        const unsigned int convergenceWindow;
 
-	public:
-		OptimiserParameters(std::shared_ptr<GaussianProcess<T>> gp,
-							unsigned int maxEpochs = 100,
-						    T minConvergenceNorm = 1e-3,
-							unsigned int convergenceWindow = 5) {
-			// Sanity check.
-			assert(gp != nullptr);
-			assert(minConvergenceNorm > 0);
-		}
+    public:
+        OptimiserParameters(std::shared_ptr<GaussianProcess<T>> gp,
+                            unsigned int maxEpochs = 100,
+                            T minConvergenceNorm = 1e-3,
+                            unsigned int convergenceWindow = 5) {
+            // Sanity check.
+            assert(gp != nullptr);
+            assert(minConvergenceNorm > 0);
+        }
 
-		virtual ~OptimiserParameters() {
-			//
-		}
+        virtual ~OptimiserParameters() {
+            //
+        }
 
-		std::shared_ptr<GaussianProcess<T>> getGP() const {
-			return gp;
-		}
+        std::shared_ptr<GaussianProcess<T>> getGP() const {
+            return gp;
+        }
 
-		unsigned int getMaxEpochs() const {
-			return maxEpochs;
-		}
+        unsigned int getMaxEpochs() const {
+            return maxEpochs;
+        }
 
-		T getMinConvergenceNorm() const {
-			return minConvergenceNorm;
-		}
+        T getMinConvergenceNorm() const {
+            return minConvergenceNorm;
+        }
 
-		unsigned int getConvergenceWindow() const {
-			return convergenceWindow;
-		}
-	};
+        unsigned int getConvergenceWindow() const {
+            return convergenceWindow;
+        }
+    };
 
-	template<typename T>
-	class Optimiser {
-	protected:
-		const OptimiserParameters parameters;
-		CPPUtils::Statistics::WindowedSampleStatistics<T, false> normMean;
+    template<typename T>
+    class Optimiser {
+    protected:
+        const OptimiserParameters parameters;
+        CPPUtils::Statistics::WindowedSampleStatistics<T, false> normMean;
 
-	protected:
-		Optimiser(const OptimiserParameters<T>& parameters) :
-			parameters(parameters),
-			normMean(parameters.getConvergenceWindow()) {
-			//
-		}
+    protected:
+        Optimiser(const OptimiserParameters<T>& parameters) :
+            parameters(parameters),
+            normMean(parameters.getConvergenceWindow()) {
+            //
+        }
 
-		bool converged(const Vector<T>& step) {
-			normMean.provideSample(step.norm());
-			return normMean.getEstimate() <= parameters.getMinConvergenceNorm();
-		}
+        bool converged(const Vector<T>& step) {
+            normMean.provideSample(step.norm());
+            return normMean.getEstimate() <= parameters.getMinConvergenceNorm();
+        }
 
-	public:
-		virtual ~Optimiser() {
-			//
-		}
+    public:
+        virtual ~Optimiser() {
+            //
+        }
 
-		virtual void operator()() = 0;
-	};
+        virtual void operator()() = 0;
+    };
 }
 
 #endif
