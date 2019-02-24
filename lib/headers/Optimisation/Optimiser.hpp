@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CPPUtils/Statistics/SampleStatistics.hpp>
 
 namespace GPLib::Optimisation {
-    template<typename>
+    template<typename T>
     class OptimiserParameters {
     protected:
         const std::shared_ptr<GaussianProcess<T>> gp;
@@ -83,7 +83,7 @@ namespace GPLib::Optimisation {
     template<typename T>
     class Optimiser {
     protected:
-        const OptimiserParameters parameters;
+        const OptimiserParameters<T> parameters;
         CPPUtils::Statistics::WindowedSampleStatistics<T, false> normMean;
 
     protected:
@@ -103,7 +103,7 @@ namespace GPLib::Optimisation {
             //
         }
 
-        virtual void operator()() = 0;
+        virtual ParameterSet<T> operator()() = 0;
     };
 }
 

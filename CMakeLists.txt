@@ -23,6 +23,9 @@ set(GPLIB_HEADERS
   lib/headers/GPRegressor.hpp
   lib/headers/Kernels.hpp
   lib/headers/Optimisation/Optimiser.hpp
+  lib/headers/Optimisation/LevenbergMarquardt.hpp
+  lib/headers/Optimisation/GradientDescent.hpp
+  lib/headers/Optimisation/ScaledConjugateGradient.hpp
   lib/headers/Kernels/Kernel.hpp
   lib/headers/Kernels/SquaredExponential.hpp
 )
@@ -30,6 +33,9 @@ set(GPLIB_HEADERS
 set(GPLIB_SOURCES
   lib/GPRegressor.cpp
   lib/Kernels/SquaredExponential.cpp
+  lib/Optimisation/LevenbergMarquardt.cpp
+  lib/Optimisation/GradientDescent.cpp
+  lib/Optimisation/ScaledConjugateGradient.cpp
 )
 
 # Add library.
