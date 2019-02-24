@@ -33,50 +33,69 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GPLIB_OPTIMISER_HEADER
 #define GPLIB_OPTIMISER_HEADER
 
-#include <deque>
-#include <numeric>
+#include <memory>
 
 #include <Aliases.hpp>
 #include <GaussianProcess.hpp>
 
+#include <CPPUtils/Statistics/SampleStatistics.hpp>
+
 namespace GPLib::Optimisation {
+	template<typename>
+	class OptimiserParameters {
+	protected:
+		const std::shared_ptr<GaussianProcess<T>> gp;
+		const unsigned int maxEpochs;
+		const T minConvergenceNorm;
+		const unsigned int convergenceWindow;
+
+	public:
+		OptimiserParameters(std::shared_ptr<GaussianProcess<T>> gp,
+							unsigned int maxEpochs = 100,
+						    T minConvergenceNorm = 1e-3,
+							unsigned int convergenceWindow = 5) {
+			// Sanity check.
+			assert(gp != nullptr);
+			assert(minConvergenceNorm > 0);
+		}
+
+		virtual ~OptimiserParameters() {
+			//
+		}
+
+		std::shared_ptr<GaussianProcess<T>> getGP() const {
+			return gp;
+		}
+
+		unsigned int getMaxEpochs() const {
+			return maxEpochs;
+		}
+
+		T getMinConvergenceNorm() const {
+			return minConvergenceNorm;
+		}
+
+		unsigned int getConvergenceWindow() const {
+			return convergenceWindow;
+		}
+	};
+
 	template<typename T>
 	class Optimiser {
 	protected:
-		const ParameterSet<T> parameters;
-		const unsigned int maxEpochs;
-		const T minConvergenceNorm;
-		const unsigned int normSteps;
-		
-		std::deque<T> stepNorms;
+		const OptimiserParameters parameters;
+		CPPUtils::Statistics::WindowedSampleStatistics<T, false> normMean;
 
 	protected:
-		Optimiser(const ParameterSet& parameters, 
-			      unsigned int maxEpochs = 100,
-			      T minConvergenceNorm = 1e-3,
-			      unsigned int normSteps = 5) :
+		Optimiser(const OptimiserParameters<T>& parameters) :
 			parameters(parameters),
-			maxEpochs(maxEpochs),
-			minConvergenceNorm(minConvergenceNorm), 
-		    normSteps(normSteps) {
+			normMean(parameters.getConvergenceWindow()) {
 			//
 		}
 
 		bool converged(const Vector<T>& step) {
-			const auto norm = step.norm();
-			
-			if (stepNorms.size() < normSteps) {
-				stepNorms.push_front(norm);
-				return false;
-			}
-
-			stepNorms.pop_back();
-			stepNorms.push_front(norm);
-			
-			auto meanNorm = std::accumulate(stepNorms.begin(), stepNorms.end(), 0);
-			meanNorm /= static_cast<T>(normSteps);
-
-			return meanNorm <= minConvergenceNorm;
+			normMean.provideSample(step.norm());
+			return normMean.getEstimate() <= parameters.getMinConvergenceNorm();
 		}
 
 	public:
