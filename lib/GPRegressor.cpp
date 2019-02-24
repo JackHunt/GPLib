@@ -86,7 +86,7 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
     size_t epoch = 0;
     while (epoch <= maxEpochs) {
         // Compute Covariance Matrix K(X, X^t).
-        buildCovarianceMatrix(X, X.transpose(), K, kernel);
+        buildCovarianceMatrix<T>(X, X.transpose(), K, kernel);
 
         // Compute Cholesky Decomposition of K.
         jitterChol(K, L);
@@ -103,7 +103,7 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
         // Compute gradients of K.
         size_t idx = 0; // TODO: Replace with enumeration iterator.
         for (const auto &p : params) {
-            buildCovarianceMatrix(X, X.transpose(), gradK, kernel, p.first);
+            buildCovarianceMatrix<T>(X, X.transpose(), gradK, kernel, p.first);
             nabla(idx) = (dfdk * gradK).trace();
             paramVec(idx) = p.second;
             idx++;
@@ -118,7 +118,7 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
         const auto updatedParams = paramVec - step;
 
         // Recompute loss with new params.
-        buildCovarianceMatrix(X, X.transpose(), K, kernel);
+        buildCovarianceMatrix<T>(X, X.transpose(), K, kernel);
         jitterChol(K, L);
         const auto newAlpha = L.triangularView<Eigen::Lower>().solve(Y);
         const T updatedLogLik = logLikelihood(newAlpha, K, Y);

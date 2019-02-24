@@ -45,7 +45,8 @@ namespace GPLib {
 
         T f(const Vector<T>& a, const Vector<T>& b) const;
 
-        T df(const Vector<T>& a, const Vector<T>& b, const std::string& gradVar) const;
+        KernelGradient<T> df(const Vector<T>& a, const Vector<T>& b, 
+                             const std::optional<std::string>& gradVar = std::nullopt) const;
 
         Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const;
 

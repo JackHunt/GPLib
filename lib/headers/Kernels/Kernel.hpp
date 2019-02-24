@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <optional>
 #include <cmath>
 
 #include <Eigen/Dense>
@@ -96,7 +97,8 @@ namespace GPLib {
 
         virtual T f(const Vector<T>& a, const Vector<T>& b) const = 0;
 
-        virtual T df(const Vector<T>& a, const Vector<T>& b, const std::string& gradVar) const = 0;
+        virtual KernelGradient<T> df(const Vector<T>& a, const Vector<T>& b, 
+                                  const std::optional<std::string>& gradVar = std::nullopt) const = 0;
 
         virtual Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const = 0;
         

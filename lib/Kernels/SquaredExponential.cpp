@@ -36,7 +36,8 @@ using namespace GPLib;
 
 template<typename T>
 SquaredExponential<T>::SquaredExponential() : 
-    Kernel<T>({ "sigma", "lambda" }, { {"sigma", 1.0}, {"lambda", 1.0} }) {
+    Kernel<T>({ "sigma", "lambda" }, 
+              { {"sigma", 1.0}, {"lambda", 1.0} }) {
     //
 }
 
@@ -49,38 +50,53 @@ template<typename T>
 T SquaredExponential<T>::f(const Vector<T>& a, const Vector<T>& b) const {
     assert(a.size() == b.size());
 
-    const T sqEucDist = (a - b).squaredNorm();
+    const auto sqEucDist = (a - b).squaredNorm();
 
-    const T sigma = params.at("sigma");
-    const T lambda = params.at("lambda");
+    const auto sigma = params.at("sigma");
+    const auto lambda = params.at("lambda");
 
-    return sigma * sigma * std::exp(-1.0 * (sqEucDist / (2.0 * lambda * lambda)));
+    return sigma * sigma * std::exp(-1 * (sqEucDist / (2 * lambda * lambda)));
 }
 
 template<typename T>
-T SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>& b, 
-                            const std::string& gradVar) const {
+KernelGradient<T> SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>& b, 
+                                            const std::optional<std::string>& gradVar) const {
     assert(a.size() == b.size());
-    verifyParam(gradVar);
 
-    const T sqEucDist = (a - b).squaredNorm();
+    const auto sqEucDist = (a - b).squaredNorm();
+    const auto sigma = params.at("sigma");
+    const auto lambda = params.at("lambda");
+    const auto lambdaSq = lambda * lambda;
 
-    const T sigma = params.at("sigma");
-    const T lambda = params.at("lambda");
+    // dF/ dLambda
+    const auto dLambda = [=, &a, &b]() {
+        return sigma * sigma * sqEucDist * std::exp((-0.5 * sqEucDist / lambdaSq));
+    };
 
-    T gradVal = 0.0;
+    // dF / dSigma
+    const auto dSigma = [=, &a, &b] () {
+        return 2 * sigma * std::exp((-0.5 * sqEucDist) / lambdaSq);
+    };
 
-    if (gradVar == "sigma") {
-        gradVal = 2.0 * sigma * std::exp((-0.5 * sqEucDist) / lambda * lambda);
+    if (!gradVar.has_value()) {
+        Vector<T> nabla(2);
+        nabla << dLambda(), dSigma;
+        return nabla;
     }
-    else if (gradVar == "lambda") {
-        gradVal = sigma * sigma * sqEucDist * std::exp((-0.5 * sqEucDist / lambda * lambda));
+
+    const auto& var = gradVar.value();
+    verifyParam(var);
+
+    if (var == "lambda") {
+        return dLambda();
     }
-    else {
-        // Should not get here due to verifyParam.
+    
+    if (var == "sigma") {
+        return dSigma();
     }
 
-    return gradVal;
+    // Unknown parameter.
+    throw std::runtime_error("SquaredExponential: Parameter: \"" + var + "\" invalid.");
 }
 
 template<typename T>

@@ -48,61 +48,62 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace GPLib {
     template<typename T>
-    class GaussianProcess : public std::enable_shared_from_this<GaussianProcess<T>> {
-    protected:
-        void jitterChol(const Matrix<T>& A, Matrix<T>& C) const {
-            const size_t rowsA = A.rows();
-            const size_t colsA = A.cols();
-            assert(rowsA == colsA);
+    inline void jitterChol(const Matrix<T>& A, Matrix<T>& C) {
+        const size_t rowsA = A.rows();
+        const size_t colsA = A.cols();
+        assert(rowsA == colsA);
 
-            Matrix<T> jitter = Matrix<T>::Identity(rowsA, colsA);
-            jitter *= 1e-8;
+        Matrix<T> jitter = Matrix<T>::Identity(rowsA, colsA);
+        jitter *= 1e-8;
 
-            bool passed = false;
+        bool passed = false;
 
-            // Successively add jitter to make positive semi-definite.
-            while (!passed && jitter(0, 0) < 1e4) {
-                Eigen::LLT< Matrix<T> > chol(A + jitter);
-                if (chol.info() == Eigen::NumericalIssue) {// Not pos-semidefinite.
-                    jitter *= 1.1;
+        // Successively add jitter to make positive semi-definite.
+        while (!passed && jitter(0, 0) < 1e4) {
+            Eigen::LLT< Matrix<T> > chol(A + jitter);
+            if (chol.info() == Eigen::NumericalIssue) {// Not positive semidefinite.
+                jitter *= 1.1;
+            }
+            else {
+                passed = true;
+                C = chol.matrixL();
+            }
+        }
+
+        // If Matrix is still not positive semidefinite.
+        if (!passed) {
+            throw std::runtime_error("Unable to make matrix positive semidefinite.");
+        }
+    }
+
+    template<typename T>
+    inline void buildCovarianceMatrix(const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
+                                      const std::shared_ptr<Kernel<T>> kernel,
+                                      const std::optional<const std::string>& gradVar = std::nullopt) {
+        const auto rowsA = A.rows();
+        const auto rowsB = B.rows();
+
+        auto inner = [&A, &B, &C, &kernel, rowsB, &gradVar](auto i) {
+            for (size_t j = i + 1; j < rowsB; j++) {
+                if (gradVar.has_value()) {
+                    C(i, j) = std::get<T>(kernel->df(A.row(i), B.row(j), gradVar.value()));
                 }
                 else {
-                    passed = true;
-                    C = chol.matrixL();
+                    C(i, j) = kernel->f(A.row(i), B.row(j));
                 }
+                C(j, i) = C(i, j);
             }
+        };
 
-            // If Matrix is still not positive semidefinite.
-            if (!passed) {
-                throw std::runtime_error("Unable to make matrix positive semidefinite.");
-            }
-        }
-        
-        void buildCovarianceMatrix(const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
-                                   const std::shared_ptr<Kernel<T>> kernel,
-                                   const std::optional<const std::string>& gradVar = std::nullopt) const {
-            const size_t rowsA = A.rows();
-            const size_t rowsB = B.rows();
+        CountingIterator<size_t> begin(0);
+        CountingIterator<size_t> end(rowsA);
+        std::for_each(std::execution::par, begin, end, inner);
+    }
 
-            auto inner = [&A, &B, &C, &kernel, rowsB, &gradVar](size_t i) {
-                for (size_t j = i + 1; j < rowsB; j++) {
-                    if (gradVar.has_value()) {
-                        C(i, j) = kernel->df(A.row(i), B.row(j), gradVar.value());
-                    }
-                    else {
-                        C(i, j) = kernel->f(A.row(i), B.row(j));
-                    }
-                    C(j, i) = C(i, j);
-                }
-            };
-
-            CountingIterator<size_t> begin(0);
-            CountingIterator<size_t> end(rowsA);
-            std::for_each(std::execution::par, begin, end, inner);
-        }
-
+    template<typename T>
+    class GaussianProcess : public std::enable_shared_from_this<GaussianProcess<T>> {
+    protected:
         virtual T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const = 0;
-
         virtual Vector<T> logLikelihoodGrad() const = 0;
 
     protected:

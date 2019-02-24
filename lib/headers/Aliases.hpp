@@ -47,7 +47,7 @@ namespace GPLib::Types {
 
     // Generic Row-Major Matrix wrapper for C style buffers.
     template<typename T>
-    using MapMatrix = Eigen::Map<const Matrix<T> >;
+    using MapMatrix = Eigen::Map<const Matrix<T>>;
 
     // Generic Column-Vector.
     template<typename T>
@@ -55,7 +55,7 @@ namespace GPLib::Types {
 
     // Generic Column-Vector wrapper for C style buffers.
     template<typename T>
-    using MapVector = Eigen::Map<Vector<T> >;
+    using MapVector = Eigen::Map<Vector<T>>;
 
     // Variable name, value - for kernel parameters.
     template<typename T>
@@ -63,7 +63,7 @@ namespace GPLib::Types {
 
     // Matrix and Covariance pair.
     template<typename T>
-    using MeanCov = std::tuple<Matrix<T>, Matrix<T> >;
+    using MeanCov = std::tuple<Matrix<T>, Matrix<T>>;
 
     // Matrix, Covariance and Error pair.
     template<typename T>
@@ -71,7 +71,11 @@ namespace GPLib::Types {
 
     // GP return type. Either MeanCov or MeanCovErr.
     template<typename T>
-    using GPOutput = std::variant< MeanCov<T>, MeanCovErr<T> >;
+    using GPOutput = std::variant<MeanCov<T>, MeanCovErr<T>>;
+
+    // Kernel hyperparameter gradient. Scalar for single variable, vector for all.
+    template<typename T>
+    using KernelGradient = std::variant<T, Vector<T>>;
 }
 
 using namespace GPLib::Types;
