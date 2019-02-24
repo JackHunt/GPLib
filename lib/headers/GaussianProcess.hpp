@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace GPLib {
     template<typename T>
-    class GaussianProcess {
+    class GaussianProcess : public std::enable_shared_from_this<GaussianProcess<T>> {
     protected:
         void jitterChol(const Matrix<T>& A, Matrix<T>& C) const {
             const size_t rowsA = A.rows();
@@ -110,26 +110,25 @@ namespace GPLib {
         std::shared_ptr<Kernel<T>> kernel;
 
     public:
-		GaussianProcess(KernelType kernType = KernelType::SQUARED_EXPONENTIAL) {
-			switch (kernType) {
-			case KernelType::SQUARED_EXPONENTIAL:
-				kernel = std::make_shared<SquaredExponential<T>>();
-				break;
-			default:
-				throw std::runtime_error("Invalid kernel choice.");
-			}
-		}
+        GaussianProcess(KernelType kernType = KernelType::SQUARED_EXPONENTIAL) {
+            switch (kernType) {
+            case KernelType::SQUARED_EXPONENTIAL:
+                kernel = std::make_shared<SquaredExponential<T>>();
+                break;
+            default:
+                throw std::runtime_error("Invalid kernel choice.");
+            }
+        }
 
         virtual ~GaussianProcess() {
-			//
-		};
+            //
+        };
 
-		const std::shared_ptr<const Kernel<T>> getKernel() const {
-			return kernel;
-		}
+        const std::shared_ptr<const Kernel<T>> getKernel() const {
+            return kernel;
+        }
 
         virtual void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs = 1000) = 0;
-
         virtual GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys = std::nullopt) const = 0;
     };
 }
