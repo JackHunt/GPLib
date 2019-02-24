@@ -52,12 +52,14 @@ namespace GPLib {
         Vector<T> logLikelihoodGrad() const;
 
     public:
-        void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs);
-
-		GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional<const MapVector<T>>& Ys) const;
-
         GPRegressor(KernelType kernType = KernelType::SQUARED_EXPONENTIAL);
         virtual ~GPRegressor();
+
+        void compute(const MapMatrix<T>& X);
+        const Matrix<T>& getAlpha() const;
+        
+        void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs);
+		GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional<const MapVector<T>>& Ys) const;
     };
 }
 

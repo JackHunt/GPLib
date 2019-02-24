@@ -39,10 +39,30 @@ namespace GPLib::Optimisation {
     template<typename T>
     class LMParameters : public OptimiserParameters<T> {
     protected:
-        //
+        T lambda;
 
     public:
-        //
+        LMParameters(std::shared_ptr<GaussianProcess<T>> gp,
+                     const MapMatrix<T>& X,
+                     const MapVector<T>& Y,
+                     T lambda = 0.1,
+                     unsigned int maxEpochs = 100,
+                     T minConvergenceNorm = 1e-3,
+                     unsigned int convergenceWindow = 5) :
+            OptimiserParameters(X, Y, maxEpochs, 
+                                minConvergenceNorm, 
+                                convergenceWindow) {
+            // Verify lambda.
+            assert(lambda > 0);
+        }
+
+        T getLambda() const {
+            return lambda;
+        }
+
+        void setLambda(T lambda) {
+            this->lambda = lambda;
+        }
     };
 
     template<typename T>

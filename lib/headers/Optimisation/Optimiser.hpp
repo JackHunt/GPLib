@@ -45,26 +45,45 @@ namespace GPLib::Optimisation {
     class OptimiserParameters {
     protected:
         const std::shared_ptr<GaussianProcess<T>> gp;
+        const MapMatrix<T> X;
+        const MapVector<T> Y;
+
         const unsigned int maxEpochs;
         const T minConvergenceNorm;
         const unsigned int convergenceWindow;
 
-    public:
         OptimiserParameters(std::shared_ptr<GaussianProcess<T>> gp,
+                            const MapMatrix<T>& X,
+                            const MapVector<T>& Y,
                             unsigned int maxEpochs = 100,
                             T minConvergenceNorm = 1e-3,
-                            unsigned int convergenceWindow = 5) {
+                            unsigned int convergenceWindow = 5) :
+            gp(gp),
+            X(X),
+            Y(Y),
+            maxEpochs(maxEpochs),
+            minConvergenceNorm(minConvergenceNorm),
+            convergenceWindow(convergenceWindow) {
             // Sanity check.
             assert(gp != nullptr);
             assert(minConvergenceNorm > 0);
         }
 
+    public:
         virtual ~OptimiserParameters() {
             //
         }
 
         std::shared_ptr<GaussianProcess<T>> getGP() const {
             return gp;
+        }
+
+        const MapMatrix<T>& getX() const {
+            return X;
+        }
+
+        const MapVector<T>& getY() const {
+            return Y;
         }
 
         unsigned int getMaxEpochs() const {

@@ -46,6 +46,16 @@ GPRegressor<T>::~GPRegressor() {
 }
 
 template<typename T>
+void GPRegressor<T>::compute(const MapMatrix<T>& X) {
+    //
+}
+
+template<typename T>
+const Matrix<T>& GPRegressor<T>::getAlpha() const {
+    //
+}
+
+template<typename T>
 void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, unsigned int maxEpochs) {
     // Sanity check.
     assert(XMap.rows() == YMap.rows());

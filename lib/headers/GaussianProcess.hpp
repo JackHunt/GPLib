@@ -103,14 +103,9 @@ namespace GPLib {
     template<typename T>
     class GaussianProcess : public std::enable_shared_from_this<GaussianProcess<T>> {
     protected:
-        virtual T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const = 0;
-        virtual Vector<T> logLikelihoodGrad() const = 0;
-
-    protected:
         // Covariance Kernel defining this type of regressor.
         std::shared_ptr<Kernel<T>> kernel;
 
-    public:
         GaussianProcess(KernelType kernType = KernelType::SQUARED_EXPONENTIAL) {
             switch (kernType) {
             case KernelType::SQUARED_EXPONENTIAL:
@@ -121,6 +116,10 @@ namespace GPLib {
             }
         }
 
+        virtual T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const = 0;
+        virtual Vector<T> logLikelihoodGrad() const = 0;
+
+    public:
         virtual ~GaussianProcess() {
             //
         };
@@ -128,6 +127,9 @@ namespace GPLib {
         const std::shared_ptr<const Kernel<T>> getKernel() const {
             return kernel;
         }
+
+        virtual void compute(const MapMatrix<T>& X) = 0;
+        virtual const Matrix<T>& getAlpha() const = 0;
 
         virtual void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs = 1000) = 0;
         virtual GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys = std::nullopt) const = 0;
