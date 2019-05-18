@@ -101,10 +101,27 @@ namespace GPLib {
     }
 
     template<typename T>
+    inline T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) {
+        const auto t1 = -0.5 * Y.transpose() * alpha;
+        const auto t2 = 0.5 * std::log(K.determinant());
+        const auto t3 = (static_cast<T>(K.rows()) / 2) * std::log(2 * M_PI);
+
+        return t1 - t2 - t3;
+    }
+
+    template<typename T>
+    inline Vector<T> logLikelihoodGrad() {
+        return Vector<T>(); // TODO
+    }
+
+    template<typename T>
     class GaussianProcess : public std::enable_shared_from_this<GaussianProcess<T>> {
     protected:
         // Covariance Kernel defining this type of regressor.
         std::shared_ptr<Kernel<T>> kernel;
+
+        Matrix<T> alpha;
+        Matrix<T> K;
 
         GaussianProcess(KernelType kernType = KernelType::SQUARED_EXPONENTIAL) {
             switch (kernType) {
@@ -116,8 +133,15 @@ namespace GPLib {
             }
         }
 
-        virtual T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const = 0;
-        virtual Vector<T> logLikelihoodGrad() const = 0;
+        virtual void reallocateK(const MapMatrix<T>& X, const MapVector<T>& Y) {
+            // Ensure X and Y contain the same amount of data points.
+            assert(X.rows() == Y.rows());
+
+            // Reshape Covariance Matrix and Cholesky Decomposition if required.
+            if (K.rows() != X.rows() || K.cols() != X.rows()) {
+                K.resize(X.rows(), X.rows());
+            }
+        }
 
     public:
         virtual ~GaussianProcess() {
@@ -128,8 +152,15 @@ namespace GPLib {
             return kernel;
         }
 
-        virtual void compute(const MapMatrix<T>& X) = 0;
-        virtual const Matrix<T>& getAlpha() const = 0;
+        const Matrix<T>& getAlpha() const {
+            return alpha;
+        }
+
+        const Matrix<T>& getK() const {
+            return K;
+        }
+
+        virtual void compute(const MapMatrix<T>& X, const MapVector<T>& Y) = 0;
 
         virtual void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs = 1000) = 0;
         virtual GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys = std::nullopt) const = 0;

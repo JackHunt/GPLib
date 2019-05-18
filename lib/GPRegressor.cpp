@@ -46,37 +46,24 @@ GPRegressor<T>::~GPRegressor() {
 }
 
 template<typename T>
-void GPRegressor<T>::compute(const MapMatrix<T>& X) {
-    //
-}
+void GPRegressor<T>::compute(const MapMatrix<T>& X, const MapMatrix<T>& Y) {
+    // Ensure K is the correct dimensionality.
+    reallocateK(X, Y);
 
-template<typename T>
-const Matrix<T>& GPRegressor<T>::getAlpha() const {
-    //
+    // Compute Covariance Matrix K(X, X^t).
+    buildCovarianceMatrix<T>(X, X.transpose(), K, kernel);
+
+    // Compute the Cholesky Decomposition of K.
+    Matrix<T> chol(X.rows(), X.rows());
+    jitterChol(K, chol);
+
+    // Compute alpha.
+    alpha = std::move(chol.triangularView<Eigen::Lower>().solve(Y));
 }
 
 template<typename T>
 void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, unsigned int maxEpochs) {
-    // Sanity check.
-    assert(XMap.rows() == YMap.rows());
-
-    // Reshape Covariance Matrix and Cholesky Decomposition if required.
-    if (K.rows() != XMap.rows() || K.cols() != XMap.rows()) {
-        K.resize(XMap.rows(), XMap.rows());
-        L.resize(XMap.rows(), XMap.rows());
-    }
-
-    // Make a copy of XMap and YMap.
-    if (XMap.rows() != X.rows() || XMap.cols() != X.cols()) {
-        X.resize(XMap.rows(), XMap.cols());
-    }
-    X = XMap;
-
-    if (YMap.rows() != Y.rows()) {
-        Y.resize(YMap.rows(), 1);
-    }
-    Y = YMap;
-
+    /*
     // Current parameters.
     auto params = kernel->getParameters();
     
@@ -95,14 +82,6 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
     T lambda = 1.0;
     size_t epoch = 0;
     while (epoch <= maxEpochs) {
-        // Compute Covariance Matrix K(X, X^t).
-        buildCovarianceMatrix<T>(X, X.transpose(), K, kernel);
-
-        // Compute Cholesky Decomposition of K.
-        jitterChol(K, L);
-
-        // Compute Alpha.
-        const auto alpha = L.triangularView<Eigen::Lower>().solve(Y);
 
         // Compute current loss.
         const T logLik = logLikelihood(alpha, K, Y);
@@ -149,6 +128,7 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
         }
         epoch++;
     }
+    */
 }
 
 template<typename T>
@@ -183,23 +163,6 @@ GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T>& Xs, const std::optional<
     return GPOutput<T>(MeanCovErr<T>(posteriorMean, posteriorCov, mse));
     */
     return GPOutput<T>();
-}
-
-template<typename T>
-T GPRegressor<T>::logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const {
-    /*
-    const T t1 = -0.5 * Y.transpose() * alpha;
-    const T t2 = 0.5 * std::log(K.determinant());
-    const T t3 = (static_cast<T>(K.rows()) / 2.0) * std::log(2.0 * M_PI);
-
-    return t1 - t2 - t3;
-    */
-    return 0;
-}
-
-template<typename T>
-Vector<T> GPRegressor<T>::logLikelihoodGrad() const {
-    return Vector<T>();
 }
 
 template class GPRegressor<float>;

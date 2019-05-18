@@ -43,20 +43,11 @@ namespace GPLib {
         Matrix<T> X;
         Vector<T> Y;
 
-        // Covariance Matrix K(X, X^t) and it's Cholesky Decomposition.
-        Matrix<T> K, L;
-
-    protected:
-        T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) const;
-
-        Vector<T> logLikelihoodGrad() const;
-
     public:
         GPRegressor(KernelType kernType = KernelType::SQUARED_EXPONENTIAL);
         virtual ~GPRegressor();
 
-        void compute(const MapMatrix<T>& X);
-        const Matrix<T>& getAlpha() const;
+        void compute(const MapMatrix<T>& X, const MapMatrix<T>& Y);
         
         void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs);
 		GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional<const MapVector<T>>& Ys) const;

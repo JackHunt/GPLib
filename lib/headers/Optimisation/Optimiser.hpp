@@ -99,16 +99,18 @@ namespace GPLib::Optimisation {
         }
     };
 
-    template<typename T>
+    template<typename T, typename U>
     class Optimiser {
     protected:
-        const OptimiserParameters<T> parameters;
+        const U<T> parameters;
         CPPUtils::Statistics::WindowedSampleStatistics<T, false> normMean;
+        unsigned int iteration;
 
     protected:
         Optimiser(const OptimiserParameters<T>& parameters) :
             parameters(parameters),
-            normMean(parameters.getConvergenceWindow()) {
+            normMean(parameters.getConvergenceWindow()),
+            iteration(0) {
             //
         }
 

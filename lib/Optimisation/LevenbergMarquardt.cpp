@@ -48,6 +48,28 @@ LevenbergMarquardt<T>::~LevenbergMarquardt() {
 
 template<typename T>
 ParameterSet<T> LevenbergMarquardt<T>::operator()() {
+    auto gp = parameters.getGP();
+    auto lambda = parameters.getLambda();
+
+    while (iteration < maxIterations) {
+        const auto logLik = logLikelihood<T>(gp->getAlpha(),
+                                             gp->getK(),
+                                             parameters.getY());
+
+        const auto logLikelihoodNew = static_cast<double>(0);
+        if (logLikelihoodNew >= logLik) {
+            lambda *= 10;
+        }
+        else {
+            lambda /= 10;
+        }
+        
+        Vector<T> step;
+        if (converged(step)) {
+            break;
+        }
+    }
+
     return {};
 }
 
