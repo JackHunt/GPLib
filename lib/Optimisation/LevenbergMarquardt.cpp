@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2019, Jack Miles Hunt
+Copyright (c) 2020, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,6 @@ LevenbergMarquardt<T>::LevenbergMarquardt(const LMParameters<T>& parameters) :
     // Allocate hessian and gradient.
     auto gp = parameters.getGP();
     gradK.resize(gp->getK().rows(), gp->getK().cols());
-    nabla.resize(gp->getKernel()->getParameters().size(), 1);
 }
 
 template<typename T>
@@ -51,11 +50,15 @@ LevenbergMarquardt<T>::~LevenbergMarquardt() {
 }
 
 template<typename T>
-ParameterSet<T> LevenbergMarquardt<T>::operator()() {
+void LevenbergMarquardt<T>::operator()() {
     auto gp = parameters.getGP();
-    auto alpha = gp->getAlpha();
-    auto K = gp->getK();
-    auto X = gp->getX();
+    auto& alpha = gp->getAlpha();
+    auto& K = gp->getK();
+    auto& X = gp->getX();
+
+    const auto nParams = gp->getKernel()->getParameters().size();
+    const auto I = Matrix<T>::Identity(nParams, nParams);
+    Vector<T> nabla(nParams);
 
     while (iteration < parameters.getMaxIterations()) {
         // Compute log-likelihood of the GP.
@@ -65,28 +68,40 @@ ParameterSet<T> LevenbergMarquardt<T>::operator()() {
         const auto dfdk = alpha * alpha.transpose() - K.inverse();
 
         // Compute gradients of K.
-        auto params = gp->getKernel()->getParameters();
-        for (const auto& p : params) {
-            buildCovarianceMatrix<T>(X, X.transpose(), gradK, gp->getKernel(), p.first);
-            //nabla(idx) = (dfdk * gradK).trace();
-            //paramVec(idx) = p.second;
+        for (const auto& [var, val] : gp->getKernel()->getParameters()) {
+            buildCovarianceMatrix<T>(X, X.transpose(), gradK, gp->getKernel(), var);
+            nabla << (dfdk * gradK).trace();
         }
 
-        const auto logLikelihoodNew = static_cast<double>(0);
+        // Compute Hessian.
+        const auto H = nabla.transpose() * nabla;
+
+        // Compute step.
+        const auto cholH = Eigen::LLT<Matrix<T>>(H + lambda * I).matrixL();
+        const auto step = cholH.solve(nabla);
+        
+        // Compute new params.
+        const ParameterSet<T> kernelParams(gp->getKernel()->getParameters());
+        const auto updated = paramsToVec(kernelParams) - step;
+        const auto newKernelParams = vecToParams<T>(kernelParams, updated);
+
+        // Re-estimate the GP.
+        gp->getKernel()->setParameters(newKernelParams);
+        gp->compute(gp->getX(), gp->getY());
+
+        const auto logLikelihoodNew = logLikelihood<T>(alpha, K, parameters.getY());
         if (logLikelihoodNew >= logLik) {
             lambda *= 10;
         }
         else {
             lambda /= 10;
+            gp->getKernel()->setParameters(kernelParams);
         }
         
-        Vector<T> step;
         if (converged(step)) {
             break;
         }
     }
-
-    return {};
 }
 
 template class LevenbergMarquardt<float>;

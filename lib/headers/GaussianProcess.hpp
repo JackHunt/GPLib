@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018/19, Jack Miles Hunt
+Copyright (c) 2020, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -167,6 +167,10 @@ namespace GPLib {
             return kernel;
         }
 
+        std::shared_ptr<Kernel<T>> getKernel() {
+            return kernel;
+        }
+
         Eigen::Ref<const Matrix<T>> getAlpha() const {
             return alpha;
         }
@@ -177,6 +181,10 @@ namespace GPLib {
 
         Eigen::Ref<const Matrix<T>> getX() const {
             return X;
+        }
+
+        Eigen::Ref<const Vector<T>> getY() const {
+            return Y;
         }
 
         virtual void compute(const Eigen::Ref<const Matrix<T>> X, 

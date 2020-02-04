@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2019, Jack Miles Hunt
+Copyright (c) 2020, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ GradientDescent<T>::~GradientDescent() {
 }
 
 template<typename T>
-ParameterSet<T> GradientDescent<T>::operator()() {
-    return {};
+void GradientDescent<T>::operator()() {
+    //
 }
 
 template class GradientDescent<float>;

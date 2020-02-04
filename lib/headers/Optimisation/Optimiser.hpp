@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2019, Jack Miles Hunt
+Copyright (c) 2020, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <CPPUtils/Statistics/SampleStatistics.hpp>
 
 namespace GPLib::Optimisation {
+    template<typename T>
+    inline Vector<T> paramsToVec(const ParameterSet<T>& params) {
+        Vector<T> paramVec(params.size());
+        for (const auto& p : params) {
+            paramVec << p.second;
+        }
+
+        return paramVec;
+    }
+
+    template<typename T>
+    inline ParameterSet<T> vecToParams(const ParameterSet<T>& paramSet,
+                                       const Vector<T>& params) {
+        // Verify consistency.
+        assert(paramSet.size() == params.rows() * params.cols());
+
+        // Copy params into new param set.
+        size_t i = 0;
+        ParameterSet<T> newParams(paramSet);
+        for (auto& [k, v] : newParams) {
+            v = params(i);
+            i++;
+        }
+
+        return newParams;
+    }
+
     template<typename T>
     class OptimiserParameters {
     protected:
@@ -124,7 +151,7 @@ namespace GPLib::Optimisation {
             //
         }
 
-        virtual ParameterSet<T> operator()() = 0;
+        virtual void operator()() = 0;
     };
 }
 

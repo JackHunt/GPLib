@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2019, Jack Miles Hunt
+Copyright (c) 2020, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ ScaledConjugateGradient<T>::~ScaledConjugateGradient() {
 }
 
 template<typename T>
-ParameterSet<T> ScaledConjugateGradient<T>::operator()() {
-    return {};
+void ScaledConjugateGradient<T>::operator()() {
+    //
 }
 
 template class ScaledConjugateGradient<float>;

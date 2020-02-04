@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018/19, Jack Miles Hunt
+Copyright (c) 2020, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -78,36 +78,17 @@ void GPRegressor<T>::train(const Eigen::Ref<const Matrix<T>> X,
     ;
 
     // Identity for step computation.
-    const auto I = Matrix<T>::Identity(params.size(), params.size());
+    
 
     // Optimise Log Marginal Likelihood with Levenberg-Marquardt.
     T lambda = 1.0;
     size_t epoch = 0;
     while (epoch <= maxIterations) {
 
-        // Compute current loss.
-        const T logLik = logLikelihood(alpha, K, Y);
 
 
-        // Compute gradients of K.
-        size_t idx = 0; // TODO: Replace with enumeration iterator.
-        for (const auto &p : params) {
-            buildCovarianceMatrix<T>(X, X.transpose(), gradK, kernel, p.first);
-            nabla(idx) = (dfdk * gradK).trace();
-            paramVec(idx) = p.second;
-            idx++;
-        }
-
-        // Compute Hessian.
-        const auto H = nabla.transpose() * nabla;
-
-        // Compute step and new params.
-        const auto cholH = Eigen::LLT< Matrix<T> >(H + lambda * I).matrixL();
-        const auto step = cholH.solve(nabla);
-        const auto updatedParams = paramVec - step;
-
-        // Recompute loss with new params.
-        buildCovarianceMatrix<T>(X, X.transpose(), K, kernel);
+            // Recompute loss with new params.
+        buildCovarianceMatrix<T>(X, X.transpose(), K, gp->getKernel());
         jitterChol(K, L);
         const auto newAlpha = L.triangularView<Eigen::Lower>().solve(Y);
         const T updatedLogLik = logLikelihood(newAlpha, K, Y);

@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2018/19, Jack Miles Hunt
+Copyright (c) 2020, Jack Miles Hunt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -43,14 +43,14 @@ namespace GPLib {
         
         virtual ~SquaredExponential();
 
-        T f(const Vector<T>& a, const Vector<T>& b) const;
+        T f(const Vector<T>& a, const Vector<T>& b) const override;
 
         KernelGradient<T> df(const Vector<T>& a, const Vector<T>& b, 
-                             const std::optional<std::string>& gradVar = std::nullopt) const;
+                             const std::optional<std::string>& gradVar = std::nullopt) const override;
 
-        Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const;
+        Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const override;
 
-        Vector<T> dfdb(const Vector<T>& a, const Vector<T>& b) const;
+        Vector<T> dfdb(const Vector<T>& a, const Vector<T>& b) const override;
     };
 }
 #endif
