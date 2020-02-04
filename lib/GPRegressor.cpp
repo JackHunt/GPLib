@@ -63,56 +63,6 @@ void GPRegressor<T>::compute(const Eigen::Ref<const Matrix<T>> X,
 }
 
 template<typename T>
-void GPRegressor<T>::train(const Eigen::Ref<const Matrix<T>> X, 
-                           const Eigen::Ref<const Vector<T>> Y, 
-                           unsigned int maxIterations) {
-    /*
-    // Current parameters.
-    auto params = kernel->getParameters();
-    
-    // Temporary storage.
-    Matrix<T> gradK, gradL;
-    Vector<T> paramVec, nabla;
-
-    paramVec.resize(params.size(), 1);
-    ;
-
-    // Identity for step computation.
-    
-
-    // Optimise Log Marginal Likelihood with Levenberg-Marquardt.
-    T lambda = 1.0;
-    size_t epoch = 0;
-    while (epoch <= maxIterations) {
-
-
-
-            // Recompute loss with new params.
-        buildCovarianceMatrix<T>(X, X.transpose(), K, gp->getKernel());
-        jitterChol(K, L);
-        const auto newAlpha = L.triangularView<Eigen::Lower>().solve(Y);
-        const T updatedLogLik = logLikelihood(newAlpha, K, Y);
-        
-        // Update lambda and reject or accept change.
-        if (updatedLogLik >= logLik) {
-            lambda *= 10.0;
-        }
-        else {
-            lambda /= 10.0;
-            //Update params.
-            size_t idx = 0;
-            for (auto& p : params) {
-                p.second = updatedParams(idx);
-                idx++;
-            }
-            kernel->setParameters(params);
-        }
-        epoch++;
-    }
-    */
-}
-
-template<typename T>
 GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs, 
                                     const std::optional<const Eigen::Ref<const Vector<T>>>& Ys) const {
     // Sanity check ground truth if present.

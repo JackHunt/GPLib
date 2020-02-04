@@ -190,10 +190,6 @@ namespace GPLib {
         virtual void compute(const Eigen::Ref<const Matrix<T>> X, 
                              const Eigen::Ref<const Vector<T>> Y) = 0;
 
-        virtual void train(const Eigen::Ref<const Matrix<T>> X, 
-                           const Eigen::Ref<const Vector<T>> Y, 
-                           unsigned int maxIterations = 1000) = 0;
-
         virtual GPOutput<T> predict(const Eigen::Ref<const Matrix<T>> Xs, 
                                     const std::optional<const Eigen::Ref<const Vector<T>>>& Ys = std::nullopt) const = 0;
     };

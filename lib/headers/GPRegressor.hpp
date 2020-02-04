@@ -44,10 +44,6 @@ namespace GPLib {
 
         void compute(const Eigen::Ref<const Matrix<T>> X,
                      const Eigen::Ref<const Vector<T>> Y) override;
-        
-        void train(const Eigen::Ref<const Matrix<T>> X, 
-                   const Eigen::Ref<const Vector<T>> Y, 
-                   unsigned int maxIterations) override;
 
 		GPOutput<T> predict(const Eigen::Ref<const Matrix<T>> Xs, 
                             const std::optional<const Eigen::Ref<const Vector<T>>>& Ys) const override;
