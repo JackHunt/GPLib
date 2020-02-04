@@ -38,19 +38,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace GPLib {
     template<typename T>
     class GPRegressor : GaussianProcess<T> {
-    protected:
-        // Copy of training data X and ground truth Y.
-        Matrix<T> X;
-        Vector<T> Y;
-
     public:
         GPRegressor(KernelType kernType = KernelType::SQUARED_EXPONENTIAL);
         virtual ~GPRegressor();
 
-        void compute(const MapMatrix<T>& X, const MapMatrix<T>& Y);
+        void compute(const Eigen::Ref<const Matrix<T>> X,
+                     const Eigen::Ref<const Vector<T>> Y) override;
         
-        void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs);
-		GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional<const MapVector<T>>& Ys) const;
+        void train(const Eigen::Ref<const Matrix<T>> X, 
+                   const Eigen::Ref<const Vector<T>> Y, 
+                   unsigned int maxIterations) override;
+
+		GPOutput<T> predict(const Eigen::Ref<const Matrix<T>> Xs, 
+                            const std::optional<const Eigen::Ref<const Vector<T>>>& Ys) const override;
     };
 }
 

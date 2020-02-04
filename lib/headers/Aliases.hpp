@@ -47,7 +47,7 @@ namespace GPLib::Types {
 
     // Generic Row-Major Matrix wrapper for C style buffers.
     template<typename T>
-    using MapMatrix = Eigen::Map<const Matrix<T>>;
+    using MappedMatrix = Eigen::Map<const Matrix<T>>;
 
     // Generic Column-Vector.
     template<typename T>
@@ -55,7 +55,7 @@ namespace GPLib::Types {
 
     // Generic Column-Vector wrapper for C style buffers.
     template<typename T>
-    using MapVector = Eigen::Map<Vector<T>>;
+    using MappedVector = Eigen::Map<Vector<T>>;
 
     // Variable name, value - for kernel parameters.
     template<typename T>

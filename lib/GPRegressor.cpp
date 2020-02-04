@@ -46,7 +46,8 @@ GPRegressor<T>::~GPRegressor() {
 }
 
 template<typename T>
-void GPRegressor<T>::compute(const MapMatrix<T>& X, const MapMatrix<T>& Y) {
+void GPRegressor<T>::compute(const Eigen::Ref<const Matrix<T>> X,
+                             const Eigen::Ref<const Vector<T>> Y) {
     // Ensure K is the correct dimensionality.
     reallocateK(X, Y);
 
@@ -55,14 +56,16 @@ void GPRegressor<T>::compute(const MapMatrix<T>& X, const MapMatrix<T>& Y) {
 
     // Compute the Cholesky Decomposition of K.
     Matrix<T> chol(X.rows(), X.rows());
-    jitterChol(K, chol);
+    jitterChol<T>(K, chol);
 
     // Compute alpha.
     alpha = std::move(chol.triangularView<Eigen::Lower>().solve(Y));
 }
 
 template<typename T>
-void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, unsigned int maxEpochs) {
+void GPRegressor<T>::train(const Eigen::Ref<const Matrix<T>> X, 
+                           const Eigen::Ref<const Vector<T>> Y, 
+                           unsigned int maxIterations) {
     /*
     // Current parameters.
     auto params = kernel->getParameters();
@@ -81,7 +84,7 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
     // Optimise Log Marginal Likelihood with Levenberg-Marquardt.
     T lambda = 1.0;
     size_t epoch = 0;
-    while (epoch <= maxEpochs) {
+    while (epoch <= maxIterations) {
 
         // Compute current loss.
         const T logLik = logLikelihood(alpha, K, Y);
@@ -132,7 +135,8 @@ void GPRegressor<T>::train(const MapMatrix<T>& XMap, const MapVector<T>& YMap, u
 }
 
 template<typename T>
-GPOutput<T> GPRegressor<T>::predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys) const {
+GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs, 
+                                    const std::optional<const Eigen::Ref<const Vector<T>>>& Ys) const {
     /*
     // Sanity check ground truth if present.
     if (Ys.has_value()) {

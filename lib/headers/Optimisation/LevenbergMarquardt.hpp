@@ -43,13 +43,13 @@ namespace GPLib::Optimisation {
 
     public:
         LMParameters(std::shared_ptr<GaussianProcess<T>> gp,
-                     const MapMatrix<T>& X,
-                     const MapVector<T>& Y,
+                     const MappedMatrix<T>& X,
+                     const MappedVector<T>& Y,
                      T lambda = 0.1,
-                     unsigned int maxEpochs = 100,
+                     unsigned int maxIterations = 100,
                      T minConvergenceNorm = 1e-3,
                      unsigned int convergenceWindow = 5) :
-            OptimiserParameters(X, Y, maxEpochs, 
+            OptimiserParameters(X, Y, maxIterations, 
                                 minConvergenceNorm, 
                                 convergenceWindow) {
             // Verify lambda.
@@ -61,12 +61,16 @@ namespace GPLib::Optimisation {
         }
 
         void setLambda(T lambda) {
+            assert(lambda > 0);
             this->lambda = lambda;
         }
     };
 
     template<typename T>
     class LevenbergMarquardt : public Optimiser<T> {
+    protected:
+        T lambda;
+
     public:
         LevenbergMarquardt(const LMParameters<T>& parameters);
         virtual ~LevenbergMarquardt();

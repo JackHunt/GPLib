@@ -48,9 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace GPLib {
     template<typename T>
-    inline void jitterChol(const Matrix<T>& A, Matrix<T>& C) {
-        const size_t rowsA = A.rows();
-        const size_t colsA = A.cols();
+    inline void jitterChol(const Eigen::Ref<const Matrix<T>> A, 
+                           Eigen::Ref<Matrix<T>> C) {
+        const auto rowsA = A.rows();
+        const auto colsA = A.cols();
         assert(rowsA == colsA);
 
         Matrix<T> jitter = Matrix<T>::Identity(rowsA, colsA);
@@ -77,7 +78,9 @@ namespace GPLib {
     }
 
     template<typename T>
-    inline void buildCovarianceMatrix(const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
+    inline void buildCovarianceMatrix(const Eigen::Ref<const Matrix<T>> A, 
+                                      const Eigen::Ref<const Matrix<T>> B, 
+                                      Eigen::Ref<Matrix<T>> C,
                                       const std::shared_ptr<Kernel<T>> kernel,
                                       const std::optional<const std::string>& gradVar = std::nullopt) {
         const auto rowsA = A.rows();
@@ -101,7 +104,9 @@ namespace GPLib {
     }
 
     template<typename T>
-    inline T logLikelihood(const Vector<T>& alpha, const Matrix<T>& K, const Vector<T>& Y) {
+    inline T logLikelihood(const Eigen::Ref<const Vector<T>> alpha, 
+                           const Eigen::Ref<const Matrix<T>> K, 
+                           const Eigen::Ref<const Vector<T>> Y) {
         const auto t1 = -0.5 * Y.transpose() * alpha;
         const auto t2 = 0.5 * std::log(K.determinant());
         const auto t3 = (static_cast<T>(K.rows()) / 2) * std::log(2 * M_PI);
@@ -133,7 +138,8 @@ namespace GPLib {
             }
         }
 
-        virtual void reallocateK(const MapMatrix<T>& X, const MapVector<T>& Y) {
+        virtual void reallocateK(const Eigen::Ref<const Matrix<T>> X, 
+                                 const Eigen::Ref<const Vector<T>> Y) {
             // Ensure X and Y contain the same amount of data points.
             assert(X.rows() == Y.rows());
 
@@ -160,10 +166,15 @@ namespace GPLib {
             return K;
         }
 
-        virtual void compute(const MapMatrix<T>& X, const MapVector<T>& Y) = 0;
+        virtual void compute(const Eigen::Ref<const Matrix<T>> X, 
+                             const Eigen::Ref<const Vector<T>> Y) = 0;
 
-        virtual void train(const MapMatrix<T>& X, const MapVector<T>& Y, unsigned int maxEpochs = 1000) = 0;
-        virtual GPOutput<T> predict(const MapMatrix<T>& Xs, const std::optional< const MapVector<T> >& Ys = std::nullopt) const = 0;
+        virtual void train(const Eigen::Ref<const Matrix<T>> X, 
+                           const Eigen::Ref<const Vector<T>> Y, 
+                           unsigned int maxIterations = 1000) = 0;
+
+        virtual GPOutput<T> predict(const Eigen::Ref<const Matrix<T>> Xs, 
+                                    const std::optional<const Eigen::Ref<const Vector<T>>>& Ys = std::nullopt) const = 0;
     };
 }
 

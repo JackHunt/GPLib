@@ -37,7 +37,8 @@ using namespace GPLib::Optimisation;
 
 template<typename T>
 LevenbergMarquardt<T>::LevenbergMarquardt(const LMParameters<T>& parameters) :
-    Optimiser<T>(parameters) {
+    Optimiser<T>(parameters),
+    lambda(parameters.getLambda()) {
     //
 }
 
@@ -49,9 +50,8 @@ LevenbergMarquardt<T>::~LevenbergMarquardt() {
 template<typename T>
 ParameterSet<T> LevenbergMarquardt<T>::operator()() {
     auto gp = parameters.getGP();
-    auto lambda = parameters.getLambda();
 
-    while (iteration < maxIterations) {
+    while (iteration < parameters.getMaxIterations()) {
         const auto logLik = logLikelihood<T>(gp->getAlpha(),
                                              gp->getK(),
                                              parameters.getY());

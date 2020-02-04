@@ -45,23 +45,23 @@ namespace GPLib::Optimisation {
     class OptimiserParameters {
     protected:
         const std::shared_ptr<GaussianProcess<T>> gp;
-        const MapMatrix<T> X;
-        const MapVector<T> Y;
+        const MappedMatrix<T> X;
+        const MappedVector<T> Y;
 
-        const unsigned int maxEpochs;
+        const unsigned int maxIterations;
         const T minConvergenceNorm;
         const unsigned int convergenceWindow;
 
         OptimiserParameters(std::shared_ptr<GaussianProcess<T>> gp,
-                            const MapMatrix<T>& X,
-                            const MapVector<T>& Y,
-                            unsigned int maxEpochs = 100,
+                            const MappedMatrix<T>& X,
+                            const MappedVector<T>& Y,
+                            unsigned int maxIterations = 100,
                             T minConvergenceNorm = 1e-3,
                             unsigned int convergenceWindow = 5) :
             gp(gp),
             X(X),
             Y(Y),
-            maxEpochs(maxEpochs),
+            maxIterations(maxIterations),
             minConvergenceNorm(minConvergenceNorm),
             convergenceWindow(convergenceWindow) {
             // Sanity check.
@@ -78,16 +78,16 @@ namespace GPLib::Optimisation {
             return gp;
         }
 
-        const MapMatrix<T>& getX() const {
+        const MappedMatrix<T>& getX() const {
             return X;
         }
 
-        const MapVector<T>& getY() const {
+        const MappedVector<T>& getY() const {
             return Y;
         }
 
-        unsigned int getMaxEpochs() const {
-            return maxEpochs;
+        unsigned int getMaxIterations() const {
+            return maxIterations;
         }
 
         T getMinConvergenceNorm() const {
@@ -99,10 +99,10 @@ namespace GPLib::Optimisation {
         }
     };
 
-    template<typename T, typename U>
+    template<typename T>
     class Optimiser {
     protected:
-        const U<T> parameters;
+        const OptimiserParameters<T> parameters;
         CPPUtils::Statistics::WindowedSampleStatistics<T, false> normMean;
         unsigned int iteration;
 
