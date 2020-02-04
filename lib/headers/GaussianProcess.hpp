@@ -88,7 +88,10 @@ namespace GPLib {
         const auto rowsA = A.rows();
         const auto rowsB = B.rows();
 
-        auto inner = [&A, &B, &C, &kernel, rowsB, &gradVar](auto i) {
+        CountingIterator<size_t> begin(0);
+        CountingIterator<size_t> end(rowsA);
+        std::for_each(std::execution::par, begin, end,
+                      [&A, &B, &C, &kernel, rowsB, &gradVar](auto i) {
             for (size_t j = i + 1; j < rowsB; j++) {
                 if (gradVar.has_value()) {
                     C(i, j) = std::get<T>(kernel->df(A.row(i), B.row(j), gradVar.value()));
@@ -98,11 +101,7 @@ namespace GPLib {
                 }
                 C(j, i) = C(i, j);
             }
-        };
-
-        CountingIterator<size_t> begin(0);
-        CountingIterator<size_t> end(rowsA);
-        std::for_each(std::execution::par, begin, end, inner);
+        });
     }
 
     template<typename T>
