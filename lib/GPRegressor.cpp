@@ -49,7 +49,7 @@ template<typename T>
 void GPRegressor<T>::compute(const Eigen::Ref<const Matrix<T>> X,
                              const Eigen::Ref<const Vector<T>> Y) {
     // Ensure K is the correct dimensionality.
-    reallocateK(X, Y);
+    reallocate(X, Y);
 
     // Compute Covariance Matrix K(X, X^t).
     buildCovarianceMatrix<T>(X, X.transpose(), K, kernel);
@@ -137,7 +137,6 @@ void GPRegressor<T>::train(const Eigen::Ref<const Matrix<T>> X,
 template<typename T>
 GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs, 
                                     const std::optional<const Eigen::Ref<const Vector<T>>>& Ys) const {
-    /*
     // Sanity check ground truth if present.
     if (Ys.has_value()) {
         assert(Xs.rows() == Ys.value().rows());
@@ -145,7 +144,7 @@ GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs,
 
     // Compute Cross-Covariance Matrix K(X, Xs).
     Matrix<T> Ks(X.rows(), Xs.rows());
-    this->buildCovarianceMatrix(X, Xs, Ks, kernel);
+    buildCovarianceMatrix<T>(X, Xs, Ks, kernel);
 
     // Solve for Posterior Means.
     const auto tmp = L.triangularView<Eigen::Lower>().solve(Ks);
@@ -153,20 +152,21 @@ GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs,
     
     // Compute Posterior Covariance.
     Matrix<T> Kss(Xs.rows(), Xs.rows());
-    buildCovarianceMatrix(Xs, Xs.transpose(), Kss, kernel);
+    buildCovarianceMatrix<T>(Xs, Xs.transpose(), Kss, kernel);
     const auto posteriorCov = Kss - tmp.transpose() * tmp;
 
-    // Return Mean and Covariance if no ground truth.
+    // Return Mean and Covariance if no ground truth is provided.
     if (!Ys.has_value()) {
         return GPOutput<T>(MeanCov<T>(posteriorMean, posteriorCov));
     }
 
     // Otherwise, return Mean, Covariance and MSE.
     const auto predDiff = Ys.value() - posteriorMean;
-    const T mse = predDiff.unaryExpr([](T a) { return a * a; }).mean();
+    const auto mse = predDiff.unaryExpr([](auto a) {
+        return a * a; 
+    }).mean();
+    
     return GPOutput<T>(MeanCovErr<T>(posteriorMean, posteriorCov, mse));
-    */
-    return GPOutput<T>();
 }
 
 template class GPRegressor<float>;

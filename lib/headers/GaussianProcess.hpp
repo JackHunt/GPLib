@@ -61,7 +61,7 @@ namespace GPLib {
 
         // Successively add jitter to make positive semi-definite.
         while (!passed && jitter(0, 0) < 1e4) {
-            Eigen::LLT< Matrix<T> > chol(A + jitter);
+            Eigen::LLT<Matrix<T>> chol(A + jitter);
             if (chol.info() == Eigen::NumericalIssue) {// Not positive semidefinite.
                 jitter *= 1.1;
             }
@@ -127,6 +127,7 @@ namespace GPLib {
 
         Matrix<T> alpha;
         Matrix<T> K;
+        Matrix<T> L;
 
         GaussianProcess(KernelType kernType = KernelType::SQUARED_EXPONENTIAL) {
             switch (kernType) {
@@ -138,14 +139,15 @@ namespace GPLib {
             }
         }
 
-        virtual void reallocateK(const Eigen::Ref<const Matrix<T>> X, 
-                                 const Eigen::Ref<const Vector<T>> Y) {
+        virtual void reallocate(const Eigen::Ref<const Matrix<T>> X, 
+                                const Eigen::Ref<const Vector<T>> Y) {
             // Ensure X and Y contain the same amount of data points.
             assert(X.rows() == Y.rows());
 
             // Reshape Covariance Matrix and Cholesky Decomposition if required.
             if (K.rows() != X.rows() || K.cols() != X.rows()) {
                 K.resize(X.rows(), X.rows());
+                L.resize(K.rows(), K.rows());
             }
         }
 
@@ -154,15 +156,15 @@ namespace GPLib {
             //
         };
 
-        const std::shared_ptr<const Kernel<T>> getKernel() const {
+        std::shared_ptr<const Kernel<T>> getKernel() const {
             return kernel;
         }
 
-        const Matrix<T>& getAlpha() const {
+        Eigen::Ref<const Matrix<T>> getAlpha() const {
             return alpha;
         }
 
-        const Matrix<T>& getK() const {
+        Eigen::Ref<const Matrix<T>> getK() const {
             return K;
         }
 
