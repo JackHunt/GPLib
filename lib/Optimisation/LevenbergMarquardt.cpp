@@ -39,7 +39,10 @@ template<typename T>
 LevenbergMarquardt<T>::LevenbergMarquardt(const LMParameters<T>& parameters) :
     Optimiser<T>(parameters),
     lambda(parameters.getLambda()) {
-    //
+    // Allocate hessian and gradient.
+    auto gp = parameters.getGP();
+    gradK.resize(gp->getK().rows(), gp->getK().cols());
+    nabla.resize(gp->getKernel()->getParameters().size(), 1);
 }
 
 template<typename T>
@@ -50,11 +53,24 @@ LevenbergMarquardt<T>::~LevenbergMarquardt() {
 template<typename T>
 ParameterSet<T> LevenbergMarquardt<T>::operator()() {
     auto gp = parameters.getGP();
+    auto alpha = gp->getAlpha();
+    auto K = gp->getK();
+    auto X = gp->getX();
 
     while (iteration < parameters.getMaxIterations()) {
-        const auto logLik = logLikelihood<T>(gp->getAlpha(),
-                                             gp->getK(),
-                                             parameters.getY());
+        // Compute log-likelihood of the GP.
+        const auto logLik = logLikelihood<T>(alpha, K, parameters.getY());
+
+        // Compute gradient w.r.t K.
+        const auto dfdk = alpha * alpha.transpose() - K.inverse();
+
+        // Compute gradients of K.
+        auto params = gp->getKernel()->getParameters();
+        for (const auto& p : params) {
+            buildCovarianceMatrix<T>(X, X.transpose(), gradK, gp->getKernel(), p.first);
+            //nabla(idx) = (dfdk * gradK).trace();
+            //paramVec(idx) = p.second;
+        }
 
         const auto logLikelihoodNew = static_cast<double>(0);
         if (logLikelihoodNew >= logLik) {

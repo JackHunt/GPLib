@@ -73,10 +73,9 @@ void GPRegressor<T>::train(const Eigen::Ref<const Matrix<T>> X,
     // Temporary storage.
     Matrix<T> gradK, gradL;
     Vector<T> paramVec, nabla;
-    gradK.resize(K.rows(), K.cols());
-    gradL.resize(L.rows(), L.cols());
+
     paramVec.resize(params.size(), 1);
-    nabla.resize(params.size(), 1);
+    ;
 
     // Identity for step computation.
     const auto I = Matrix<T>::Identity(params.size(), params.size());
@@ -89,8 +88,6 @@ void GPRegressor<T>::train(const Eigen::Ref<const Matrix<T>> X,
         // Compute current loss.
         const T logLik = logLikelihood(alpha, K, Y);
 
-        // Compute gradient of GP w.r.t. K.
-        const auto dfdk = alpha * alpha.transpose() - K.inverse();
 
         // Compute gradients of K.
         size_t idx = 0; // TODO: Replace with enumeration iterator.

@@ -81,8 +81,10 @@ namespace GPLib {
     inline void buildCovarianceMatrix(const Eigen::Ref<const Matrix<T>> A, 
                                       const Eigen::Ref<const Matrix<T>> B, 
                                       Eigen::Ref<Matrix<T>> C,
-                                      const std::shared_ptr<Kernel<T>> kernel,
+                                      const std::shared_ptr<const Kernel<T>> kernel,
                                       const std::optional<const std::string>& gradVar = std::nullopt) {
+        using CPPUtils::Iterators::CountingIterator;
+
         const auto rowsA = A.rows();
         const auto rowsB = B.rows();
 
@@ -125,6 +127,11 @@ namespace GPLib {
         // Covariance Kernel defining this type of regressor.
         std::shared_ptr<Kernel<T>> kernel;
 
+        // Copy of training data X and ground truth Y.
+        Matrix<T> X;
+        Vector<T> Y;
+
+        // GP temporaries.
         Matrix<T> alpha;
         Matrix<T> K;
         Matrix<T> L;
@@ -166,6 +173,10 @@ namespace GPLib {
 
         Eigen::Ref<const Matrix<T>> getK() const {
             return K;
+        }
+
+        Eigen::Ref<const Matrix<T>> getX() const {
+            return X;
         }
 
         virtual void compute(const Eigen::Ref<const Matrix<T>> X, 

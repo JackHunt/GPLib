@@ -70,6 +70,8 @@ namespace GPLib::Optimisation {
     class LevenbergMarquardt : public Optimiser<T> {
     protected:
         T lambda;
+        Matrix<T> gradK;
+        Vector<T> nabla;
 
     public:
         LevenbergMarquardt(const LMParameters<T>& parameters);

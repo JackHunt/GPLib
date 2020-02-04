@@ -38,11 +38,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace GPLib {
     template<typename T>
     class GPRegressor : GaussianProcess<T> {
-    protected:
-        // Copy of training data X and ground truth Y.
-        Matrix<T> X;
-        Vector<T> Y;
-
     public:
         GPRegressor(KernelType kernType = KernelType::SQUARED_EXPONENTIAL);
         virtual ~GPRegressor();
