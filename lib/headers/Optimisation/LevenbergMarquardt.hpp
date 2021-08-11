@@ -49,9 +49,9 @@ namespace GPLib::Optimisation {
                      unsigned int maxIterations = 100,
                      T minConvergenceNorm = 1e-3,
                      unsigned int convergenceWindow = 5) :
-            OptimiserParameters(X, Y, maxIterations, 
-                                minConvergenceNorm, 
-                                convergenceWindow) {
+          OptimiserParameters<T>(X, Y, maxIterations, 
+                                 minConvergenceNorm, 
+                                 convergenceWindow) {
             // Verify lambda.
             assert(lambda > 0);
         }

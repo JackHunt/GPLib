@@ -55,7 +55,8 @@ namespace GPLib::Optimisation {
     inline ParameterSet<T> vecToParams(const ParameterSet<T>& paramSet,
                                        const Vector<T>& params) {
         // Verify consistency.
-        assert(paramSet.size() == params.rows() * params.cols());
+        const size_t numElems = params.rows() * params.cols();
+        assert(paramSet.size() == numElems);
 
         // Copy params into new param set.
         size_t i = 0;
@@ -143,7 +144,7 @@ namespace GPLib::Optimisation {
 
         bool converged(const Vector<T>& step) {
             normMean.provideSample(step.norm());
-            return normMean.getEstimate() <= parameters.getMinConvergenceNorm();
+            return std::get<T>(normMean.getEstimate()) <= parameters.getMinConvergenceNorm();
         }
 
     public:

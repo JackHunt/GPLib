@@ -52,8 +52,8 @@ T SquaredExponential<T>::f(const Vector<T>& a, const Vector<T>& b) const {
 
     const auto sqEucDist = (a - b).squaredNorm();
 
-    const auto sigma = params.at("sigma");
-    const auto lambda = params.at("lambda");
+    const auto sigma = this->params.at("sigma");
+    const auto lambda = this->params.at("lambda");
 
     return sigma * sigma * std::exp(-1 * (sqEucDist / (2 * lambda * lambda)));
 }
@@ -64,8 +64,8 @@ KernelGradient<T> SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>&
     assert(a.size() == b.size());
 
     const auto sqEucDist = (a - b).squaredNorm();
-    const auto sigma = params.at("sigma");
-    const auto lambda = params.at("lambda");
+    const auto sigma = this->params.at("sigma");
+    const auto lambda = this->params.at("lambda");
     const auto lambdaSq = lambda * lambda;
 
     // dF/ dLambda
@@ -80,12 +80,12 @@ KernelGradient<T> SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>&
 
     if (!gradVar.has_value()) {
         Vector<T> nabla(2);
-        nabla << dLambda(), dSigma;
+        nabla << dLambda(), dSigma();
         return nabla;
     }
 
     const auto& var = gradVar.value();
-    verifyParam(var);
+    this->verifyParam(var);
 
     if (var == "lambda") {
         return dLambda();
@@ -104,7 +104,7 @@ Vector<T> SquaredExponential<T>::dfda(const Vector<T>& a, const Vector<T>& b) co
     assert(a.size() == b.size());
 
     const T fVal = f(a, b);
-    const T lambda = params.at("lambda");
+    const T lambda = this->params.at("lambda");
     const auto df = (-1.0 / (lambda * lambda)) * fVal * (a - b);
     
     return df;

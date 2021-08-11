@@ -43,10 +43,11 @@ add_library(GPLib STATIC ${GPLIB_HEADERS} ${GPLIB_SOURCES})
 
 # Add includes.
 target_include_directories(GPLib PUBLIC lib/headers/)
+target_include_directories(GPLib PUBLIC lib/headers/CPPUtils)
 
 # Add demo executable.
 add_executable(Demo demo/demo.hpp demo/demo.cpp)
-# C:/Users/Jack\ Hunt/GitRepos/GPLib/build/Debug/GPLib.lib
+
 target_link_libraries(Demo GPLib)
 
 # Add includes.

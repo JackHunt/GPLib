@@ -51,18 +51,19 @@ LevenbergMarquardt<T>::~LevenbergMarquardt() {
 
 template<typename T>
 void LevenbergMarquardt<T>::operator()() {
-    auto gp = parameters.getGP();
-    auto& alpha = gp->getAlpha();
-    auto& K = gp->getK();
-    auto& X = gp->getX();
+    auto gp = this->parameters.getGP();
+    auto alpha = gp->getAlpha();
+    auto K = gp->getK();
+    auto X = gp->getX();
 
     const auto nParams = gp->getKernel()->getParameters().size();
     const auto I = Matrix<T>::Identity(nParams, nParams);
     Vector<T> nabla(nParams);
 
-    while (iteration < parameters.getMaxIterations()) {
+    size_t iteration = 0;
+    while (iteration < this->parameters.getMaxIterations()) {
         // Compute log-likelihood of the GP.
-        const auto logLik = logLikelihood<T>(alpha, K, parameters.getY());
+        const auto logLik = logLikelihood<T>(alpha, K, this->parameters.getY());
 
         // Compute gradient w.r.t K.
         const auto dfdk = alpha * alpha.transpose() - K.inverse();
@@ -89,7 +90,7 @@ void LevenbergMarquardt<T>::operator()() {
         gp->getKernel()->setParameters(newKernelParams);
         gp->compute(gp->getX(), gp->getY());
 
-        const auto logLikelihoodNew = logLikelihood<T>(alpha, K, parameters.getY());
+        const auto logLikelihoodNew = logLikelihood<T>(alpha, K, this->parameters.getY());
         if (logLikelihoodNew >= logLik) {
             lambda *= 10;
         }
@@ -98,7 +99,7 @@ void LevenbergMarquardt<T>::operator()() {
             gp->getKernel()->setParameters(kernelParams);
         }
         
-        if (converged(step)) {
+        if (this->converged(step)) {
             break;
         }
     }

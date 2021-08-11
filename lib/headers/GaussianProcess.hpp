@@ -37,7 +37,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <memory>
 #include <algorithm>
-#include <execution>
 #include <optional>
 #include <cmath>
 
@@ -85,14 +84,14 @@ namespace GPLib {
                                       const std::optional<const std::string>& gradVar = std::nullopt) {
         using CPPUtils::Iterators::CountingIterator;
 
-        const auto rowsA = A.rows();
-        const auto rowsB = B.rows();
+        auto rowsA = A.rows();
+        auto rowsB = B.rows();
 
-        CountingIterator<size_t> begin(0);
-        CountingIterator<size_t> end(rowsA);
-        std::for_each(std::execution::par, begin, end,
+        CountingIterator<decltype(rowsA)> begin(0);
+        CountingIterator<decltype(rowsA)> end(rowsA);
+        std::for_each(begin, end,
                       [&A, &B, &C, &kernel, rowsB, &gradVar](auto i) {
-            for (size_t j = i + 1; j < rowsB; j++) {
+            for (auto j = i + 1; j < rowsB; j++) {
                 if (gradVar.has_value()) {
                     C(i, j) = std::get<T>(kernel->df(A.row(i), B.row(j), gradVar.value()));
                 }

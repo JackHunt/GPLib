@@ -49,17 +49,17 @@ template<typename T>
 void GPRegressor<T>::compute(const Eigen::Ref<const Matrix<T>> X,
                              const Eigen::Ref<const Vector<T>> Y) {
     // Ensure K is the correct dimensionality.
-    reallocate(X, Y);
+    this->reallocate(X, Y);
 
     // Compute Covariance Matrix K(X, X^t).
-    buildCovarianceMatrix<T>(X, X.transpose(), K, kernel);
+    buildCovarianceMatrix<T>(X, X.transpose(), this->K, this->kernel);
 
     // Compute the Cholesky Decomposition of K.
     Matrix<T> chol(X.rows(), X.rows());
-    jitterChol<T>(K, chol);
+    jitterChol<T>(this->K, chol);
 
     // Compute alpha.
-    alpha = std::move(chol.triangularView<Eigen::Lower>().solve(Y));
+    this->alpha = std::move(chol.template triangularView<Eigen::Lower>().solve(Y));
 }
 
 template<typename T>
@@ -71,16 +71,16 @@ GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs,
     }
 
     // Compute Cross-Covariance Matrix K(X, Xs).
-    Matrix<T> Ks(X.rows(), Xs.rows());
-    buildCovarianceMatrix<T>(X, Xs, Ks, kernel);
+    Matrix<T> Ks(this->X.rows(), Xs.rows());
+    buildCovarianceMatrix<T>(this->X, Xs, Ks, this->kernel);
 
     // Solve for Posterior Means.
-    const auto tmp = L.triangularView<Eigen::Lower>().solve(Ks);
-    const auto posteriorMean = tmp.transpose() * L.triangularView<Eigen::Lower>().solve(Y);
+    const auto tmp = this->L.template triangularView<Eigen::Lower>().solve(Ks);
+    const auto posteriorMean = tmp.transpose() * this->L.template triangularView<Eigen::Lower>().solve(this->Y);
     
     // Compute Posterior Covariance.
     Matrix<T> Kss(Xs.rows(), Xs.rows());
-    buildCovarianceMatrix<T>(Xs, Xs.transpose(), Kss, kernel);
+    buildCovarianceMatrix<T>(Xs, Xs.transpose(), Kss, this->kernel);
     const auto posteriorCov = Kss - tmp.transpose() * tmp;
 
     // Return Mean and Covariance if no ground truth is provided.

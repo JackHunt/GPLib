@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace GPLib {
     template<typename T>
-    class GPRegressor : GaussianProcess<T> {
+    class GPRegressor : public GaussianProcess<T> {
     public:
         GPRegressor(KernelType kernType = KernelType::SQUARED_EXPONENTIAL);
         virtual ~GPRegressor();
