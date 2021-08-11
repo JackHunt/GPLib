@@ -2,3 +2,5 @@
 build/
 numpy.i
 *.user
+build_*/
+#*#
