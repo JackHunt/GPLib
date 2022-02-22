@@ -1,17 +1,7 @@
 # Set CMake version and project name.
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 project(GPLib)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
-
-# Set compiler flags for Windows and Unix, respectively.
-if(MSVC_IDE)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-  add_definitions(-DUSING_CMAKE=1)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17 /D_USE_MATH_DEFINES")
-else(MSVC_IDE)
-  set(CMAKE_CXX_FLAGS_DEBUG "-Wall -std=c++17 -fPIC -g -march=native")
-  set(CMAKE_CXX_FLAGS_RELEASE "-std=c++17 -fPIC -O3 -march=native")
-endif(MSVC_IDE)
 
 # Find Eigen.
 find_package(Eigen REQUIRED)
@@ -40,6 +30,11 @@ set(GPLIB_SOURCES
 
 # Add library.
 add_library(GPLib STATIC ${GPLIB_HEADERS} ${GPLIB_SOURCES})
+set_target_properties(GPLib PROPERTIES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
+)
 
 # Add includes.
 target_include_directories(GPLib PUBLIC lib/headers/)

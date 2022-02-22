@@ -69,12 +69,12 @@ KernelGradient<T> SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>&
     const auto lambdaSq = lambda * lambda;
 
     // dF/ dLambda
-    const auto dLambda = [=, &a, &b]() {
+    const auto dLambda = [=, &a, &b]() -> T {
         return sigma * sigma * sqEucDist * std::exp((-0.5 * sqEucDist / lambdaSq));
     };
 
     // dF / dSigma
-    const auto dSigma = [=, &a, &b] () {
+    const auto dSigma = [=, &a, &b] () -> T {
         return 2 * sigma * std::exp((-0.5 * sqEucDist) / lambdaSq);
     };
 
