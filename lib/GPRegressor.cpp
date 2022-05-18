@@ -97,6 +97,8 @@ GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs,
     return GPOutput<T>(MeanCovErr<T>(posteriorMean, posteriorCov, mse));
 }
 
-template class GPRegressor<float>;
-template class GPRegressor<double>;
-template class GPRegressor<long double>;
+namespace GPLib {
+  template class GPRegressor<float>;
+  template class GPRegressor<double>;
+  template class GPRegressor<long double>;
+}

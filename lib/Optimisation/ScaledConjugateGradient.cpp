@@ -51,6 +51,8 @@ void ScaledConjugateGradient<T>::operator()() {
     //
 }
 
-template class ScaledConjugateGradient<float>;
-template class ScaledConjugateGradient<double>;
-template class ScaledConjugateGradient<long double>;
+namespace GPLib::Optimisation {
+    template class ScaledConjugateGradient<float>;
+    template class ScaledConjugateGradient<double>;
+    template class ScaledConjugateGradient<long double>;
+}

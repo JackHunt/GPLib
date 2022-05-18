@@ -117,6 +117,8 @@ Vector<T> SquaredExponential<T>::dfdb(const Vector<T>& a, const Vector<T>& b) co
     return -1.0 * dfda(a, b);
 }
 
-template class SquaredExponential<float>;
-template class SquaredExponential<double>;
-template class SquaredExponential<long double>;
+namespace GPLib {
+    template class SquaredExponential<float>;
+    template class SquaredExponential<double>;
+    template class SquaredExponential<long double>;
+}

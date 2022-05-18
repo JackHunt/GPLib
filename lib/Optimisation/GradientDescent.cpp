@@ -51,6 +51,8 @@ void GradientDescent<T>::operator()() {
     //
 }
 
-template class GradientDescent<float>;
-template class GradientDescent<double>;
-template class GradientDescent<long double>;
+namespace GPLib::Optimisation {
+    template class GradientDescent<float>;
+    template class GradientDescent<double>;
+    template class GradientDescent<long double>;
+}

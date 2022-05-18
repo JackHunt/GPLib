@@ -105,6 +105,8 @@ void LevenbergMarquardt<T>::operator()() {
     }
 }
 
-template class LevenbergMarquardt<float>;
-template class LevenbergMarquardt<double>;
-template class LevenbergMarquardt<long double>;
+namespace GPLib::Optimisation {
+    template class LevenbergMarquardt<float>;
+    template class LevenbergMarquardt<double>;
+    template class LevenbergMarquardt<long double>;
+}
