@@ -1,12 +1,13 @@
 # Set CMake version and project name.
 cmake_minimum_required(VERSION 3.1)
 project(GPLib)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 set (CMAKE_CXX_STANDARD 17)
 
 # Find Eigen.
 find_package(Eigen REQUIRED)
+find_package(CPPUtils REQUIRED)
 
 # Set the headers and sources.
 set(GPLIB_HEADERS

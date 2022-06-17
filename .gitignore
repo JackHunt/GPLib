@@ -4,3 +4,4 @@ numpy.i
 *.user
 build_*/
 #*#
+CPPUtils
