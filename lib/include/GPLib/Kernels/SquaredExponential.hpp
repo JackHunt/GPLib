@@ -46,7 +46,7 @@ namespace GPLib {
     T f(const Vector<T>& a, const Vector<T>& b) const override;
 
     KernelGradient<T> df(const Vector<T>& a, const Vector<T>& b,
-                         const std::optional<std::string>& gradVar = std::nullopt) const override;
+                         const std::optional<std::string>& grad_var = std::nullopt) const override;
 
     Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const override;
 

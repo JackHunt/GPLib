@@ -98,7 +98,7 @@ namespace GPLib {
     virtual T f(const Vector<T>& a, const Vector<T>& b) const = 0;
 
     virtual KernelGradient<T> df(const Vector<T>& a, const Vector<T>& b,
-                                 const std::optional<std::string>& gradVar = std::nullopt) const = 0;
+                                 const std::optional<std::string>& grad_var = std::nullopt) const = 0;
 
     virtual Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const = 0;
 

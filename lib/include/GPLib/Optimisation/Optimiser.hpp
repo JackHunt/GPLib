@@ -42,31 +42,30 @@
 
 namespace GPLib::Optimisation {
   template<typename T>
-  inline Vector<T> paramsToVec(const ParameterSet<T>& params) {
-    Vector<T> paramVec(params.size());
+  inline Vector<T> params_to_vec(const ParameterSet<T>& params) {
+    Vector<T> param_vec(params.size());
     for (const auto& p : params) {
-      paramVec << p.second;
+      param_vec << p.second;
     }
 
-    return paramVec;
+    return param_vec;
   }
 
   template<typename T>
-  inline ParameterSet<T> vecToParams(const ParameterSet<T>& paramSet,
-                                     const Vector<T>& params) {
+  inline ParameterSet<T> vec_to_params(const ParameterSet<T>& param_set,
+                                       const Vector<T>& params) {
     // Verify consistency.
-    const size_t numElems = params.rows() * params.cols();
-    assert(paramSet.size() == numElems);
+    assert(param_set.size() == params.rows() * params.cols());
 
     // Copy params into new param set.
     size_t i = 0;
-    ParameterSet<T> newParams(paramSet);
-    for (auto& [k, v] : newParams) {
+    ParameterSet<T> new_params(param_set);
+    for (auto& [k, v] : new_params) {
       v = params(i);
       i++;
     }
 
-    return newParams;
+    return new_params;
   }
 
   template<typename T>
@@ -76,25 +75,25 @@ namespace GPLib::Optimisation {
     const MappedMatrix<T> X;
     const MappedVector<T> Y;
 
-    const unsigned int maxIterations;
-    const T minConvergenceNorm;
-    const unsigned int convergenceWindow;
+    const unsigned int max_iter;
+    const T min_convergence_norm;
+    const unsigned int convergence_window;
 
     OptimiserParameters(std::shared_ptr<GaussianProcess<T>> gp,
                         const MappedMatrix<T>& X,
                         const MappedVector<T>& Y,
-                        unsigned int maxIterations = 100,
-                        T minConvergenceNorm = 1e-3,
-                        unsigned int convergenceWindow = 5) :
+                        unsigned int max_iter = 100,
+                        T min_convergence_norm = 1e-3,
+                        unsigned int convergence_window = 5) :
       gp(gp),
       X(X),
       Y(Y),
-      maxIterations(maxIterations),
-      minConvergenceNorm(minConvergenceNorm),
-      convergenceWindow(convergenceWindow) {
+      max_iter(max_iter),
+      min_convergence_norm(min_convergence_norm),
+      convergence_window(convergence_window) {
       // Sanity check.
       assert(gp != nullptr);
-      assert(minConvergenceNorm > 0);
+      assert(min_convergence_norm > 0);
     }
 
   public:
@@ -114,16 +113,16 @@ namespace GPLib::Optimisation {
       return Y;
     }
 
-    unsigned int getMaxIterations() const {
-      return maxIterations;
+    unsigned int getMaxIter() const {
+      return max_iter;
     }
 
     T getMinConvergenceNorm() const {
-      return minConvergenceNorm;
+      return min_convergence_norm;
     }
 
     unsigned int getConvergenceWindow() const {
-      return convergenceWindow;
+      return convergence_window;
     }
   };
 
@@ -131,20 +130,20 @@ namespace GPLib::Optimisation {
   class Optimiser {
   protected:
     const OptimiserParameters<T> parameters;
-    CPPUtils::Statistics::WindowedSampleStatistics<T, false> normMean;
+    CPPUtils::Statistics::WindowedSampleStatistics<T, false> norm_mean;
     unsigned int iteration;
 
   protected:
     Optimiser(const OptimiserParameters<T>& parameters) :
       parameters(parameters),
-      normMean(parameters.getConvergenceWindow()),
+      norm_mean(parameters.getConvergenceWindow()),
       iteration(0) {
       //
     }
 
     bool converged(const Vector<T>& step) {
-      normMean.provideSample(step.norm());
-      return std::get<T>(normMean.getEstimate()) <= parameters.getMinConvergenceNorm();
+      norm_mean.provideSample(step.norm());
+      return std::get<T>(norm_mean.getEstimate()) <= parameters.getMinConvergenceNorm();
     }
 
   public:

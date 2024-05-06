@@ -50,41 +50,41 @@ template<typename T>
 T SquaredExponential<T>::f(const Vector<T>& a, const Vector<T>& b) const {
   assert(a.size() == b.size());
 
-  const auto sqEucDist = (a - b).squaredNorm();
+  const auto euc_dist_sq = (a - b).squaredNorm();
 
   const auto sigma = this->params.at("sigma");
   const auto lambda = this->params.at("lambda");
 
-  return sigma * sigma * std::exp(-1 * (sqEucDist / (2 * lambda * lambda)));
+  return sigma * sigma * std::exp(-1 * (euc_dist_sq / (2 * lambda * lambda)));
 }
 
 template<typename T>
 KernelGradient<T> SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>& b,
-                                            const std::optional<std::string>& gradVar) const {
+                                            const std::optional<std::string>& grad_var) const {
   assert(a.size() == b.size());
 
-  const auto sqEucDist = (a - b).squaredNorm();
+  const auto euc_dist_sq = (a - b).squaredNorm();
   const auto sigma = this->params.at("sigma");
   const auto lambda = this->params.at("lambda");
-  const auto lambdaSq = lambda * lambda;
+  const auto lambda_sq = lambda * lambda;
 
   // dF/ dLambda
   const auto dLambda = [=, &a, &b]() -> T {
-    return sigma * sigma * sqEucDist * std::exp((-0.5 * sqEucDist / lambdaSq));
+    return sigma * sigma * euc_dist_sq * std::exp((-0.5 * euc_dist_sq / lambda_sq));
   };
 
   // dF / dSigma
   const auto dSigma = [=, &a, &b] () -> T {
-    return 2 * sigma * std::exp((-0.5 * sqEucDist) / lambdaSq);
+    return 2 * sigma * std::exp((-0.5 * euc_dist_sq) / lambda_sq);
   };
 
-  if (!gradVar.has_value()) {
+  if (!grad_var.has_value()) {
     Vector<T> nabla(2);
     nabla << dLambda(), dSigma();
     return nabla;
   }
 
-  const auto& var = gradVar.value();
+  const auto& var = grad_var.value();
   this->verifyParam(var);
 
   if (var == "lambda") {
@@ -103,9 +103,9 @@ template<typename T>
 Vector<T> SquaredExponential<T>::dfda(const Vector<T>& a, const Vector<T>& b) const {
   assert(a.size() == b.size());
 
-  const T fVal = f(a, b);
+  const T f_val = f(a, b);
   const T lambda = this->params.at("lambda");
-  const auto df = (-1.0 / (lambda * lambda)) * fVal * (a - b);
+  const auto df = (-1.0 / (lambda * lambda)) * f_val * (a - b);
 
   return df;
 }

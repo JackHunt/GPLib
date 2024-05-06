@@ -41,7 +41,7 @@ LevenbergMarquardt<T>::LevenbergMarquardt(const LMParameters<T>& parameters) :
   lambda(parameters.getLambda()) {
   // Allocate hessian and gradient.
   auto gp = parameters.getGP();
-  gradK.resize(gp->getK().rows(), gp->getK().cols());
+  K_grad.resize(gp->getK().rows(), gp->getK().cols());
 }
 
 template<typename T>
@@ -56,42 +56,42 @@ void LevenbergMarquardt<T>::operator()() {
   auto K = gp->getK();
   auto X = gp->getX();
 
-  const auto nParams = gp->getKernel()->getParameters().size();
-  const auto I = Matrix<T>::Identity(nParams, nParams);
-  Vector<T> nabla(nParams);
+  const auto n_params = gp->getKernel()->getParameters().size();
+  const auto I = Matrix<T>::Identity(n_params, n_params);
+  Vector<T> nabla(n_params);
 
   size_t iteration = 0;
-  while (iteration < this->parameters.getMaxIterations()) {
+  while (iteration < this->parameters.getMaxIter()) {
     // Compute log-likelihood of the GP.
-    const auto logLik = logLikelihood<T>(alpha, K, this->parameters.getY());
+    const auto log_lik = log_likelihood<T>(alpha, K, this->parameters.getY());
 
     // Compute gradient w.r.t K.
     const auto dfdk = alpha * alpha.transpose() - K.inverse();
 
     // Compute gradients of K.
     for (const auto& [var, val] : gp->getKernel()->getParameters()) {
-      buildCovarianceMatrix<T>(X, X.transpose(), gradK, gp->getKernel(), var);
-      nabla << (dfdk * gradK).trace();
+      build_cov<T>(X, X.transpose(), K_grad, gp->getKernel(), var);
+      nabla << (dfdk * K_grad).trace();
     }
 
     // Compute Hessian.
     const auto H = nabla.transpose() * nabla;
 
     // Compute step.
-    const auto cholH = Eigen::LLT<Matrix<T>>(H + lambda * I).matrixL();
-    const auto step = cholH.solve(nabla);
+    const auto H_chol = Eigen::LLT<Matrix<T>>(H + lambda * I).matrixL();
+    const auto step = H_chol.solve(nabla);
 
     // Compute new params.
     const ParameterSet<T> kernelParams(gp->getKernel()->getParameters());
-    const auto updated = paramsToVec(kernelParams) - step;
-    const auto newKernelParams = vecToParams<T>(kernelParams, updated);
+    const auto updated = params_to_vec(kernelParams) - step;
+    const auto newKernelParams = vec_to_params<T>(kernelParams, updated);
 
     // Re-estimate the GP.
     gp->getKernel()->setParameters(newKernelParams);
     gp->compute(gp->getX(), gp->getY());
 
-    const auto logLikelihoodNew = logLikelihood<T>(alpha, K, this->parameters.getY());
-    if (logLikelihoodNew >= logLik) {
+    const auto log_likelihoodNew = log_likelihood<T>(alpha, K, this->parameters.getY());
+    if (log_likelihoodNew >= log_lik) {
       lambda *= 10;
     }
     else {

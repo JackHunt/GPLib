@@ -46,12 +46,12 @@ namespace GPLib::Optimisation {
                  const MappedMatrix<T>& X,
                  const MappedVector<T>& Y,
                  T lambda = 0.1,
-                 unsigned int maxIterations = 100,
-                 T minConvergenceNorm = 1e-3,
-                 unsigned int convergenceWindow = 5) :
-      OptimiserParameters<T>(X, Y, maxIterations,
-                             minConvergenceNorm,
-                             convergenceWindow) {
+                 unsigned int max_iter = 100,
+                 T min_convergence_norm = 1e-3,
+                 unsigned int convergence_window = 5) :
+      OptimiserParameters<T>(X, Y, max_iter,
+                             min_convergence_norm,
+                             convergence_window) {
       // Verify lambda.
       assert(lambda > 0);
     }
@@ -70,7 +70,7 @@ namespace GPLib::Optimisation {
   class LevenbergMarquardt : public Optimiser<T> {
   protected:
     T lambda;
-    Matrix<T> gradK;
+    Matrix<T> K_grad;
 
   public:
     LevenbergMarquardt(const LMParameters<T>& parameters);

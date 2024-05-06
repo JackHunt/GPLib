@@ -52,11 +52,11 @@ void GPRegressor<T>::compute(const Eigen::Ref<const Matrix<T>> X,
   this->reallocate(X, Y);
 
   // Compute Covariance Matrix K(X, X^t).
-  buildCovarianceMatrix<T>(X, X.transpose(), this->K, this->kernel);
+  build_cov<T>(X, X.transpose(), this->K, this->kernel);
 
   // Compute the Cholesky Decomposition of K.
   Matrix<T> chol(X.rows(), X.rows());
-  jitterChol<T>(this->K, chol);
+  jitter_chol<T>(this->K, chol);
 
   // Compute alpha.
   this->alpha = std::move(chol.template triangularView<Eigen::Lower>().solve(Y));
@@ -72,29 +72,29 @@ GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs,
 
   // Compute Cross-Covariance Matrix K(X, Xs).
   Matrix<T> Ks(this->X.rows(), Xs.rows());
-  buildCovarianceMatrix<T>(this->X, Xs, Ks, this->kernel);
+  build_cov<T>(this->X, Xs, Ks, this->kernel);
 
   // Solve for Posterior Means.
   const auto tmp = this->L.template triangularView<Eigen::Lower>().solve(Ks);
-  const auto posteriorMean = tmp.transpose() * this->L.template triangularView<Eigen::Lower>().solve(this->Y);
+  const auto posterior_mu = tmp.transpose() * this->L.template triangularView<Eigen::Lower>().solve(this->Y);
 
   // Compute Posterior Covariance.
   Matrix<T> Kss(Xs.rows(), Xs.rows());
-  buildCovarianceMatrix<T>(Xs, Xs.transpose(), Kss, this->kernel);
-  const auto posteriorCov = Kss - tmp.transpose() * tmp;
+  build_cov<T>(Xs, Xs.transpose(), Kss, this->kernel);
+  const auto posterior_sigma = Kss - tmp.transpose() * tmp;
 
   // Return Mean and Covariance if no ground truth is provided.
   if (!Ys.has_value()) {
-    return GPOutput<T>(MeanCov<T>(posteriorMean, posteriorCov));
+    return GPOutput<T>(MeanCov<T>(posterior_mu, posterior_sigma));
   }
 
   // Otherwise, return Mean, Covariance and MSE.
-  const auto predDiff = Ys.value() - posteriorMean;
-  const auto mse = predDiff.unaryExpr([](auto a) {
+  const auto pred_diff = Ys.value() - posterior_mu;
+  const auto mse = pred_diff.unaryExpr([](auto a) {
     return a * a;
   }).mean();
 
-  return GPOutput<T>(MeanCovErr<T>(posteriorMean, posteriorCov, mse));
+  return GPOutput<T>(MeanCovErr<T>(posterior_mu, posterior_sigma, mse));
 }
 
 namespace GPLib {

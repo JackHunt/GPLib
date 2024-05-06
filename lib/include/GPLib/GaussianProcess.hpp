@@ -47,13 +47,9 @@
 
 namespace GPLib {
   template<typename T>
-  inline void jitterChol(const Eigen::Ref<const Matrix<T>> A,
-                         Eigen::Ref<Matrix<T>> C) {
-    const auto rowsA = A.rows();
-    const auto colsA = A.cols();
-    assert(rowsA == colsA);
-
-    Matrix<T> jitter = Matrix<T>::Identity(rowsA, colsA);
+  inline void jitter_chol(const Eigen::Ref<const Matrix<T>> A,
+                          Eigen::Ref<Matrix<T>> C) {
+    Matrix<T> jitter = Matrix<T>::Identity(A.rows(), A.cols());
     jitter *= 1e-8;
 
     bool passed = false;
@@ -77,23 +73,20 @@ namespace GPLib {
   }
 
   template<typename T>
-  inline void buildCovarianceMatrix(const Eigen::Ref<const Matrix<T>> A,
-                                    const Eigen::Ref<const Matrix<T>> B,
-                                    Eigen::Ref<Matrix<T>> C,
-                                    const std::shared_ptr<const Kernel<T>> kernel,
-                                    const std::optional<const std::string>& gradVar = std::nullopt) {
+  inline void build_cov(const Eigen::Ref<const Matrix<T>> A,
+                        const Eigen::Ref<const Matrix<T>> B,
+                        Eigen::Ref<Matrix<T>> C,
+                        const std::shared_ptr<const Kernel<T>> kernel,
+                        const std::optional<const std::string>& grad_var = std::nullopt) {
     using CPPUtils::Iterators::CountingIterator;
 
-    auto rowsA = A.rows();
-    auto rowsB = B.rows();
-
-    CountingIterator<decltype(rowsA)> begin(0);
-    CountingIterator<decltype(rowsA)> end(rowsA);
+    CountingIterator<decltype(A.rows())> begin(0);
+    CountingIterator<decltype(A.rows())> end(A.rows());
     std::for_each(begin, end,
-                  [&A, &B, &C, &kernel, rowsB, &gradVar](auto i) {
-                    for (auto j = i + 1; j < rowsB; j++) {
-                      if (gradVar.has_value()) {
-                        C(i, j) = std::get<T>(kernel->df(A.row(i), B.row(j), gradVar.value()));
+                  [&A, &B, &C, &kernel, &grad_var](auto i) {
+                    for (auto j = i + 1; j < B.rows(); j++) {
+                      if (grad_var.has_value()) {
+                        C(i, j) = std::get<T>(kernel->df(A.row(i), B.row(j), grad_var.value()));
                       }
                       else {
                         C(i, j) = kernel->f(A.row(i), B.row(j));
@@ -104,9 +97,9 @@ namespace GPLib {
   }
 
   template<typename T>
-  inline T logLikelihood(const Eigen::Ref<const Vector<T>> alpha,
-                         const Eigen::Ref<const Matrix<T>> K,
-                         const Eigen::Ref<const Vector<T>> Y) {
+  inline T log_likelihood(const Eigen::Ref<const Vector<T>> alpha,
+                          const Eigen::Ref<const Matrix<T>> K,
+                          const Eigen::Ref<const Vector<T>> Y) {
     const auto t1 = -0.5 * Y.transpose() * alpha;
     const auto t2 = 0.5 * std::log(K.determinant());
     const auto t3 = (static_cast<T>(K.rows()) / 2) * std::log(2 * M_PI);
@@ -115,7 +108,7 @@ namespace GPLib {
   }
 
   template<typename T>
-  inline Vector<T> logLikelihoodGrad() {
+  inline Vector<T> log_likelihood_grad() {
     return Vector<T>(); // TODO
   }
 
