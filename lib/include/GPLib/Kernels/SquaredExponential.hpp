@@ -8,15 +8,15 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 * Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
+  list of conditions and the following disclaimer.
 
 * Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
 
 * Neither the name of the copyright holder nor the names of its
-contributors may be used to endorse or promote products derived from
-this software without specific prior written permission.
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -30,29 +30,27 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../headers/Optimisation/ScaledConjugateGradient.hpp"
+#ifndef GPLIB_SQUARED_EXP_KERNEL_HEADER
+#define GPLIB_SQUARED_EXP_KERNEL_HEADER
 
-using namespace GPLib;
-using namespace GPLib::Optimisation;
+#include <GPLib/Kernels/Kernel.hpp>
 
-template<typename T>
-ScaledConjugateGradient<T>::ScaledConjugateGradient(const SCGParameters<T>& parameters) :
-    Optimiser<T>(parameters) {
-    //
+namespace GPLib {
+    template<typename T>
+    class SquaredExponential : public Kernel<T> {
+    public:
+        SquaredExponential();
+
+        virtual ~SquaredExponential();
+
+        T f(const Vector<T>& a, const Vector<T>& b) const override;
+
+        KernelGradient<T> df(const Vector<T>& a, const Vector<T>& b,
+                             const std::optional<std::string>& gradVar = std::nullopt) const override;
+
+        Vector<T> dfda(const Vector<T>& a, const Vector<T>& b) const override;
+
+        Vector<T> dfdb(const Vector<T>& a, const Vector<T>& b) const override;
+    };
 }
-
-template<typename T>
-ScaledConjugateGradient<T>::~ScaledConjugateGradient() {
-    //
-}
-
-template<typename T>
-void ScaledConjugateGradient<T>::operator()() {
-    //
-}
-
-namespace GPLib::Optimisation {
-    template class ScaledConjugateGradient<float>;
-    template class ScaledConjugateGradient<double>;
-    template class ScaledConjugateGradient<long double>;
-}
+#endif

@@ -30,13 +30,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <Kernels/SquaredExponential.hpp>
+#include <GPLib/Kernels/SquaredExponential.hpp>
 
 using namespace GPLib;
 
 template<typename T>
-SquaredExponential<T>::SquaredExponential() : 
-    Kernel<T>({ "sigma", "lambda" }, 
+SquaredExponential<T>::SquaredExponential() :
+    Kernel<T>({ "sigma", "lambda" },
               { {"sigma", 1.0}, {"lambda", 1.0} }) {
     //
 }
@@ -59,7 +59,7 @@ T SquaredExponential<T>::f(const Vector<T>& a, const Vector<T>& b) const {
 }
 
 template<typename T>
-KernelGradient<T> SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>& b, 
+KernelGradient<T> SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>& b,
                                             const std::optional<std::string>& gradVar) const {
     assert(a.size() == b.size());
 
@@ -90,7 +90,7 @@ KernelGradient<T> SquaredExponential<T>::df(const Vector<T>& a, const Vector<T>&
     if (var == "lambda") {
         return dLambda();
     }
-    
+
     if (var == "sigma") {
         return dSigma();
     }
@@ -106,7 +106,7 @@ Vector<T> SquaredExponential<T>::dfda(const Vector<T>& a, const Vector<T>& b) co
     const T fVal = f(a, b);
     const T lambda = this->params.at("lambda");
     const auto df = (-1.0 / (lambda * lambda)) * fVal * (a - b);
-    
+
     return df;
 }
 

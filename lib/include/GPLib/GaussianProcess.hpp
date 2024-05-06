@@ -42,12 +42,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <CPPUtils/Iterators/CountingIterator.hpp>
 
-#include <Aliases.hpp>
-#include <Kernels.hpp>
+#include <GPLib/Aliases.hpp>
+#include <GPLib/Kernels.hpp>
 
 namespace GPLib {
     template<typename T>
-    inline void jitterChol(const Eigen::Ref<const Matrix<T>> A, 
+    inline void jitterChol(const Eigen::Ref<const Matrix<T>> A,
                            Eigen::Ref<Matrix<T>> C) {
         const auto rowsA = A.rows();
         const auto colsA = A.cols();
@@ -77,8 +77,8 @@ namespace GPLib {
     }
 
     template<typename T>
-    inline void buildCovarianceMatrix(const Eigen::Ref<const Matrix<T>> A, 
-                                      const Eigen::Ref<const Matrix<T>> B, 
+    inline void buildCovarianceMatrix(const Eigen::Ref<const Matrix<T>> A,
+                                      const Eigen::Ref<const Matrix<T>> B,
                                       Eigen::Ref<Matrix<T>> C,
                                       const std::shared_ptr<const Kernel<T>> kernel,
                                       const std::optional<const std::string>& gradVar = std::nullopt) {
@@ -104,8 +104,8 @@ namespace GPLib {
     }
 
     template<typename T>
-    inline T logLikelihood(const Eigen::Ref<const Vector<T>> alpha, 
-                           const Eigen::Ref<const Matrix<T>> K, 
+    inline T logLikelihood(const Eigen::Ref<const Vector<T>> alpha,
+                           const Eigen::Ref<const Matrix<T>> K,
                            const Eigen::Ref<const Vector<T>> Y) {
         const auto t1 = -0.5 * Y.transpose() * alpha;
         const auto t2 = 0.5 * std::log(K.determinant());
@@ -144,7 +144,7 @@ namespace GPLib {
             }
         }
 
-        virtual void reallocate(const Eigen::Ref<const Matrix<T>> X, 
+        virtual void reallocate(const Eigen::Ref<const Matrix<T>> X,
                                 const Eigen::Ref<const Vector<T>> Y) {
             // Ensure X and Y contain the same amount of data points.
             assert(X.rows() == Y.rows());
@@ -185,10 +185,10 @@ namespace GPLib {
             return Y;
         }
 
-        virtual void compute(const Eigen::Ref<const Matrix<T>> X, 
+        virtual void compute(const Eigen::Ref<const Matrix<T>> X,
                              const Eigen::Ref<const Vector<T>> Y) = 0;
 
-        virtual GPOutput<T> predict(const Eigen::Ref<const Matrix<T>> Xs, 
+        virtual GPOutput<T> predict(const Eigen::Ref<const Matrix<T>> Xs,
                                     const std::optional<const Eigen::Ref<const Vector<T>>>& Ys = std::nullopt) const = 0;
     };
 }

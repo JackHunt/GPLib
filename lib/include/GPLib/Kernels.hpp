@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GPLIB_KERNELS_HEADER
 #define GPLIB_KERNELS_HEADER
 
-#include <Kernels/Kernel.hpp>
-#include <Kernels/SquaredExponential.hpp>
+#include <GPLib/Kernels/Kernel.hpp>
+#include <GPLib/Kernels/SquaredExponential.hpp>
 
 #endif

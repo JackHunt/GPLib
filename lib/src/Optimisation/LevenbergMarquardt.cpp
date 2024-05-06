@@ -30,7 +30,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../headers/Optimisation/LevenbergMarquardt.hpp"
+#include <GPLib/Optimisation/LevenbergMarquardt.hpp>
 
 using namespace GPLib;
 using namespace GPLib::Optimisation;
@@ -80,7 +80,7 @@ void LevenbergMarquardt<T>::operator()() {
         // Compute step.
         const auto cholH = Eigen::LLT<Matrix<T>>(H + lambda * I).matrixL();
         const auto step = cholH.solve(nabla);
-        
+
         // Compute new params.
         const ParameterSet<T> kernelParams(gp->getKernel()->getParameters());
         const auto updated = paramsToVec(kernelParams) - step;
@@ -98,7 +98,7 @@ void LevenbergMarquardt<T>::operator()() {
             lambda /= 10;
             gp->getKernel()->setParameters(kernelParams);
         }
-        
+
         if (this->converged(step)) {
             break;
         }

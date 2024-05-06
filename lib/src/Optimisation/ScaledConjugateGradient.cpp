@@ -30,29 +30,29 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../headers/Optimisation/GradientDescent.hpp"
+#include <GPLib/Optimisation/ScaledConjugateGradient.hpp>
 
 using namespace GPLib;
 using namespace GPLib::Optimisation;
 
 template<typename T>
-GradientDescent<T>::GradientDescent(const GDParameters<T>& parameters) :
+ScaledConjugateGradient<T>::ScaledConjugateGradient(const SCGParameters<T>& parameters) :
     Optimiser<T>(parameters) {
     //
 }
 
 template<typename T>
-GradientDescent<T>::~GradientDescent() {
+ScaledConjugateGradient<T>::~ScaledConjugateGradient() {
     //
 }
 
 template<typename T>
-void GradientDescent<T>::operator()() {
+void ScaledConjugateGradient<T>::operator()() {
     //
 }
 
 namespace GPLib::Optimisation {
-    template class GradientDescent<float>;
-    template class GradientDescent<double>;
-    template class GradientDescent<long double>;
+    template class ScaledConjugateGradient<float>;
+    template class ScaledConjugateGradient<double>;
+    template class ScaledConjugateGradient<long double>;
 }

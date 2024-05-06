@@ -30,7 +30,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <GPRegressor.hpp>
+#include <GPLib/GPRegressor.hpp>
 
 using namespace GPLib;
 using namespace CPPUtils::Iterators;
@@ -63,7 +63,7 @@ void GPRegressor<T>::compute(const Eigen::Ref<const Matrix<T>> X,
 }
 
 template<typename T>
-GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs, 
+GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs,
                                     const std::optional<const Eigen::Ref<const Vector<T>>>& Ys) const {
     // Sanity check ground truth if present.
     if (Ys.has_value()) {
@@ -77,7 +77,7 @@ GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs,
     // Solve for Posterior Means.
     const auto tmp = this->L.template triangularView<Eigen::Lower>().solve(Ks);
     const auto posteriorMean = tmp.transpose() * this->L.template triangularView<Eigen::Lower>().solve(this->Y);
-    
+
     // Compute Posterior Covariance.
     Matrix<T> Kss(Xs.rows(), Xs.rows());
     buildCovarianceMatrix<T>(Xs, Xs.transpose(), Kss, this->kernel);
@@ -91,9 +91,9 @@ GPOutput<T> GPRegressor<T>::predict(const Eigen::Ref<const Matrix<T>> Xs,
     // Otherwise, return Mean, Covariance and MSE.
     const auto predDiff = Ys.value() - posteriorMean;
     const auto mse = predDiff.unaryExpr([](auto a) {
-        return a * a; 
+        return a * a;
     }).mean();
-    
+
     return GPOutput<T>(MeanCovErr<T>(posteriorMean, posteriorCov, mse));
 }
 

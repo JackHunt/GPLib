@@ -35,10 +35,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
 
-#include <Aliases.hpp>
-#include <GaussianProcess.hpp>
-
 #include <CPPUtils/Statistics/SampleStatistics.hpp>
+
+#include <GPLib/Aliases.hpp>
+#include <GPLib/GaussianProcess.hpp>
 
 namespace GPLib::Optimisation {
     template<typename T>

@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef GPLIB_REGRESSOR_HEADER
 #define GPLIB_REGRESSOR_HEADER
 
-#include <GaussianProcess.hpp>
+#include <GPLib/GaussianProcess.hpp>
 
 namespace GPLib {
     template<typename T>
@@ -45,7 +45,7 @@ namespace GPLib {
         void compute(const Eigen::Ref<const Matrix<T>> X,
                      const Eigen::Ref<const Vector<T>> Y) override;
 
-		GPOutput<T> predict(const Eigen::Ref<const Matrix<T>> Xs, 
+        GPOutput<T> predict(const Eigen::Ref<const Matrix<T>> Xs,
                             const std::optional<const Eigen::Ref<const Vector<T>>>& Ys) const override;
     };
 }

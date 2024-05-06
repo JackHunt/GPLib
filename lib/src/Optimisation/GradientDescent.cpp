@@ -30,29 +30,29 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef GPLIB_GRADIENT_DESCENT_HEADER
-#define GPLIB_GRADIENT_DESCENT_HEADER
+#include <GPLib/Optimisation/GradientDescent.hpp>
 
-#include "Optimiser.hpp"
+using namespace GPLib;
+using namespace GPLib::Optimisation;
 
-namespace GPLib::Optimisation {
-    template<typename T>
-    class GDParameters : public OptimiserParameters<T> {
-    protected:
-        //
-
-    public:
-        //
-    };
-
-    template<typename T>
-    class GradientDescent : public Optimiser<T> {
-    public:
-        GradientDescent(const GDParameters<T>& parameters);
-        virtual ~GradientDescent();
-
-        virtual void operator()() override;
-    };
+template<typename T>
+GradientDescent<T>::GradientDescent(const GDParameters<T>& parameters) :
+    Optimiser<T>(parameters) {
+    //
 }
 
-#endif
+template<typename T>
+GradientDescent<T>::~GradientDescent() {
+    //
+}
+
+template<typename T>
+void GradientDescent<T>::operator()() {
+    //
+}
+
+namespace GPLib::Optimisation {
+    template class GradientDescent<float>;
+    template class GradientDescent<double>;
+    template class GradientDescent<long double>;
+}
