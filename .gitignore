@@ -5,3 +5,4 @@ numpy.i
 build_*/
 #*#
 CPPUtils
+/.vscode
