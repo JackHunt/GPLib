@@ -1,4 +1,11 @@
-#include "demo.hpp"
+#include <string>
+#include <iostream>
+
+#include <CPPUtils/IO/CSVFile.hpp>
+
+#include <GPLib/GPRegressor.hpp>
+
+using CPPUtils::IO::CSVFile;
 
 using namespace GPLib;
 

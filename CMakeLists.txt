@@ -66,9 +66,5 @@ target_include_directories(GPLib PUBLIC lib/headers/)
 target_include_directories(GPLib PUBLIC lib/headers/CPPUtils)
 
 # Add demo executable.
-add_executable(Demo demo/demo.hpp demo/demo.cpp)
-
+add_executable(Demo demo/demo.cpp)
 target_link_libraries(Demo GPLib)
-
-# Add includes.
-target_include_directories(Demo PUBLIC lib/headers/)
